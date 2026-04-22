@@ -1,478 +1,381 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>HILBERT MESH // S5 NODE</title>
   <style>
     :root{
       --bg:#010302;
-      --panel:#03100a;
-      --panel2:#04140c;
-      --line:rgba(0,255,140,.18);
-      --line-strong:rgba(0,255,140,.34);
-      --text:#84ffbc;
-      --text-soft:#58d98f;
-      --text-dim:#2d8f60;
-      --amber:#ffb13c;
-      --red:#ff4545;
-      --shadow:0 0 0 1px rgba(0,255,140,.05), inset 0 0 18px rgba(0,255,140,.03);
+      --bg2:#031008;
+      --panel:#031109;
+      --panel2:#05150d;
+      --line:rgba(0,255,136,.17);
+      --line-strong:rgba(0,255,136,.33);
+      --text:#82ffbb;
+      --soft:#56d48b;
+      --dim:#2d8c5e;
+      --amber:#ffb23e;
+      --red:#ff4343;
+      --shadow:0 0 0 1px rgba(0,255,136,.04), inset 0 0 18px rgba(0,255,136,.025);
       --mono:"IBM Plex Mono","JetBrains Mono","Courier New",monospace;
       --display:"IBM Plex Sans","Arial Narrow",Arial,sans-serif;
-    }*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);}
-body{
-  background:
-    radial-gradient(circle at 50% 0%, rgba(0,255,140,.05), transparent 26%),
-    linear-gradient(180deg,#020503 0%,#010302 100%);
-  overflow-x:hidden;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono)}
+    body{
+      background:
+        radial-gradient(circle at 50% 0%, rgba(0,255,136,.05), transparent 28%),
+        linear-gradient(180deg,#020503 0%,#010302 100%);
+    }
+    body::before{
+      content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;
+      background-image:
+        linear-gradient(rgba(0,255,136,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,.045) 1px, transparent 1px);
+      background-size:42px 42px;
+    }
+    body::after{
+      content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.18;
+      background:repeating-linear-gradient(to bottom, rgba(255,255,255,0) 0px, rgba(255,255,255,0) 2px, rgba(0,0,0,.14) 3px);
+      mix-blend-mode:soft-light;
+    }.viewport{
+  position:relative;z-index:2;width:100vw;height:100svh;display:grid;place-items:center;overflow:hidden;padding:10px;
 }
-
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-  background-image:
-    linear-gradient(rgba(0,255,140,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,140,.04) 1px, transparent 1px);
-  background-size:42px 42px;
-  opacity:.12;
-}
-
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:1;
-  background:repeating-linear-gradient(to bottom, rgba(255,255,255,0) 0px, rgba(255,255,255,0) 2px, rgba(0,0,0,.15) 3px);
-  opacity:.2;
-  mix-blend-mode:soft-light;
-}
-
-.wrap{
+.stage{
+  width:min(100vw - 20px, calc((100svh - 20px) * 1.64));
+  height:min(100svh - 20px, calc((100vw - 20px) / 1.64));
   position:relative;
-  z-index:2;
-  width:min(1360px, calc(100% - 24px));
-  margin:14px auto 28px;
+}
+.app{
+  width:100%;height:100%;display:grid;grid-template-rows:auto auto 1fr auto auto;gap:.95%;
 }
 
 .topbar{
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  gap:14px;
-  align-items:center;
-  margin-bottom:12px;
-  color:var(--text-soft);
-  font-size:11px;
-  letter-spacing:.16em;
-  text-transform:uppercase;
+  display:grid;grid-template-columns:1fr auto 1fr;gap:1%;align-items:center;
+  font-size:.92vw;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);
 }
-
 .topbar .mid{
-  color:var(--amber);
-  border:1px solid rgba(255,177,60,.18);
-  background:rgba(255,177,60,.04);
-  padding:7px 12px;
-  text-align:center;
+  border:1px solid rgba(255,178,62,.18);background:rgba(255,178,62,.04);padding:.6em 1em;color:var(--amber);text-align:center;
 }
-
 .topbar .right{text-align:right}
 
-.shell,.panel,.tab,.btn,.lane,.footbox,.warningbar,.quotebar{
-  border:1px solid var(--line);
-  background:linear-gradient(180deg, rgba(3,14,8,.96), rgba(2,8,4,.98));
-  box-shadow:var(--shadow);
-  position:relative;
-  overflow:hidden;
+.shell,.tabs button,.panel,.warningbar,.quotebar{
+  border:1px solid var(--line);background:linear-gradient(180deg, rgba(3,14,8,.96), rgba(2,8,4,.98));box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.shell::before,.panel::before,.quotebar::before{
+  content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg, rgba(0,255,136,.02), transparent 25%);
 }
 
-.shell::before,.panel::before,.lane::before,.footbox::before,.quotebar::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:linear-gradient(180deg, rgba(0,255,140,.025), transparent 25%);
-}
-
-.hero{
-  display:grid;
-  grid-template-columns:2fr .95fr 1.7fr;
-  min-height:172px;
-  margin-bottom:16px;
-}
-
-.hero > div{
-  padding:26px 24px 22px;
-  border-right:1px solid var(--line);
-  position:relative;
-}
-
+.hero{display:grid;grid-template-columns:2fr .9fr 1.5fr;min-height:0}
+.hero > div{padding:2.1% 2.3%;border-right:1px solid var(--line);position:relative}
 .hero > div:last-child{border-right:none}
-
-.brand h1{
-  margin:0;
-  font-family:var(--display);
-  font-size:clamp(46px,5vw,78px);
-  line-height:.9;
-  letter-spacing:.14em;
-  font-weight:800;
-  text-transform:uppercase;
-  color:#7dffb8;
-  text-shadow:0 0 16px rgba(125,255,184,.12);
-}
-
-.brand .sub1{
-  margin-top:18px;
-  color:var(--text-soft);
-  font-size:18px;
-  text-transform:uppercase;
-  letter-spacing:.18em;
-}
-
-.brand .sub2{
-  margin-top:14px;
-  color:var(--text-dim);
-  font-size:15px;
-  text-transform:uppercase;
-  letter-spacing:.12em;
-}
+.brand h1{margin:0;font-family:var(--display);font-size:4.8vw;line-height:.9;letter-spacing:.13em;font-weight:800;text-transform:uppercase;color:#81ffbb;text-shadow:0 0 16px rgba(129,255,187,.1)}
+.sub1{margin-top:4.5%;font-size:1.45vw;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+.sub2{margin-top:3.8%;font-size:1.1vw;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 
 .sigil{display:grid;place-items:center;height:100%}
-.sigil-box{width:144px;height:144px;position:relative}
+.sigil-box{width:8.9vw;height:8.9vw;position:relative}
 .hex{position:absolute;inset:0;border:1px solid var(--line-strong);clip-path:polygon(25% 6%,75% 6%,94% 50%,75% 94%,25% 94%,6% 50%)}
-.node,.node2,.node3,.eye{position:absolute;border:2px solid rgba(125,255,184,.75);border-radius:50%}
-.node{width:40px;height:40px;left:52px;top:18px}
-.node2{width:34px;height:34px;left:26px;top:84px}
-.node3{width:34px;height:34px;right:26px;top:84px}
-.eye{width:48px;height:28px;left:48px;top:56px;border-radius:50% / 60%}
-.eye::before{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:#7dffb8;left:17px;top:7px;box-shadow:0 0 12px rgba(125,255,184,.35)}
-.arm,.arm2,.arm3{position:absolute;height:2px;background:rgba(125,255,184,.7);transform-origin:left center}
-.arm{width:24px;left:70px;top:80px;transform:rotate(90deg)}
-.arm2{width:28px;left:42px;top:92px;transform:rotate(150deg)}
-.arm3{width:28px;left:76px;top:92px;transform:rotate(30deg)}
-.sigil-id{text-align:center;color:var(--amber);margin-top:8px;font-size:18px;letter-spacing:.35em}
+.node,.node2,.node3,.eye{position:absolute;border:2px solid rgba(129,255,187,.78);border-radius:50%}
+.node{width:2.45vw;height:2.45vw;left:3.18vw;top:1.05vw}
+.node2{width:2.1vw;height:2.1vw;left:1.52vw;top:5.15vw}
+.node3{width:2.1vw;height:2.1vw;right:1.52vw;top:5.15vw}
+.eye{width:2.95vw;height:1.72vw;left:2.98vw;top:3.38vw;border-radius:50% / 60%}
+.eye::before{content:"";position:absolute;width:.62vw;height:.62vw;border-radius:50%;background:#81ffbb;left:1.04vw;top:.42vw;box-shadow:0 0 10px rgba(129,255,187,.32)}
+.arm,.arm2,.arm3{position:absolute;height:2px;background:rgba(129,255,187,.72);transform-origin:left center}
+.arm{width:1.42vw;left:4.3vw;top:4.98vw;transform:rotate(90deg)}
+.arm2{width:1.7vw;left:2.62vw;top:5.74vw;transform:rotate(150deg)}
+.arm3{width:1.7vw;left:4.6vw;top:5.74vw;transform:rotate(30deg)}
+.sigil-id{text-align:center;color:var(--amber);margin-top:.5vw;font-size:1.08vw;letter-spacing:.35em;text-transform:uppercase}
 
-.class-kicker,.section-title,.lane-title,.foot-title,.feed-title,.quote-title{
-  font-family:var(--display);
-  text-transform:uppercase;
-  letter-spacing:.18em;
-}
+.class-kicker,.section-title,.lane-title,.foot-title,.feed-title,.quote-title{font-family:var(--display);text-transform:uppercase;letter-spacing:.18em}
+.class-kicker{font-size:.95vw;color:var(--soft);margin-bottom:4%}
+.class-main{font-family:var(--display);font-size:3vw;line-height:1;color:var(--amber);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.class-clear{margin-top:4.5%;color:var(--soft);font-size:1vw;letter-spacing:.12em;text-transform:uppercase}
+.class-warn{margin-top:4.1%;color:var(--red);font-size:.92vw;letter-spacing:.1em;text-transform:uppercase}
 
-.class-kicker{font-size:14px;color:var(--text-soft);margin-bottom:14px}
-.class-main{font-family:var(--display);font-size:clamp(34px,4vw,54px);line-height:1;color:var(--amber);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.class-clear{margin-top:16px;color:var(--text-soft);font-size:15px;letter-spacing:.12em;text-transform:uppercase}
-.class-warn{margin-top:14px;color:var(--red);font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+.tabs button{appearance:none;border-right:none;color:var(--soft);padding:1.05em .6em;font-family:var(--mono);font-size:.96vw;text-transform:uppercase;letter-spacing:.12em;cursor:pointer;transition:.16s ease}
+.tabs button:last-child{border-right:1px solid var(--line)}
+.tabs button.active,.tabs button:hover{background:rgba(8,24,14,.92);color:#a2ffca;border-color:var(--line-strong)}
 
-.tabs{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:0;
-  margin-bottom:18px;
-}
+.main{display:grid;grid-template-columns:1.18fr .92fr;gap:.95%;min-height:0}
+.leftcol,.rightcol{display:grid;gap:.95%;min-height:0}
+.panel-body{padding:1.8% 2%;position:relative;z-index:1;height:100%}
+.section-title{margin:0 0 1.15em;font-size:1vw;color:var(--soft)}
+.overview-text{font-size:.93vw;line-height:1.72;color:var(--text);margin-bottom:1.05em}
 
-.tab{
-  appearance:none;
-  border-right:none;
-  color:var(--text-soft);
-  padding:15px 10px;
-  font-family:var(--mono);
-  font-size:14px;
-  text-transform:uppercase;
-  letter-spacing:.12em;
-  cursor:pointer;
-  transition:.16s ease;
-}
-.tab:last-child{border-right:1px solid var(--line)}
-.tab.active,.tab:hover{background:rgba(8,24,14,.92);color:#a2ffca;border-color:var(--line-strong)}
-
-.main{
-  display:grid;
-  grid-template-columns:1.18fr .92fr;
-  gap:18px;
-}
-
-.panel-body{padding:20px 18px 16px;position:relative;z-index:1}
-.section-title{margin:0 0 18px;font-size:15px;color:var(--text-soft)}
-.overview-text{font-size:15px;line-height:1.78;color:var(--text);margin-bottom:16px}
-
-table.metrics{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:14px}
-table.metrics td{border:1px solid rgba(0,255,140,.14);padding:11px 12px;vertical-align:middle}
-table.metrics td:first-child{width:46%;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em}
+table.metrics{width:100%;border-collapse:collapse;font-size:.87vw;margin-bottom:1em}
+table.metrics td{border:1px solid rgba(0,255,136,.14);padding:.66em .82em;vertical-align:middle}
+table.metrics td:first-child{width:46%;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
 table.metrics td:nth-child(2){width:28%;color:#91ffc3}
 table.metrics td:last-child{width:26%;text-transform:uppercase;letter-spacing:.08em}
 .ok{color:#95ffbe}.warn{color:var(--amber)}.locked{color:var(--amber)}.full{color:#95ffbe}.enforced{color:var(--amber)}
-
-.statusbox{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border:1px solid rgba(0,255,140,.18);padding:15px 14px;font-size:14px;line-height:1.7;color:var(--text)}
+.statusbox{display:flex;justify-content:space-between;gap:1em;align-items:flex-start;border:1px solid rgba(0,255,140,.18);padding:.85em .95em;font-size:.83vw;line-height:1.64;color:var(--text)}
 .stable{white-space:nowrap;color:#9effc6;text-transform:uppercase;letter-spacing:.18em}
 
-.auth-title{margin:0 0 18px;font-size:15px;color:var(--text-soft);font-family:var(--display);letter-spacing:.18em;text-transform:uppercase}
-.deny-box{border:1px solid rgba(255,69,69,.82);background:linear-gradient(180deg, rgba(20,4,4,.42), rgba(8,2,2,.28));padding:24px 16px 18px;text-align:center;margin-bottom:16px}
-.deny-main{font-family:var(--display);font-size:clamp(34px,4vw,54px);font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.14em;margin-bottom:16px}
-.lock-frame{width:118px;height:118px;margin:0 auto 16px;border:1px solid rgba(255,69,69,.34);display:grid;place-items:center}
-.lock-circle{width:84px;height:84px;border:2px solid var(--red);border-radius:50%;position:relative}
-.lock-circle::before{content:"";position:absolute;left:27px;top:28px;width:28px;height:21px;border:2px solid var(--red);border-radius:3px}
-.lock-circle::after{content:"";position:absolute;left:32px;top:11px;width:18px;height:16px;border:2px solid var(--red);border-bottom:none;border-radius:12px 12px 0 0}
-.deny-copy{font-size:15px;line-height:1.8;color:var(--text)}
-.deny-copy .req{display:block;color:var(--amber);margin-top:12px;text-transform:uppercase;letter-spacing:.1em}
-.deny-copy .lvl{display:block;color:var(--text-dim);margin-top:10px}
+.auth-title{margin:0 0 1.15em;font-size:1vw;color:var(--soft);font-family:var(--display);letter-spacing:.18em;text-transform:uppercase}
+.deny-box{border:1px solid rgba(255,69,69,.82);background:linear-gradient(180deg, rgba(20,4,4,.4), rgba(8,2,2,.26));padding:1.55em 1em 1.15em;text-align:center;margin-bottom:1em}
+.deny-main{font-family:var(--display);font-size:2.75vw;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.14em;margin-bottom:.55em}
+.lock-frame{width:6.7vw;height:6.7vw;margin:0 auto .9em;border:1px solid rgba(255,69,69,.34);display:grid;place-items:center}
+.lock-circle{width:4.8vw;height:4.8vw;border:2px solid var(--red);border-radius:50%;position:relative}
+.lock-circle::before{content:"";position:absolute;left:1.55vw;top:1.6vw;width:1.62vw;height:1.2vw;border:2px solid var(--red);border-radius:3px}
+.lock-circle::after{content:"";position:absolute;left:1.83vw;top:.62vw;width:.95vw;height:.95vw;border:2px solid var(--red);border-bottom:none;border-radius:12px 12px 0 0}
+.deny-copy{font-size:.95vw;line-height:1.78;color:var(--text)}
+.deny-copy .req{display:block;color:var(--amber);margin-top:.65em;text-transform:uppercase;letter-spacing:.1em}
+.deny-copy .lvl{display:block;color:var(--dim);margin-top:.55em}
+.field-label{font-size:.82vw;color:var(--soft);text-transform:uppercase;letter-spacing:.14em;margin:.95em 0 .55em}
+.input-row{display:grid;grid-template-columns:1fr 4vw;border:1px solid rgba(0,255,140,.2);margin-bottom:.85em}
+.fake-input,.fake-go{min-height:2.85vw;display:flex;align-items:center;padding:0 .9em;background:rgba(3,10,6,.9);font-size:.9vw;text-transform:uppercase;letter-spacing:.08em}
+.fake-input{color:var(--dim)}
+.fake-go{justify-content:center;border-left:1px solid rgba(0,255,140,.18);color:var(--soft)}
+.bio-row{display:grid;grid-template-columns:1fr 4.7vw}
+.dots{display:flex;align-items:center;gap:.72vw;padding:0 .9em;min-height:3.4vw;border:1px solid rgba(0,255,140,.2);border-right:none;background:rgba(3,10,6,.9)}
+.dots span{width:.28vw;height:.28vw;border-radius:50%;background:var(--soft)}
+.finger{display:grid;place-items:center;min-height:3.4vw;border:1px solid rgba(0,255,140,.2);background:rgba(4,14,8,.92);font-size:2vw;color:var(--soft)}
 
-.field-label{font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.14em;margin:12px 0 8px}
-.input-row{display:grid;grid-template-columns:1fr 70px;border:1px solid rgba(0,255,140,.2);margin-bottom:12px}
-.fake-input,.fake-go{min-height:50px;display:flex;align-items:center;padding:0 14px;background:rgba(3,10,6,.9);font-size:15px;text-transform:uppercase;letter-spacing:.08em}
-.fake-input{color:var(--text-dim)}
-.fake-go{justify-content:center;border-left:1px solid rgba(0,255,140,.18);color:var(--text-soft)}
-.bio-row{display:grid;grid-template-columns:1fr 84px}
-.dots{display:flex;align-items:center;gap:12px;padding:0 14px;min-height:66px;border:1px solid rgba(0,255,140,.2);border-right:none;background:rgba(3,10,6,.9)}
-.dots span{width:5px;height:5px;border-radius:50%;background:var(--text-soft)}
-.finger{display:grid;place-items:center;min-height:66px;border:1px solid rgba(0,255,140,.2);background:rgba(4,14,8,.92);font-size:34px;color:var(--text-soft)}
+.warningbar{display:grid;grid-template-columns:5vw 1fr 11vw;align-items:stretch;border-color:rgba(255,69,69,.8);background:linear-gradient(180deg, rgba(20,4,4,.42), rgba(8,2,2,.28))}
+.warningbar .icon{display:grid;place-items:center;color:var(--red);font-size:2vw;border-right:1px solid rgba(255,69,69,.35)}
+.warningbar .text{padding:.8em 1em;color:var(--red);font-size:.86vw;line-height:1.55;text-transform:uppercase;letter-spacing:.08em}
+.warningbar .slashes{display:flex;align-items:center;justify-content:center;color:var(--red);letter-spacing:.2em;font-size:1.35vw;border-left:1px solid rgba(255,69,69,.35)}
 
-.warningbar{display:grid;grid-template-columns:86px 1fr 170px;align-items:stretch;border-color:rgba(255,69,69,.8);background:linear-gradient(180deg, rgba(20,4,4,.4), rgba(8,2,2,.28));margin:18px 0}
-.warningbar .icon{display:grid;place-items:center;color:var(--red);font-size:34px;border-right:1px solid rgba(255,69,69,.35)}
-.warningbar .text{padding:12px 16px;color:var(--red);font-size:14px;line-height:1.6;text-transform:uppercase;letter-spacing:.08em}
-.warningbar .slashes{display:flex;align-items:center;justify-content:center;color:var(--red);letter-spacing:.2em;font-size:20px;border-left:1px solid rgba(255,69,69,.35)}
+.lower{display:grid;grid-template-columns:1.1fr .9fr;gap:.95%;min-height:0}
+.lane-list{display:grid;gap:.75em}
+.lane{display:grid;grid-template-columns:4.7vw 1fr 7.2vw;min-height:5.4vw;background:rgba(3,12,7,.68)}
+.lane-icon{display:grid;place-items:center;color:#7effb8;font-size:1.85vw;border-right:1px solid rgba(0,255,140,.18)}
+.lane-copy{padding:.78em .95em}
+.lane-title{font-size:.96vw;color:#93ffc4;margin-bottom:.5em}
+.lane-desc{font-size:.8vw;line-height:1.58;color:var(--text)}
+.lane-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35em;color:var(--amber);text-transform:uppercase;letter-spacing:.12em;font-size:.78vw;border-left:1px solid rgba(0,255,140,.18)}
 
-.lower{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-.lane-list{display:grid;gap:12px}
-.lane{display:grid;grid-template-columns:90px 1fr 140px;min-height:112px;background:rgba(3,12,7,.68)}
-.lane-icon{display:grid;place-items:center;color:#7effb8;font-size:32px;border-right:1px solid rgba(0,255,140,.18)}
-.lane-copy{padding:14px 16px}
-.lane-title{font-size:16px;color:#93ffc4;margin-bottom:10px}
-.lane-desc{font-size:14px;line-height:1.65;color:var(--text)}
-.lane-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--amber);text-transform:uppercase;letter-spacing:.12em;font-size:13px;border-left:1px solid rgba(0,255,140,.18)}
-
-.shardbox{border:1px solid rgba(0,255,140,.18);padding:18px 16px;margin-bottom:16px;text-align:center}
-.shard-title{font-family:var(--display);font-size:18px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px}
-.shard-sub{font-size:14px;color:var(--amber);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
-.shard-btn{appearance:none;border:1px solid rgba(0,255,140,.22);background:rgba(4,16,9,.9);color:#a2ffcb;padding:12px 16px;font-family:var(--mono);font-size:14px;text-transform:uppercase;letter-spacing:.12em;cursor:pointer;transition:.16s ease}
+.shardbox{border:1px solid rgba(0,255,140,.18);padding:1em .9em;margin-bottom:.9em;text-align:center}
+.shard-title{font-family:var(--display);font-size:1.08vw;color:var(--soft);text-transform:uppercase;letter-spacing:.14em;margin-bottom:.5em}
+.shard-sub{font-size:.83vw;color:var(--amber);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.8em}
+.shard-btn{appearance:none;border:1px solid rgba(0,255,140,.22);background:rgba(4,16,9,.9);color:#a2ffcb;padding:.9em 1.2em;font-family:var(--mono);font-size:.86vw;text-transform:uppercase;letter-spacing:.12em;cursor:pointer;transition:.16s ease}
 .shard-btn:hover{background:rgba(8,26,15,.95);border-color:var(--line-strong)}
-.lore-output{border-top:1px solid rgba(0,255,140,.12);margin-top:14px;padding-top:14px;min-height:192px}
+.lore-output{border-top:1px solid rgba(0,255,140,.12);margin-top:.9em;padding-top:.9em;min-height:7.9vw}
 .lore-output.hidden{display:none}
-.lore-output p{margin:0 0 10px;font-size:15px;line-height:1.8;color:var(--text)}
-.lore-source{font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em}
+.lore-output p{margin:0 0 .65em;font-size:.92vw;line-height:1.72;color:var(--text)}
+.lore-source{font-size:.77vw;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
 
-.footgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:18px}
-.foot-title,.feed-title{margin:0 0 18px;font-size:15px;color:var(--text-soft)}
-.map-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
-.world{min-height:208px;border:1px solid rgba(0,255,140,.18);position:relative;background:radial-gradient(circle at 30% 40%, rgba(0,255,140,.05), transparent 28%)}
+.footgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:.95%;min-height:0}
+.foot-title,.feed-title{margin:0 0 1.15em;font-size:1vw;color:var(--soft)}
+.map-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:1%}
+.world{min-height:9vw;border:1px solid rgba(0,255,140,.18);position:relative;background:radial-gradient(circle at 30% 40%, rgba(0,255,140,.05), transparent 28%)}
 .world::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,140,.08) 1px, transparent 1px),linear-gradient(90deg, rgba(0,255,140,.08) 1px, transparent 1px);background-size:26px 26px;opacity:.14}
-.world pre{position:absolute;inset:16px;margin:0;font-size:10px;line-height:1;white-space:pre;color:rgba(126,255,184,.72)}
-.meta{display:grid;gap:10px;color:var(--text);font-size:15px;line-height:1.7}
-.meta .label{font-family:var(--display);font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.14em}
+.world pre{position:absolute;inset:.9vw;margin:0;font-size:.48vw;line-height:1;white-space:pre;color:rgba(126,255,184,.72)}
+.meta{display:grid;gap:.45em;color:var(--text);font-size:.86vw;line-height:1.55}
+.meta .label{font-family:var(--display);font-size:.74vw;color:var(--soft);text-transform:uppercase;letter-spacing:.14em}
 .meta .em{color:#98ffc5}.meta .amber{color:var(--amber)}
+.feed-lines{display:grid;gap:.32em;font-size:.83vw;line-height:1.42;color:#91ffbf}
+.feed-line{display:grid;grid-template-columns:5.4vw 1fr;gap:.6em}.stamp{color:var(--dim)}
 
-.feed-lines{display:grid;gap:8px;font-size:14px;line-height:1.55;color:#91ffbf}
-.feed-line{display:grid;grid-template-columns:100px 1fr;gap:10px}
-.stamp{color:var(--text-dim)}
+.quotebar{display:grid;grid-template-columns:1fr 12vw;gap:0}
+.quote-copy{padding:1.15em 1.35em .95em}
+.quote-title{font-size:1vw;color:#a5ffcd;margin-bottom:.55em;text-transform:uppercase;letter-spacing:.14em}
+.quote-line{font-size:.83vw;line-height:1.72;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
+.prime{display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid rgba(0,255,140,.18);gap:.35em}
+.prime-main{font-family:var(--display);font-size:1.9vw;color:#a0ffca;text-transform:uppercase;letter-spacing:.18em}
+.prime-sub{font-family:var(--display);font-size:.92vw;color:var(--amber);text-transform:uppercase;letter-spacing:.16em}
 
-.quotebar{display:grid;grid-template-columns:1fr 220px;gap:0;margin-top:18px}
-.quote-copy{padding:20px 22px 18px}
-.quote-title{font-size:16px;color:#a5ffcd;margin-bottom:10px;text-transform:uppercase;letter-spacing:.14em}
-.quote-line{font-size:14px;line-height:1.8;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em}
-.prime{display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid rgba(0,255,140,.18);gap:8px}
-.prime-main{font-family:var(--display);font-size:34px;color:#a0ffca;text-transform:uppercase;letter-spacing:.18em}
-.prime-sub{font-family:var(--display);font-size:16px;color:var(--amber);text-transform:uppercase;letter-spacing:.16em}
-
-.footer{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:14px;color:var(--text-dim);font-size:12px;text-transform:uppercase;letter-spacing:.16em}
-.footer .center{text-align:center;color:var(--text-soft);font-size:22px}
+.footer{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;color:var(--dim);font-size:.72vw;text-transform:uppercase;letter-spacing:.16em}
+.footer .center{text-align:center;color:var(--soft);font-size:1.35vw}
 .footer .right{text-align:right}
-
 .blink{animation:blink 2.2s step-end infinite}
 @keyframes blink{0%,46%,100%{opacity:1}50%,54%{opacity:.28}}
-
-@media (max-width:1160px){
-  .hero{grid-template-columns:1fr}
-  .hero>div{border-right:none;border-bottom:1px solid var(--line)}
-  .hero>div:last-child{border-bottom:none}
-  .tabs{grid-template-columns:repeat(3,1fr)}
-  .main,.lower,.footgrid,.map-wrap,.quotebar{grid-template-columns:1fr}
-  .prime{border-left:none;border-top:1px solid rgba(0,255,140,.18);padding:20px 0}
-}
-
-@media (max-width:760px){
-  .wrap{width:min(100% - 12px, 1360px);margin:10px auto 20px}
-  .topbar{grid-template-columns:1fr;gap:8px;font-size:9px}
-  .topbar .mid,.topbar .right{text-align:left}
-  .hero>div{padding:20px 16px 18px}
-  .brand h1{font-size:56px}
-  .tabs{grid-template-columns:repeat(3,1fr)}
-  .tab{font-size:12px;padding:14px 8px}
-  .panel-body{padding:18px 14px 16px}
-  table.metrics td{padding:9px 8px;font-size:12px}
-  .statusbox{flex-direction:column}
-  .warningbar{grid-template-columns:1fr}
-  .warningbar .icon,.warningbar .slashes{border:none;border-top:1px solid rgba(255,69,69,.35)}
-  .lane{grid-template-columns:76px 1fr}
-  .lane-lock{grid-column:1/-1;border-left:none;border-top:1px solid rgba(0,255,140,.18);padding:12px 0}
-  .bio-row{grid-template-columns:1fr}
-  .dots{border-right:1px solid rgba(0,255,140,.2)}
-  .finger{border-top:none}
-  .feed-line{grid-template-columns:1fr}
-  .footer{grid-template-columns:1fr;gap:6px}
-  .footer .right{text-align:left}
-  .quote-line{font-size:12px}
-}
 
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div>CI-Ω7 // HM-LATTICE // RM-01 ΣPRIME</div>
-      <div class="mid">S5 Eyes-Only // Simulation Environment</div>
-      <div class="right">Observer Authentication Required <span class="blink">■</span></div>
-    </div><section class="shell hero">
-  <div class="brand">
-    <h1>Hilbert Mesh</h1>
-    <div class="sub1">S5 System Node // Online</div>
-    <div class="sub2">Constraint-Field Observatory</div>
-  </div>
-  <div class="sigil">
-    <div>
-      <div class="sigil-box">
-        <div class="hex"></div>
-        <div class="node"></div>
-        <div class="node2"></div>
-        <div class="node3"></div>
-        <div class="eye"></div>
-        <div class="arm"></div>
-        <div class="arm2"></div>
-        <div class="arm3"></div>
+  <div class="viewport">
+    <div class="stage">
+      <div class="app">
+        <div class="topbar">
+          <div>CI-Ω7 // HM-LATTICE // RM-01 ΣPRIME</div>
+          <div class="mid">S5 Eyes-Only // Simulation Environment</div>
+          <div class="right">Observer Authentication Required <span class="blink">■</span></div>
+        </div><section class="shell hero">
+      <div class="brand">
+        <h1>Hilbert Mesh</h1>
+        <div class="sub1">S5 System Node // Online</div>
+        <div class="sub2">Constraint-Field Observatory</div>
       </div>
-      <div class="sigil-id">I</div>
-    </div>
-  </div>
-  <div>
-    <div class="class-kicker">Classification</div>
-    <div class="class-main">S5 Eyes-Only</div>
-    <div class="class-clear">Clearance Required: Σ-Amber or Higher</div>
-    <div class="class-warn">Unauthorized Access Is a Protocol Breach</div>
-  </div>
-</section>
-
-<div class="tabs">
-  <button class="tab active">&gt; ] Node Overview</button>
-  <button class="tab">Dossier Archive</button>
-  <button class="tab">Music Lattice</button>
-  <button class="tab">Game Forge</button>
-  <button class="tab">Ω-Observatory</button>
-  <button class="tab">System Logs</button>
-</div>
-
-<section class="main">
-  <article class="panel">
-    <div class="panel-body">
-      <h2 class="section-title">// System Overview</h2>
-      <div class="overview-text">
-        Hilbert Mesh operates as a combined archive and output engine. Current lanes include analytical dossier work, audio identity systems, interactive game prototypes, and custom interface development. This node will expand into a full terminal-grade release surface.
-      </div>
-      <table class="metrics">
-        <tr><td>Ψ Coherence</td><td>0.847</td><td class="ok">[OK]</td></tr>
-        <tr><td>ρtd Trance-Density</td><td>0.74</td><td class="warn">[MONITOR]</td></tr>
-        <tr><td>κobs-caus Coupling</td><td>0.774 ± 0.021</td><td class="ok">[OK]</td></tr>
-        <tr><td>N+ Constructive Nodes</td><td>12 / 12</td><td class="full">[FULL]</td></tr>
-        <tr><td>N- Destructive Nodes</td><td>7 / 7</td><td class="full">[FULL]</td></tr>
-        <tr><td>Vertical Loop</td><td>Confirmed</td><td class="ok">[OK]</td></tr>
-        <tr><td>Ω Feedback</td><td>Active</td><td class="ok">[OK]</td></tr>
-        <tr><td>Egress Class</td><td class="warn">S5 Online</td><td class="locked">[LOCKED]</td></tr>
-        <tr><td>Ethics Layer</td><td class="warn">Σ-Amber</td><td class="enforced">[ENFORCED]</td></tr>
-      </table>
-      <div class="statusbox">
-        <div>Domain secured. Repository live. Primary web shell initialized. Additional modules will be attached in staged releases.</div>
-        <div class="stable">[ Stable ]</div>
-      </div>
-    </div>
-  </article>
-
-  <article class="panel">
-    <div class="panel-body">
-      <h2 class="auth-title">// Authentication Required</h2>
-      <div class="deny-box">
-        <div class="deny-main">Access Denied</div>
-        <div class="lock-frame"><div class="lock-circle"></div></div>
-        <div class="deny-copy">
-          Not enough security clearance to access this node.
-          <span class="req">Clearance Level Required: Σ-Amber or Higher</span>
-          <span class="lvl">Your clearance: Civilian</span>
-        </div>
-      </div>
-      <div class="field-label">Clearance Input</div>
-      <div class="input-row">
-        <div class="fake-input">Enter Clearance Code</div>
-        <div class="fake-go">&gt;</div>
-      </div>
-      <div class="field-label">Biometric Key</div>
-      <div class="bio-row">
-        <div class="dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <div class="finger">⌁</div>
-      </div>
-    </div>
-  </article>
-</section>
-
-<section class="warningbar">
-  <div class="icon">☠</div>
-  <div class="text">Warning: Unauthorized use, distribution, or attempted entry will result in immediate protocol countermeasures and traceback.<br>This interface is monitored at all layers. You are not invisible.</div>
-  <div class="slashes">/////////</div>
-</section>
-
-<section class="lower">
-  <article class="panel">
-    <div class="panel-body">
-      <h2 class="section-title">// Lane Registry</h2>
-      <div class="lane-list">
-        <div class="lane">
-          <div class="lane-icon">⌘</div>
-          <div class="lane-copy">
-            <div class="lane-title">[01] Dossier Lane</div>
-            <div class="lane-desc">Structured analytical and experimental dossiers, terminal-view presentation, and archive-grade output.</div>
+      <div class="sigil">
+        <div>
+          <div class="sigil-box">
+            <div class="hex"></div>
+            <div class="node"></div>
+            <div class="node2"></div>
+            <div class="node3"></div>
+            <div class="eye"></div>
+            <div class="arm"></div>
+            <div class="arm2"></div>
+            <div class="arm3"></div>
           </div>
-          <div class="lane-lock">🔒 Locked<br><span>Σ-Amber Required</span></div>
-        </div>
-        <div class="lane">
-          <div class="lane-icon">║║║</div>
-          <div class="lane-copy">
-            <div class="lane-title">[02] Music Lane</div>
-            <div class="lane-desc">Hilbert Mesh audio releases, doctrine-driven sound identity, and linked video deployment.</div>
-          </div>
-          <div class="lane-lock">🔒 Locked<br><span>Σ-Amber Required</span></div>
-        </div>
-        <div class="lane">
-          <div class="lane-icon">⌖</div>
-          <div class="lane-copy">
-            <div class="lane-title">[03] Game Forge Lane</div>
-            <div class="lane-desc">Browser-playable survival and RTS builds, experimental mechanics, and future public beta access.</div>
-          </div>
-          <div class="lane-lock">🔒 Locked<br><span>Σ-Amber Required</span></div>
+          <div class="sigil-id">I</div>
         </div>
       </div>
-    </div>
-  </article>
+      <div>
+        <div class="class-kicker">Classification</div>
+        <div class="class-main">S5 Eyes-Only</div>
+        <div class="class-clear">Clearance Required: Σ-Amber or Higher</div>
+        <div class="class-warn">Unauthorized Access Is a Protocol Breach</div>
+      </div>
+    </section>
 
-  <article class="panel">
-    <div class="panel-body">
-      <h2 class="section-title">// Lore Fragment</h2>
-      <div class="shardbox">
-        <div class="shard-title">Request Data Shard</div>
-        <div class="shard-sub">Class: Σ-Amber Required</div>
-        <button class="shard-btn" id="shardBtn">[+] Attempt Lore Extraction</button>
-      </div>
-      <div class="lore-output hidden" id="loreOutput">
-        <p id="loreText"></p>
-        <div class="lore-source" id="loreSource"></div>
-      </div>
+    <div class="tabs">
+      <button class="active">&gt; ] Node Overview</button>
+      <button>Dossier Archive</button>
+      <button>Music Lattice</button>
+      <button>Game Forge</button>
+      <button>Ω-Observatory</button>
+      <button>System Logs</button>
     </div>
-  </article>
-</section>
 
-<section class="footgrid">
-  <article class="footbox">
-    <div class="panel-body">
-      <h2 class="foot-title">// Node Footprint</h2>
-      <div class="map-wrap">
-        <div class="world">
-          <pre>
+    <section class="main">
+      <div class="leftcol">
+        <article class="panel">
+          <div class="panel-body">
+            <h2 class="section-title">// System Overview</h2>
+            <div class="overview-text">Hilbert Mesh operates as a combined archive and output engine. Current lanes include analytical dossier work, audio identity systems, interactive game prototypes, and custom interface development. This node will expand into a full terminal-grade release surface.</div>
+            <table class="metrics">
+              <tr><td>Ψ Coherence</td><td>0.847</td><td class="ok">[OK]</td></tr>
+              <tr><td>ρtd Trance-Density</td><td>0.74</td><td class="warn">[MONITOR]</td></tr>
+              <tr><td>κobs-caus Coupling</td><td>0.774 ± 0.021</td><td class="ok">[OK]</td></tr>
+              <tr><td>N+ Constructive Nodes</td><td>12 / 12</td><td class="full">[FULL]</td></tr>
+              <tr><td>N- Destructive Nodes</td><td>7 / 7</td><td class="full">[FULL]</td></tr>
+              <tr><td>Vertical Loop</td><td>Confirmed</td><td class="ok">[OK]</td></tr>
+              <tr><td>Ω Feedback</td><td>Active</td><td class="ok">[OK]</td></tr>
+              <tr><td>Egress Class</td><td class="warn">S5 Online</td><td class="locked">[LOCKED]</td></tr>
+              <tr><td>Ethics Layer</td><td class="warn">Σ-Amber</td><td class="enforced">[ENFORCED]</td></tr>
+            </table>
+            <div class="statusbox">
+              <div>Domain secured. Repository live. Primary web shell initialized. Additional modules will be attached in staged releases.</div>
+              <div class="stable">[ Stable ]</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-body">
+            <h2 class="section-title">// Lane Registry</h2>
+            <div class="lane-list">
+              <div class="lane">
+                <div class="lane-icon">⌘</div>
+                <div class="lane-copy">
+                  <div class="lane-title">[01] Dossier Lane</div>
+                  <div class="lane-desc">Structured analytical and experimental dossiers, terminal-view presentation, and archive-grade output.</div>
+                </div>
+                <div class="lane-lock">🔒 Locked<br><span>Σ-Amber Required</span></div>
+              </div>
+              <div class="lane">
+                <div class="lane-icon">║║║</div>
+                <div class="lane-copy">
+                  <div class="lane-title">[02] Music Lane</div>
+                  <div class="lane-desc">Hilbert Mesh audio releases, doctrine-driven sound identity, and linked video deployment.</div>
+                </div>
+                <div class="lane-lock">🔒 Locked<br><span>Σ-Amber Required</span></div>
+              </div>
+              <div class="lane">
+                <div class="lane-icon">⌖</div>
+                <div class="lane-copy">
+                  <div class="lane-title">[03] Game Forge Lane</div>
+                  <div class="lane-desc">Browser-playable survival and RTS builds, experimental mechanics, and future public beta access.</div>
+                </div>
+                <div class="lane-lock">🔒 Locked<br><span>Σ-Amber Required</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="rightcol">
+        <article class="panel">
+          <div class="panel-body">
+            <h2 class="auth-title">// Authentication Required</h2>
+            <div class="deny-box">
+              <div class="deny-main">Access Denied</div>
+              <div class="lock-frame"><div class="lock-circle"></div></div>
+              <div class="deny-copy">
+                Not enough security clearance to access this node.
+                <span class="req">Clearance Level Required: Σ-Amber or Higher</span>
+                <span class="lvl">Your clearance: Civilian</span>
+              </div>
+            </div>
+            <div class="field-label">Clearance Input</div>
+            <div class="input-row">
+              <div class="fake-input">Enter Clearance Code</div>
+              <div class="fake-go">&gt;</div>
+            </div>
+            <div class="field-label">Biometric Key</div>
+            <div class="bio-row">
+              <div class="dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="finger">⌁</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-body">
+            <h2 class="section-title">// Lore Fragment</h2>
+            <div class="shardbox">
+              <div class="shard-title">Request Data Shard</div>
+              <div class="shard-sub">Class: Σ-Amber Required</div>
+              <button class="shard-btn" id="shardBtn">[+] Attempt Lore Extraction</button>
+            </div>
+            <div class="lore-output hidden" id="loreOutput">
+              <p id="loreText"></p>
+              <div class="lore-source" id="loreSource"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-body">
+            <h2 class="feed-title">// System Feed</h2>
+            <div class="feed-lines">
+              <div class="feed-line"><div class="stamp">[00:12:47]</div><div>Ω Feedback stabilized.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:41]</div><div>Node integrity: Nominal.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:38]</div><div>Observer coupling within range.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:33]</div><div>Constraint field refreshed.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:29]</div><div>Dossier lane locked.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:25]</div><div>Music lattice idle.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:20]</div><div>Game forge offline.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:16]</div><div>External probes blocked.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:11]</div><div>Unauthorized handshake attempt.</div></div>
+              <div class="feed-line"><div class="stamp">[00:12:03]</div><div>Shield grid: Active.</div></div>
+              <div class="feed-line"><div class="stamp">&gt;</div><div class="blink">_</div></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="warningbar">
+      <div class="icon">☠</div>
+      <div class="text">Warning: Unauthorized use, distribution, or attempted entry will result in immediate protocol countermeasures and traceback. This interface is monitored at all layers. You are not invisible.</div>
+      <div class="slashes">/////////</div>
+    </section>
+
+    <section class="footgrid">
+      <article class="quotebar">
+        <div class="quote-copy">
+          <div class="quote-title">“The frame holds because we hold the frame.”</div>
+          <div class="quote-line">Reality-feel is not a property of the world. It is a property of the processing system.</div>
+          <div class="quote-line">Remove the observer and the coherence does not persist.</div>
+        </div>
+        <div class="prime">
+          <div class="prime-main">Σ-Prime</div>
+          <div class="prime-sub">IT-1 Verified</div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-body">
+          <h2 class="foot-title">// Node Footprint</h2>
+          <div class="map-wrap">
+            <div class="world">
+              <pre>
                      ··············
               ·························
          ·································
@@ -488,101 +391,55 @@ table.metrics td:last-child{width:26%;text-transform:uppercase;letter-spacing:.0
          ·······························
              ·······················
                      ············
-          </pre>
+              </pre>
+            </div>
+            <div class="meta">
+              <div><div class="label">Node Origin</div><div class="em">Ω-Null State (Pre-Frontier)</div></div>
+              <div><div class="label">Node ID</div><div>HM-S5-IT1-RM01</div></div>
+              <div><div class="label">Boot Sequence</div><div class="amber">2026-03-22T00:00:00Z</div></div>
+              <div><div class="label">Uptime</div><div class="em">00:12:47:33</div></div>
+              <div><div class="label">Grid Status</div><div class="em">Stable</div></div>
+            </div>
+          </div>
         </div>
-        <div class="meta">
-          <div><div class="label">Node Origin</div><div class="em">Ω-Null State (Pre-Frontier)</div></div>
-          <div><div class="label">Node ID</div><div>HM-S5-IT1-RM01</div></div>
-          <div><div class="label">Boot Sequence</div><div class="amber">2026-03-22T00:00:00Z</div></div>
-          <div><div class="label">Uptime</div><div class="em">00:12:47:33</div></div>
-          <div><div class="label">Grid Status</div><div class="em">Stable</div></div>
-        </div>
-      </div>
+      </article>
+    </section>
+
+    <div class="footer">
+      <div>Constraint-Field Observatory · Observer-Assembled World Ledger</div>
+      <div class="center">◉</div>
+      <div class="right">hilbertmesh.com // node initialization build // v0.1</div>
     </div>
-  </article>
-
-  <article class="footbox">
-    <div class="panel-body">
-      <h2 class="feed-title">// System Feed</h2>
-      <div class="feed-lines">
-        <div class="feed-line"><div class="stamp">[00:12:47]</div><div>Ω Feedback stabilized.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:41]</div><div>Node integrity: Nominal.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:38]</div><div>Observer coupling within range.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:33]</div><div>Constraint field refreshed.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:29]</div><div>Dossier lane locked.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:25]</div><div>Music lattice idle.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:20]</div><div>Game forge offline.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:16]</div><div>External probes blocked.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:11]</div><div>Unauthorized handshake attempt.</div></div>
-        <div class="feed-line"><div class="stamp">[00:12:03]</div><div>Shield grid: Active.</div></div>
-        <div class="feed-line"><div class="stamp">&gt;</div><div class="blink">_</div></div>
-      </div>
-    </div>
-  </article>
-</section>
-
-<section class="quotebar">
-  <div class="quote-copy">
-    <div class="quote-title">“The frame holds because we hold the frame.”</div>
-    <div class="quote-line">Reality-feel is not a property of the world. It is a property of the processing system.</div>
-    <div class="quote-line">Remove the observer and the coherence does not persist.</div>
   </div>
-  <div class="prime">
-    <div class="prime-main">Σ-Prime</div>
-    <div class="prime-sub">IT-1 Verified</div>
-  </div>
-</section>
-
-<div class="footer">
-  <div>Constraint-Field Observatory · Observer-Assembled World Ledger</div>
-  <div class="center">◉</div>
-  <div class="right">hilbertmesh.com // node initialization build // v0.1</div>
 </div>
 
   </div>  <script>
     const lorePool = [
-      {
-        text: "Event 01 — Site-4: the first frame instability event did not read like an anomaly. Light stopped behaving correctly past the perimeter, clocks resolved out of order, and a new doctrine had to be written because containment did not mean control.",
-        source: "INCIDENT ARCHIVE // SITE-4 / FRAME INSTABILITY"
-      },
-      {
-        text: "Captain Elias Varn is field command by temperament and doctrine: disciplined, skeptical, calm under distortion. His strength is trusting repetition over instinct. His weakness is that new doctrine has to earn him slowly.",
-        source: "CHARACTER BIBLE // ELIAS VARN"
-      },
-      {
-        text: "The objective is not speed, dominance, or destruction. The objective is delayed commitment under uncertainty. Operators are not rewarded for acting first. Operators are rewarded for acting last safely.",
-        source: "MILITARY DOCTRINE // CORE PRINCIPLE"
-      },
-      {
-        text: "Nothing is trusted on first observation. Repetition defines weight. Consensus does not equal truth. Delay is a weapon. Exit must remain visible.",
-        source: "MILITARY DOCTRINE // ENGAGEMENT RULES"
-      }
+      { text: 'Event 01 — Site-4: the first frame instability event did not read like an anomaly. Light stopped behaving correctly past the perimeter, clocks resolved out of order, and a new doctrine had to be written because containment did not mean control.', source: 'INCIDENT ARCHIVE // SITE-4 / FRAME INSTABILITY' },
+      { text: 'Captain Elias Varn is field command by temperament and doctrine: disciplined, skeptical, calm under distortion. His strength is trusting repetition over instinct. His weakness is that new doctrine has to earn him slowly.', source: 'CHARACTER BIBLE // ELIAS VARN' },
+      { text: 'The objective is not speed, dominance, or destruction. The objective is delayed commitment under uncertainty. Operators are not rewarded for acting first. Operators are rewarded for acting last safely.', source: 'MILITARY DOCTRINE // CORE PRINCIPLE' },
+      { text: 'Nothing is trusted on first observation. Repetition defines weight. Consensus does not equal truth. Delay is a weapon. Exit must remain visible.', source: 'MILITARY DOCTRINE // ENGAGEMENT RULES' }
     ];
-
     let loreStep = 0;
     const shardBtn = document.getElementById('shardBtn');
     const loreOutput = document.getElementById('loreOutput');
     const loreText = document.getElementById('loreText');
     const loreSource = document.getElementById('loreSource');
-
     shardBtn.addEventListener('click', () => {
       loreStep += 1;
       loreOutput.classList.remove('hidden');
-
       if (loreStep === 1) {
         loreText.textContent = 'Request queued. Observer state does not match archive threshold.';
         loreSource.textContent = 'CLEARANCE GATE // HOLD';
         shardBtn.textContent = '[+] Reattempt Extraction';
         return;
       }
-
       if (loreStep === 2) {
         loreText.textContent = 'Partial access granted. Contradiction-preservation active. Preparing a low-depth shard.';
         loreSource.textContent = 'HM-3 // PARTIAL CLEARANCE';
         shardBtn.textContent = '[+] Pull Fragment';
         return;
       }
-
       const frag = lorePool[Math.floor(Math.random() * lorePool.length)];
       loreText.textContent = frag.text;
       loreSource.textContent = frag.source;
