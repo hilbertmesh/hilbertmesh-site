@@ -323,6 +323,22 @@ body.dossier-open{overflow:hidden;}
 .dpnav:disabled{opacity:.3;cursor:default;}
 #dpind{font-family:'Orbitron',sans-serif;font-size:7px;color:var(--fgk);letter-spacing:1px;}
 
+/* DECRYPT OVERLAY */
+#decryptOverlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,5,0,.96);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-family:'Orbitron',sans-serif;
+  text-align:center;
+  backdrop-filter:blur(1px);
+}
+#decryptOverlay::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 3px);
+}
+#decryptBar{box-shadow:0 0 8px rgba(0,229,54,.07);}
+
 /* MOBILE */
 @media(max-width:640px){
   .twoCol{grid-template-columns:1fr;}
@@ -479,7 +495,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
     <div class="pb">
       <div style="font-size:clamp(8px,1.9vw,10px);color:var(--fgd);line-height:1.7;margin-bottom:10px;font-family:'Courier Prime',serif;font-style:italic;">The following dossier fragments have been cleared for public observer access under CIVIC TRANSPARENCY DIRECTORATE T7. Classified sections remain sealed at Σ-AMBER or above. Select a fragment to enter the dossier viewer.</div>
       <div id="dentries"></div>
-      <button class="dob" onclick="openDossier(0)" style="margin-top:12px;">▸ ENTER FULL DOSSIER VIEWER</button>
+      <button class="dob" onclick="initiateEyesOnly()" style="margin-top:12px;">▸ ENTER FULL DOSSIER VIEWER</button>
     </div>
   </div>
 </div>
@@ -513,7 +529,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
         </div>
         <div class="llk">⊠ LOCKED<br><span style="color:var(--fgk)">Σ-AMBER<br>REQUIRED</span></div>
       </div>
-      <button class="dob" onclick="openDossier(0)">▸ ENTER DOSSIER VIEWER — PUBLIC FRAGMENTS AVAILABLE</button>
+      <button class="dob" onclick="initiateEyesOnly()">▸ ENTER DOSSIER VIEWER — PUBLIC FRAGMENTS AVAILABLE</button>
     </div>
   </div>
 </div>
@@ -981,7 +997,67 @@ function unlockA(){
 document.addEventListener('click',unlockA,{capture:true,passive:true});
 document.addEventListener('touchstart',unlockA,{capture:true,passive:true});
 
+/* S5 ACCESS RITUAL */
+function initiateEyesOnly(){
+  var overlay=document.getElementById('decryptOverlay');
+  var fill=document.getElementById('decryptFill');
+  var text=document.getElementById('decryptText');
+  overlay.style.display='flex';
+  fill.style.width='0%';
+  text.innerText='INITIALIZING...';
+  var progress=0;
+  var steps=['INITIALIZING...','CHECKING CLEARANCE...','SCANNING NODE...','DECRYPTING SEGMENT...','VERIFYING ARTIFACT...','ACCESS GRANTED'];
+  var stepIndex=0;
+  var interval=setInterval(function(){
+    if(Math.random()<0.2&&progress>10&&progress<60&&stepIndex===2){
+      text.innerText='ACCESS DENIED';
+      fill.style.background='#ff2222';
+      fill.style.boxShadow='0 0 10px #ff2222';
+      setTimeout(function(){
+        fill.style.background='#00e536';
+        fill.style.boxShadow='0 0 10px #00e536';
+        overlay.style.display='none';
+        fill.style.width='0%';
+        text.innerText='INITIALIZING...';
+      },1400);
+      clearInterval(interval);
+      return;
+    }
+    progress+=Math.random()*18;
+    if(progress>=100){
+      progress=100;
+      fill.style.width='100%';
+      text.innerText='ACCESS GRANTED';
+      clearInterval(interval);
+      setTimeout(function(){
+        overlay.style.display='none';
+        fill.style.width='0%';
+        text.innerText='INITIALIZING...';
+        openDossier(0);
+      },900);
+      return;
+    }
+    fill.style.width=progress+'%';
+    var threshold=(stepIndex+1)*(100/steps.length);
+    if(progress>threshold){
+      stepIndex++;
+      text.innerText=steps[stepIndex]||steps[steps.length-1];
+    }
+  },180);
+}
+
 })();
 </script>
+<div id="decryptOverlay">
+  <div id="decryptCornerTL" style="position:absolute;top:20px;left:20px;width:40px;height:40px;border-top:1px solid rgba(0,229,54,.3);border-left:1px solid rgba(0,229,54,.3);"></div>
+  <div id="decryptCornerBR" style="position:absolute;bottom:20px;right:20px;width:40px;height:40px;border-bottom:1px solid rgba(0,229,54,.3);border-right:1px solid rgba(0,229,54,.3);"></div>
+  <div style="color:#ffaa00;letter-spacing:3px;font-size:12px;margin-bottom:10px;">DECRYPTING TIER 7 ARTIFACT</div>
+  <div style="color:#00e536;font-size:10px;letter-spacing:2px;margin-bottom:20px;">UNAUTHORIZED ACCESS WILL BE LOGGED</div>
+  <div id="decryptBar" style="width:220px;height:2px;background:#003a0a;overflow:hidden;">
+    <div id="decryptFill" style="height:100%;width:0%;background:#00e536;box-shadow:0 0 10px #00e536;"></div>
+  </div>
+  <div id="decryptText" style="margin-top:12px;font-size:8px;color:#00b82c;letter-spacing:2px;">INITIALIZING...</div>
+</div>
+
 </body>
 </html>
