@@ -1,253 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hilbert Mesh</title>
-  <style>
-    :root{
-      --bg:#05080a;
-      --panel:#0b1114;
-      --line:#16342b;
-      --glow:#5cffb3;
-      --text:#d7ffe9;
-      --muted:#86b9a0;
-      --warn:#9fffd0;
-    }
-    *{box-sizing:border-box}
-    html,body{
-      margin:0;
-      padding:0;
-      background:radial-gradient(circle at top, #0b1512 0%, var(--bg) 45%, #030506 100%);
-      color:var(--text);
-      font-family:Arial,Helvetica,sans-serif;
-      min-height:100%;
-    }
-    body{
-      padding:24px 14px 60px;
-    }
-    .wrap{
-      width:min(1100px,100%);
-      margin:0 auto;
-    }
-    .topbar{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(10,20,18,.95), rgba(6,10,12,.96));
-      padding:12px 14px;
-      border-radius:14px;
-      box-shadow:0 0 0 1px rgba(92,255,179,.08), 0 0 30px rgba(92,255,179,.06);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      margin-bottom:16px;
-    }
-    .brand{
-      font-size:14px;
-      letter-spacing:2px;
-      text-transform:uppercase;
-      color:var(--warn);
-      font-weight:700;
-    }
-    .status{
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:1px;
-    }
-    .hero{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(11,17,20,.96), rgba(7,10,12,.98));
-      border-radius:20px;
-      padding:24px 18px;
-      box-shadow:0 0 0 1px rgba(92,255,179,.06), inset 0 0 40px rgba(92,255,179,.03);
-      overflow:hidden;
-      position:relative;
-    }
-    .hero:before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(rgba(92,255,179,.06), rgba(92,255,179,0)),
-        repeating-linear-gradient(
-          to bottom,
-          rgba(92,255,179,.06) 0px,
-          rgba(92,255,179,.06) 1px,
-          transparent 1px,
-          transparent 28px
-        );
-      pointer-events:none;
-    }
-    .eyebrow{
-      display:inline-block;
-      padding:6px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      color:var(--warn);
-      font-size:12px;
-      letter-spacing:1.6px;
-      text-transform:uppercase;
-      margin-bottom:14px;
-      background:rgba(92,255,179,.05);
-    }
-    h1{
-      margin:0 0 10px;
-      font-size:clamp(34px,8vw,72px);
-      line-height:.95;
-      letter-spacing:-1px;
-      text-transform:uppercase;
-      text-shadow:0 0 18px rgba(92,255,179,.16);
-    }
-    .sub{
-      font-size:16px;
-      line-height:1.55;
-      color:var(--muted);
-      max-width:760px;
-      margin:0 0 20px;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(12,1fr);
-      gap:14px;
-      margin-top:16px;
-    }
-    .card{
-      grid-column:span 12;
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:16px;
-      background:rgba(8,13,15,.95);
-      box-shadow:inset 0 0 20px rgba(92,255,179,.03);
-    }
-    .card h2{
-      margin:0 0 10px;
-      font-size:14px;
-      color:var(--warn);
-      text-transform:uppercase;
-      letter-spacing:1.5px;
-    }
-    .card p{
-      margin:0;
-      color:var(--muted);
-      line-height:1.6;
-      font-size:15px;
-    }
-    .big{
-      grid-column:span 12;
-    }
-    .signal{
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-      margin-top:14px;
-      max-width:260px;
-    }
-    .signal span{
-      height:14px;
-      border-radius:4px;
-      background:linear-gradient(180deg,#12362a,#0c211b);
-      border:1px solid #1f5744;
-      box-shadow:0 0 10px rgba(92,255,179,.1);
-    }
-    .cta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:18px;
-    }
-    .btn{
-      display:inline-block;
-      padding:12px 14px;
-      border-radius:12px;
-      text-decoration:none;
-      font-weight:700;
-      letter-spacing:.5px;
-      border:1px solid var(--line);
-      color:var(--text);
-      background:#0d1618;
-    }
-    .btn.primary{
-      background:linear-gradient(180deg,#103227,#0b201a);
-      box-shadow:0 0 18px rgba(92,255,179,.08);
-    }
-    .footer{
-      margin-top:16px;
-      color:#6e9d88;
-      font-size:12px;
-      letter-spacing:1.3px;
-      text-transform:uppercase;
-      text-align:center;
-    }
-    @media (min-width: 760px){
-      .big{grid-column:span 7;}
-      .small{grid-column:span 5;}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HILBERT MESH // S5 NODE</title>
+
+<style>
+:root{
+  --bg:#010302;
+  --panel:#03110a;
+  --line:rgba(0,255,140,.18);
+  --text:#7dffb8;
+  --dim:#2e8f61;
+  --amber:#ffb347;
+  --red:#ff3b3b;
+}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at top, rgba(0,255,140,.05), transparent),
+             var(--bg);
+  color:var(--text);
+  font-family:monospace;
+}
+
+/* GRID BACKGROUND */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:40px 40px;
+  opacity:.08;
+}
+
+/* CONTAINER */
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:12px;
+}
+
+/* HEADER */
+.header{
+  border:1px solid var(--line);
+  padding:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.title{
+  font-size:32px;
+  letter-spacing:.2em;
+}
+
+.status{
+  color:var(--amber);
+}
+
+/* NAV */
+.nav{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+}
+
+.nav button{
+  background:var(--panel);
+  border:1px solid var(--line);
+  color:var(--text);
+  padding:12px;
+}
+
+/* PANELS */
+.panel{
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:16px;
+  margin-top:12px;
+}
+
+/* ACCESS DENIED */
+.denied{
+  border:1px solid var(--red);
+  padding:20px;
+  text-align:center;
+}
+
+.denied h1{
+  color:var(--red);
+  font-size:28px;
+}
+
+/* INPUT */
+.input{
+  display:flex;
+  border:1px solid var(--line);
+  margin-top:10px;
+}
+
+.input div{
+  padding:10px;
+  flex:1;
+}
+
+.input button{
+  width:60px;
+  background:var(--panel);
+  border-left:1px solid var(--line);
+}
+
+/* LORE */
+.hidden{display:none}
+
+.lore{
+  margin-top:12px;
+  line-height:1.6;
+}
+
+/* LOCKED LANES */
+.lane{
+  border:1px solid var(--line);
+  padding:12px;
+  margin-top:8px;
+  display:flex;
+  justify-content:space-between;
+}
+
+/* FOOT */
+.footer{
+  margin-top:20px;
+  text-align:center;
+  color:var(--dim);
+}
+
+/* BLINK */
+.blink{
+  animation:blink 2s infinite;
+}
+@keyframes blink{
+  50%{opacity:.2}
+}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">Hilbert Mesh</div>
-      <div class="status">S5 system node / online</div>
-    </div>
 
-    <section class="hero">
-      <div class="eyebrow">Dossier / Music / Games / Experimental Systems</div>
-      <h1>Hilbert<br>Mesh</h1>
-      <p class="sub">
-        A unified signal system for dossiers, music, experimental game builds, and synthetic world logic.
-        This site is the active front door for the Hilbert Mesh archive.
-      </p>
+<div class="wrap">
 
-      <div class="signal">
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
+<div class="header">
+  <div class="title">HILBERT MESH</div>
+  <div class="status">S5 NODE // ONLINE</div>
+</div>
 
-      <div class="cta">
-        <a class="btn primary" href="#">Dossiers Coming Online</a>
-        <a class="btn" href="#">Music Pipeline Pending</a>
-        <a class="btn" href="#">Game Builds Pending</a>
-      </div>
-    </section>
+<div class="nav">
+  <button>> NODE</button>
+  <button>DOSSIERS</button>
+  <button>MUSIC</button>
+</div>
 
-    <div class="grid">
-      <div class="card big">
-        <h2>System Overview</h2>
-        <p>
-          Hilbert Mesh operates as a combined archive and output engine. Current lanes include
-          analytical dossier work, audio identity systems, interactive game prototypes, and custom
-          interface development. This node will expand into a full terminal-grade release surface.
-        </p>
-      </div>
+<div class="panel">
+  <h3>// SYSTEM OVERVIEW</h3>
+  <p>
+  Combined archive + output engine.<br>
+  Observer-dependent processing.<br>
+  Node behavior unresolved.
+  </p>
 
-      <div class="card small">
-        <h2>Status</h2>
-        <p>
-          Domain secured. Repository live. Primary web shell initialized. Additional modules will be
-          attached in staged releases.
-        </p>
-      </div>
+  <p>Ψ coherence: <span id="coherence">0.847</span></p>
+</div>
 
-      <div class="card">
-        <h2>Lane 01 / Dossiers</h2>
-        <p>Structured analytical and experimental dossiers, terminal-view presentation, and archive-grade output.</p>
-      </div>
+<div class="panel">
+  <h3>// AUTHENTICATION</h3>
 
-      <div class="card">
-        <h2>Lane 02 / Music</h2>
-        <p>Hilbert Mesh audio releases, doctrine-driven sound identity, and linked video deployment.</p>
-      </div>
-
-      <div class="card">
-        <h2>Lane 03 / Games</h2>
-        <p>Browser-playable survival and RTS builds, experimental mechanics, and future public beta access.</p>
-      </div>
-    </div>
-
-    <div class="footer">
-      hilbertmesh.com / node initialization build / v0.1
-    </div>
+  <div class="denied" id="deniedBox">
+    <h1>ACCESS DENIED</h1>
+    <p>Clearance Required: Σ-AMBER</p>
+    <p>You: CIVILIAN</p>
   </div>
+
+  <div class="input">
+    <div>ENTER CODE</div>
+    <button onclick="attempt()">></button>
+  </div>
+
+  <div id="response" style="margin-top:10px;color:var(--red)"></div>
+</div>
+
+<div class="panel">
+  <h3>// LORE FRAGMENT</h3>
+
+  <button onclick="lore()" style="padding:10px;background:var(--panel);border:1px solid var(--line)">
+    REQUEST DATA SHARD
+  </button>
+
+  <div id="loreBox" class="lore hidden"></div>
+</div>
+
+<div class="panel">
+  <h3>// LANES</h3>
+
+  <div class="lane">
+    DOSSIER
+    <span>LOCKED</span>
+  </div>
+
+  <div class="lane">
+    MUSIC
+    <span>LOCKED</span>
+  </div>
+
+  <div class="lane">
+    GAME FORGE
+    <span>LOCKED</span>
+  </div>
+
+</div>
+
+<div class="footer">
+THIS DOMAIN WAS NOT LISTED // YOU FOUND IT ANYWAY
+</div>
+
+</div>
+
+<script>
+
+/* ===== FAKE AUTH ===== */
+let tries=0;
+
+function attempt(){
+  tries++;
+
+  const r = document.getElementById("response");
+
+  if(tries===1){
+    r.innerText="Checking clearance...";
+  }
+  else if(tries===2){
+    r.innerText="Observer mismatch detected.";
+  }
+  else{
+    r.innerText="Protocol breach logged.";
+  }
+}
+
+/* ===== LORE SYSTEM ===== */
+let loreStep=0;
+
+const loreData=[
+"Event: Light desynced beyond perimeter. Time failed to resolve consistently.",
+"Doctrine: Delay action. Observation defines stability.",
+"Remove observer → coherence collapse."
+];
+
+function lore(){
+  loreStep++;
+
+  const box=document.getElementById("loreBox");
+
+  if(loreStep===1){
+    box.classList.remove("hidden");
+    box.innerText="Request queued...";
+  }
+  else if(loreStep===2){
+    box.innerText="Access partially granted...";
+  }
+  else{
+    box.innerText=loreData[Math.floor(Math.random()*loreData.length)];
+  }
+}
+
+/* ===== SYSTEM DRIFT ===== */
+setInterval(()=>{
+  let val = 0.847 + (Math.random()*0.002 - 0.001);
+  document.getElementById("coherence").innerText=val.toFixed(3);
+},2000);
+
+</script>
+
 </body>
 </html>
