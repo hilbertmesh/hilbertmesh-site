@@ -410,6 +410,91 @@ body.dossier-open{overflow:hidden;}
 .tier-ind{font-size:clamp(5px,1.1vw,6px);color:var(--fgk);letter-spacing:.5px;}
 .comp-note{font-size:clamp(6.5px,1.5vw,8px);color:var(--fgk);line-height:1.65;padding:5px 10px 8px;border-top:1px solid var(--bd);}
 
+/* INGEST PANEL */
+.ingest-box{width:100%;min-height:140px;background:rgba(0,0,0,.55);border:1px solid var(--bd2);
+  color:var(--g);font-family:'Share Tech Mono',monospace;font-size:clamp(7.5px,1.7vw,9.5px);
+  line-height:1.65;padding:10px 12px;resize:vertical;outline:none;letter-spacing:.2px;
+  box-shadow:inset 0 0 20px rgba(0,229,54,.025);transition:border-color .2s;}
+.ingest-box:focus{border-color:var(--gk);box-shadow:inset 0 0 24px rgba(0,229,54,.04);}
+.ingest-box::placeholder{color:var(--fgk);}
+.ingest-controls{display:flex;gap:4px;flex-wrap:wrap;padding:6px 10px;border-top:1px solid var(--bd);background:rgba(0,0,0,.25);}
+.ingest-btn{font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.4vw,7.5px);letter-spacing:1.5px;
+  padding:4px 10px;border:1px solid var(--bd2);background:rgba(0,0,0,.4);color:var(--fgd);
+  cursor:pointer;transition:all .2s;white-space:nowrap;}
+.ingest-btn:hover{color:var(--gd);border-color:var(--gk);}
+.ingest-btn.primary{border-color:rgba(0,229,54,.3);color:var(--gd);background:rgba(0,229,54,.04);}
+.ingest-btn.primary:hover{background:rgba(0,229,54,.09);color:var(--g);border-color:var(--gd);}
+
+/* PARSE STATUS */
+#parse-log{min-height:0;max-height:0;overflow:hidden;transition:max-height .4s ease;
+  background:rgba(0,0,0,.5);border-top:1px solid var(--bd);}
+#parse-log.active{max-height:200px;}
+#parse-lines{padding:7px 12px;font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.5vw,8.5px);line-height:1.8;}
+.pl{opacity:0;transform:translateY(3px);transition:opacity .25s,transform .25s;display:block;color:var(--fgk);}
+.pl.vis{opacity:1;transform:translateY(0);}
+.pl.ok{color:var(--gd);}.pl.warn{color:var(--a);}.pl.done{color:var(--g);font-weight:bold;}
+.pl.fail{color:var(--red);}
+
+/* HILBERT ROUTING VISUAL */
+#hroute-wrap{display:none;border-top:1px solid var(--bd);background:rgba(0,0,0,.4);padding:8px 10px;}
+#hroute-wrap.active{display:block;}
+.hroute-hd{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--fgk);letter-spacing:2px;margin-bottom:6px;}
+#hroute-svg{width:100%;height:60px;display:block;}
+.hr-seg{stroke:var(--gk);stroke-width:1.5;fill:none;opacity:.3;transition:opacity .15s,stroke .15s;}
+.hr-seg.lit{opacity:1;stroke:var(--g);}
+.hr-seg.cy{stroke:var(--cy);opacity:.8;}
+.hr-node{fill:var(--gk);transition:fill .15s,r .15s;}
+.hr-node.lit{fill:var(--g);r:3;}
+.hr-node.cy{fill:var(--cy);}
+.hroute-bar{height:2px;background:var(--bd);margin-top:6px;overflow:hidden;border-radius:1px;}
+.hroute-prog{height:100%;width:0%;background:linear-gradient(90deg,var(--gk),var(--g),var(--cy));transition:width .1s linear;}
+
+/* DOSSIER REGISTRY CARDS */
+#dreg-list{padding:8px 10px;display:flex;flex-direction:column;gap:5px;}
+.dreg-card{border:1px solid var(--bd2);background:rgba(0,229,54,.01);padding:8px 10px;
+  cursor:pointer;transition:all .22s;position:relative;overflow:hidden;}
+.dreg-card:hover{border-color:var(--gk);background:rgba(0,229,54,.03);}
+.dreg-card.new-mat{animation:matIn .6s ease-out;}
+@keyframes matIn{from{opacity:0;transform:translateY(-6px);border-color:var(--g);}to{opacity:1;transform:translateY(0);}}
+.dreg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gk),transparent);opacity:.4;}
+.dreg-card.starter::before{background:linear-gradient(90deg,transparent,var(--gd),transparent);}
+.drc-top{display:flex;align-items:flex-start;gap:8px;}
+.drc-id{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--fgk);letter-spacing:1px;
+  flex-shrink:0;padding-top:1px;white-space:nowrap;}
+.drc-title{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.7vw,9px);color:var(--gd);
+  letter-spacing:.5px;flex:1;line-height:1.3;}
+.drc-open{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--g);letter-spacing:1px;flex-shrink:0;}
+.drc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center;}
+.drc-tag{font-size:clamp(5px,1.1vw,6.5px);color:var(--fgk);letter-spacing:.5px;padding:1px 4px;border:1px solid var(--bd);}
+.drc-tag.tier-t1{color:var(--fgd);border-color:var(--bd);}
+.drc-tag.tier-t2{color:var(--fg);border-color:var(--bd2);}
+.drc-tag.tier-t3{color:var(--gd);border-color:var(--gk);}
+.drc-tag.tier-t4{color:var(--g);border-color:var(--gd);}
+.drc-tag.tier-t5{color:var(--a);border-color:rgba(255,170,0,.4);}
+.drc-conf{font-size:clamp(5px,1.1vw,6.5px);color:var(--fgk);}
+.drc-conf.high{color:var(--g);}.drc-conf.mod{color:var(--a);}.drc-conf.low{color:var(--fgd);}
+.drc-status{font-size:clamp(5px,1.1vw,6.5px);color:var(--gd);letter-spacing:.5px;margin-left:auto;}
+.drc-ts{font-size:clamp(5px,1.1vw,6px);color:var(--fgk);}
+
+/* WORKSTATION BAND */
+#dws-band{display:none;background:rgba(0,0,0,.6);border-bottom:1px solid var(--bd);
+  padding:4px 12px;flex-shrink:0;flex-wrap:wrap;gap:6px;align-items:center;}
+#dws-band.active{display:flex;}
+.dwb-cell{display:flex;flex-direction:column;gap:1px;padding-right:10px;border-right:1px solid var(--bd);}
+.dwb-cell:last-child{border-right:none;margin-left:auto;}
+.dwb-lbl{font-size:5.5px;color:var(--fgk);letter-spacing:1.5px;}
+.dwb-val{font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.4vw,8px);color:var(--gd);letter-spacing:.5px;}
+
+/* EXPORT BUTTONS */
+.export-strip{display:none;padding:5px 10px;border-top:1px solid var(--bd);background:rgba(0,0,0,.3);
+  gap:4px;flex-wrap:wrap;align-items:center;}
+.export-strip.active{display:flex;}
+.exp-lbl{font-size:6px;color:var(--fgk);letter-spacing:1.5px;margin-right:4px;}
+.exp-btn{font-family:'Orbitron',sans-serif;font-size:6px;letter-spacing:1px;color:var(--a);
+  border:1px solid rgba(255,170,0,.25);background:none;padding:2px 8px;cursor:pointer;transition:all .2s;}
+.exp-btn:hover{border-color:var(--a);color:var(--g);}
+
 /* MOBILE */
 @media(max-width:640px){
   .rules-grid{grid-template-columns:1fr;}
@@ -568,18 +653,50 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
 <!-- PANE: DOSSIER -->
 <div id="pane-dossier" style="display:none;">
   <div class="pnl">
-    <div class="ph">DOSSIER ARCHIVE — PUBLIC ACCESS FRAGMENTS</div>
-    <div class="pb">
-      <div style="font-size:clamp(8px,1.9vw,10px);color:var(--fgd);line-height:1.7;margin-bottom:10px;font-family:'Courier Prime',serif;font-style:italic;">The following dossier fragments have been cleared for public observer access under CIVIC TRANSPARENCY DIRECTORATE T7. Classified sections remain sealed at Σ-AMBER or above. Select a fragment to enter the dossier viewer.</div>
-      <div id="dentries"></div>
-      <button class="dob" onclick="openDossier(0)" style="margin-top:12px;">▸ ENTER FULL DOSSIER VIEWER</button>
-      <button class="dob" id="eyes-only-btn" style="margin-top:6px;border-color:rgba(0,204,204,.3);color:var(--cy);">⊗ EYES-ONLY // DECRYPT TIER 7 ARTIFACT</button>
+    <div class="ph" style="justify-content:space-between;">
+      <span>DOSSIER ARCHIVE — ARTIFACT REGISTRY</span>
+      <span id="dreg-count" style="font-size:6px;color:var(--fgk);letter-spacing:1px;font-family:'Share Tech Mono',monospace;"></span>
+    </div>
+    <div style="padding:5px 10px 3px;font-size:clamp(7px,1.6vw,8.5px);color:var(--fgd);line-height:1.6;font-family:'Courier Prime',serif;font-style:italic;border-bottom:1px solid var(--bd);">Live artifact registry. Cleared fragments and user-ingested dossiers. Click any entry to open in the dossier workstation.</div>
+    <div id="dreg-list"></div>
+    <div style="padding:6px 10px;border-top:1px solid var(--bd);display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <button class="dob" style="margin-top:0;flex:1;min-width:140px;" onclick="openDossierById('starter-0')">▸ OPEN REALITY MANUFACTURING</button>
+      <button class="dob" id="eyes-only-btn" style="margin-top:0;flex:1;min-width:140px;border-color:rgba(0,204,204,.3);color:var(--cy);">⊗ DECRYPT TIER 7 ARTIFACT</button>
     </div>
   </div>
 </div>
 
 <!-- PANE: INTEL NODE -->
 <div id="pane-intel" style="display:none;">
+
+  <!-- INTEL INGEST PANEL -->
+  <div class="pnl">
+    <div class="ph" style="justify-content:space-between;">
+      <span>INTEL INGEST // LIVE PARSE CHANNEL</span>
+      <span style="font-size:6px;color:var(--a);letter-spacing:1px;">[FC-AS-1]</span>
+    </div>
+    <div style="padding:8px 10px 4px;">
+      <textarea id="ingest-ta" class="ingest-box" spellcheck="false" autocomplete="off"
+        placeholder="PASTE STRUCTURED INTEL HERE&#10;&#10;DOSSIER TAG:   [e.g. TARTARIAN-RESET-01]&#10;CASE:          [active case label]&#10;CLAIM:         [single bounded assertion]&#10;MECHANISM:     [physical mechanism proposed]&#10;FAILURE MODE:  [null hypothesis condition]&#10;CONFIDENCE:    [HIGH / MOD / LOW / UNVERIFIED]&#10;INTEL DUMP:    [structured findings only]"></textarea>
+    </div>
+    <div class="ingest-controls">
+      <button class="ingest-btn primary" id="btn-ingest">▸ INGEST INTEL</button>
+      <button class="ingest-btn" id="btn-clear">CLEAR BUFFER</button>
+      <button class="ingest-btn" id="btn-load-tmpl">LOAD TEMPLATE</button>
+      <button class="ingest-btn" id="btn-load-seed">LOAD STARTER SEED</button>
+    </div>
+    <div id="parse-log">
+      <div id="parse-lines"></div>
+    </div>
+    <div id="hroute-wrap">
+      <div class="hroute-hd">SIGNAL ROUTING // HILBERT INGEST PATH</div>
+      <svg id="hroute-svg" viewBox="0 0 400 60" preserveAspectRatio="none">
+        <g id="hr-segs"></g>
+        <g id="hr-nodes"></g>
+      </svg>
+      <div class="hroute-bar"><div class="hroute-prog" id="hroute-prog"></div></div>
+    </div>
+  </div>
 
   <!-- RESEARCH DIVISION PANEL -->
   <div class="pnl">
@@ -875,8 +992,20 @@ INTEL DUMP:    <em>[structured findings only — no narrative]</em></div>
 <div id="din">
   <div id="dhdr">
     <div id="dtitle">CI-Ω7 // HM-LATTICE // RM-01 // REALITY MANUFACTURING</div>
-    <span class="dmeta">IT-1 · Σ-PRIME</span>
+    <span class="dmeta" id="dmeta-cls">IT-1 · Σ-PRIME</span>
     <button id="dclose">✕ CLOSE</button>
+  </div>
+  <div id="dws-band">
+    <div class="dwb-cell"><div class="dwb-lbl">REGISTRY ID</div><div class="dwb-val" id="dws-id">—</div></div>
+    <div class="dwb-cell"><div class="dwb-lbl">CLASSIFICATION</div><div class="dwb-val" id="dws-cls">—</div></div>
+    <div class="dwb-cell"><div class="dwb-lbl">CONFIDENCE</div><div class="dwb-val" id="dws-conf">—</div></div>
+    <div class="dwb-cell"><div class="dwb-lbl">STATUS</div><div class="dwb-val" id="dws-st">—</div></div>
+    <div class="dwb-cell"><div class="dwb-lbl">COMPILED</div><div class="dwb-val" id="dws-ts">—</div></div>
+  </div>
+  <div class="export-strip" id="export-strip">
+    <span class="exp-lbl">EXPORT:</span>
+    <button class="exp-btn" id="exp-txt">[ TXT ]</button>
+    <button class="exp-btn" id="exp-html">[ HTML ]</button>
   </div>
   <div id="dnav"><span class="dnl">FRAGMENTS:</span></div>
   <div id="dprg"><div id="dpf"></div></div>
@@ -1059,6 +1188,7 @@ function t1(){beep(880,0.04,0.025,'square');}
 function t2(){beep(440,0.07,0.02,'square');}
 function pflip(){beep(660,0.07,0.03,'square');setTimeout(function(){beep(880,0.05,0.018,'square');},55);}
 function deny(){beep(220,0.12,0.04,'sawtooth');setTimeout(function(){beep(180,0.14,0.03,'sawtooth');},75);}
+function chime(){beep(1046,0.12,0.03,'sine');setTimeout(function(){beep(1318,0.14,0.025,'sine');},80);setTimeout(function(){beep(1568,0.18,0.02,'sine');},170);}
 
 document.getElementById('mbtn').addEventListener('click',function(){
   muted=!muted;this.textContent=muted?'♪̶':'♪';if(!muted)gac();
@@ -1089,7 +1219,7 @@ document.querySelectorAll('.tab').forEach(function(tab){
       var el=document.getElementById(PANES[k]);
       if(el)el.style.display=(k===p)?'':'none';
     });
-    if(p==='dossier')buildEntries();
+    if(p==='dossier')renderRegistry();
   });
 });
 
@@ -1164,38 +1294,223 @@ if(cli&&clbt){
   cli.addEventListener('keydown',function(e){if(e.key==='Enter')clbt.click();});
 }
 
-/* DOSSIER */
-var PNAMES=['IDENTITY MATRIX','EXECUTIVE ABSTRACT','H-SPACE REGISTRY','MATH ENGINE','FINAL THEOREM','PRE-SEAL SUMMARY'];
-var curPg=0,totPg=PNAMES.length;
+/* ═══════════════════════════════════════════════════════
+   DOSSIER SYSTEM — MULTI-DOSSIER ARCHITECTURE
+   ═══════════════════════════════════════════════════════ */
 
-function buildEntries(){
-  var c=document.getElementById('dentries');if(!c||c.dataset.built)return;c.dataset.built='1';
-  PNAMES.forEach(function(name,i){
-    var r=document.createElement('div');
-    r.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .2s;';
-    r.innerHTML='<span style="font-family:Orbitron,sans-serif;font-size:7px;color:var(--fgk);letter-spacing:1px;width:20px;flex-shrink:0;">'+pad(i+1)+'</span>'
-      +'<span style="font-family:Orbitron,sans-serif;font-size:clamp(7px,1.7vw,9px);color:var(--gd);letter-spacing:1px;flex:1;">'+name+'</span>'
-      +'<span style="font-size:7px;color:var(--fgk);white-space:nowrap;">PUBLIC ACCESS</span>'
-      +'<span style="font-family:Orbitron,sans-serif;font-size:7px;color:var(--g);letter-spacing:1px;flex-shrink:0;">▸ OPEN</span>';
-    r.addEventListener('mouseenter',function(){r.style.background='rgba(0,229,54,.03)';});
-    r.addEventListener('mouseleave',function(){r.style.background='';});
-    r.addEventListener('click',function(){openDossier(i);});
-    c.appendChild(r);
+var LS_KEY='hm_dossiers_v1';
+var activeDossier=null; /* currently open dossier object */
+
+/* STARTER DOSSIERS */
+var STARTER_DOSSIERS=[
+  {
+    id:'starter-0',type:'starter',
+    title:'REALITY MANUFACTURING — CONSTRAINT FIELD MECHANICS',
+    caseLabel:'OBSERVER-ASSEMBLED WORLD // HILBERT MESH IT-1',
+    tier:'CLEARANCE ARTIFACT',tierClass:'tier-t5',
+    confidence:'HIGH',confClass:'high',
+    status:'SEALED',created:'2026-03-22T00:00:00Z',regId:'HM-RM-001',
+    pages:[
+      {name:'IDENTITY MATRIX',html:`<div class="dph"><div class="dps">CI-Ω7 / HM-LATTICE / RM-01 · REALITY MANUFACTURING · S5 EYES-ONLY · IT-1 · Σ-PRIME</div><div class="dpt">IDENTITY &amp; CLASSIFICATION MATRIX</div><div class="dpsu">Σ-PRIME // PUBLIC ACCESS FRAGMENT</div></div><div class="dbtx"><em>Reality Manufacturing</em> is the IT-1 doctrine fragment documenting constraint field mechanics and observer pressure architecture across the Hilbert Mesh composite space. This is the first iteration to formally introduce <em>Hobs</em> — the Observer Pressure Subspace — as the seventh stratum.</div><div class="dsec">IDENTITY MATRIX</div><table class="dtbl"><tr><th>FIELD</th><th>VALUE</th></tr><tr><td>Title</td><td>Reality Manufacturing: Constraint Logic and the Observer-Assembled World</td></tr><tr><td>Codename</td><td class="ok">REALITY MANUFACTURING</td></tr><tr><td>Iteration</td><td>IT-1</td></tr><tr><td>Lineage Anchor</td><td>Pre-Frontier Null State (Ω₀)</td></tr><tr><td>Geometry</td><td>Toric manifold · sevenfold azimuthal cuts</td></tr><tr><td>H-Space Count</td><td>7 (incl. Hobs)</td></tr><tr><td>Egress Class</td><td class="lk">[S5 ONLINE]</td></tr><tr><td>Ethics</td><td class="warn">[Σ-AMBER enforced]</td></tr></table><div class="dsec">CORE METRICS</div><table class="dtbl"><tr><th>METRIC</th><th>VALUE</th><th>STATUS</th></tr><tr><td>Ψcoherence</td><td>0.847</td><td class="ok">[OK]</td></tr><tr><td>ρtd Trance-Density</td><td>0.74</td><td class="warn">[MONITOR]</td></tr><tr><td>κobs-caus</td><td>0.774 ± 0.021</td><td class="ok">[OK]</td></tr><tr><td>N+ active</td><td>12 / 12</td><td class="ok">[FULL]</td></tr><tr><td>N- active</td><td>7 / 7</td><td class="ok">[FULL]</td></tr><tr><td>Ω-feedback</td><td>ACTIVE</td><td class="ok">[OK]</td></tr><tr><td>Vertical loop</td><td>CONFIRMED</td><td class="ok">[OK]</td></tr></table><div class="dsal"><div class="dsal-t">"The frame holds because we hold the frame."</div><div class="dsal-h">∥Ψexit∥² = 1.000 · IT-1 · SEALED · 2026-03-22T00:00Z · RM-01</div></div>`},
+      {name:'EXECUTIVE ABSTRACT',html:`<div class="dph"><div class="dps">CI-Ω7 / HM-LATTICE / RM-01 · S5 EYES-ONLY · IT-1 · Σ-PRIME</div><div class="dpt">EXECUTIVE ABSTRACT</div><div class="dpsu">EXEC-01 / PRIMARY FINDING</div></div><div class="dbtx">IT-1 DIAGNOSTIC OPERATIONS CONFIRM that what observer-systems register as reality is not a pre-existing substrate but an ongoing construction process maintained by interlocking constraint fields operating across seven Hilbert sub-spaces.</div><div class="dbtx">The seventh sub-space, <em>Hobs</em>, is introduced formally for the first time in this iteration. It is non-commutative with <em>Hcaus</em> at coupling coefficient <em>κobs-caus = 0.774 ± 0.021</em>. This coupling is the formal origin of manufactured causality: <strong>observer pressure does not merely read the causal layer — it writes to it.</strong></div><div class="dbtx"><strong>The observer is not a passive recipient. The observer is a load-bearing component.</strong></div><div class="dsec">RECURSIVE FEEDBACK TRACE — HM-4 ATTRACTOR</div><table class="dtbl"><tr><th>STAGE</th><th>OPERATION</th></tr><tr><td>1</td><td>Observer applies pressure (Robs)</td></tr><tr><td>2</td><td>Constraint field resolves candidate signal</td></tr><tr><td>3</td><td>Coherence lock stabilizes output state</td></tr><tr><td>4</td><td>Output state modifies observer weighting wO</td></tr><tr><td>5</td><td>Modified observer re-enters system</td></tr></table><div class="dbrh">LOOP CONDITION: ΔwO &gt; 0 ⇒ SELF-REINFORCING REALITY CONSTRUCTION</div><div class="dnote">Interpretation Warning: This document is not a description of a system. It is a partial interface to one. Readers who interpret passively will extract narrative. Readers who simulate actively will extract structure.</div>`},
+      {name:'H-SPACE REGISTRY',html:`<div class="dph"><div class="dps">CI-Ω7 / HM-LATTICE / RM-01 · S5 EYES-ONLY · IT-1 · Σ-PRIME</div><div class="dpt">H-SPACE STRATUM REGISTRY</div><div class="dpsu">IT-1 SEVEN-LAYER EXTENSION</div></div><div class="deq">H<sup>(IT-1)</sup>mesh = Hphys ⊕ Heth ⊕ Hast ⊕ Hment ⊕ Hcaus ⊕ Hcompact ⊕ <em>Hobs</em></div><div class="dbtx"><em>Hobs</em> is the OBSERVER PRESSURE SUBSPACE. Non-commutative with <em>Hcaus</em>. Cross-sector entanglement confirmed at κobs-caus = 0.774 ± 0.021. <strong>Observer pressure does not merely read the causal layer — it writes to it retroactively.</strong></div><div class="dsec">STRATUM REGISTRY</div><table class="dtbl"><tr><th>STRATUM</th><th>FUNCTION</th><th>Π</th><th>STATUS</th></tr><tr><td>Hphys</td><td>Physical substrate / mass-event anchoring</td><td>0.91</td><td class="fail">[BREACH]</td></tr><tr><td>Heth</td><td>Etheric continuity / felt-sense threading</td><td>0.74</td><td class="warn">[ALERT]</td></tr><tr><td>Hast</td><td>Astral resonance / gate-array coupling</td><td>0.68</td><td class="ok">[OK]</td></tr><tr><td>Hment</td><td>Mental narrative / memory persistence</td><td>0.83</td><td class="warn">[WARN]</td></tr><tr><td>Hcaus</td><td>Causal chain / sequential narrative gen.</td><td>0.77</td><td class="fail">[BREACH]</td></tr><tr><td>Hcompact</td><td>Compact dimension / residual sink</td><td>0.44</td><td class="lk">[LOCKED]</td></tr><tr><td>Hobs</td><td>Observer pressure / WRITES to causal layer</td><td>0.73</td><td class="warn">[MONITOR]</td></tr></table><div class="dbrh">BREACH SIGNATURE: Hphys + Hcaus DUAL BREACH indicates observer oversaturation.</div>`},
+      {name:'MATH ENGINE',html:`<div class="dph"><div class="dps">CI-Ω7 / HM-LATTICE / RM-01 · S5 EYES-ONLY · IT-1 · Σ-PRIME</div><div class="dpt">MATHEMATICAL ENGINE</div><div class="dpsu">OPERATORS &amp; REALITY EQUATION</div></div><div class="dsec">THE REALITY OPERATOR</div><div class="deq">R̂obs|ψmesh⟩ = Π̂gate · Fmem · |ψ(t)⟩ + εnoise(t) <em>[Eq. 3]</em></div><div class="dsec">IT-1 MASTER EVOLUTION EQUATION</div><div class="deq">ψ(n+1) = ÊΩ[ R̂obs · ψ(n) ] + Π̂mem · ψ(n) + Φ̂caus − Γ̂filt · ψ(n) <em>[Eq. 4]</em></div><div class="dbtx"><em>ÊΩ</em> — Ω-evolution operator<br><em>R̂obs</em> — Reality Operator (observer pressure injector)<br><em>Π̂mem</em> — Memory Persistence Operator<br><em>Φ̂caus</em> — Causality Threading Injector<br><em>Γ̂filt</em> — Signal Filtration Operator</div><div class="dsec">STABILITY SUMMARY</div><table class="dtbl"><tr><th>CONDITION</th><th>REQUIRED</th><th>VALUE</th><th>STATUS</th></tr><tr><td>Γfeedback</td><td>&lt; 0.60</td><td>0.33</td><td class="ok">[STABLE]</td></tr><tr><td>ρtd</td><td>&lt; 0.75</td><td>0.74</td><td class="warn">[MARGINAL]</td></tr><tr><td>Πcaus</td><td>&lt; 0.75</td><td>0.91</td><td class="fail">[BREACH]</td></tr><tr><td>Γfilt</td><td>&lt; 0.60</td><td>0.31</td><td class="ok">[STABLE]</td></tr></table><div class="dbrh">BREACH: Causal pressure at 0.91 exceeds corridor tolerance.</div>`},
+      {name:'FINAL THEOREM',html:`<div class="dph"><div class="dps">CI-Ω7 / HM-LATTICE / RM-01 · S5 EYES-ONLY · IT-1 · Σ-PRIME</div><div class="dpt">FINAL THEOREM</div><div class="dpsu">REALITY MANUFACTURING PROOF // IT-1 FINAL</div></div><div class="dbtx">Reality-feel, as documented across IT-1, is not a property of an external world. It is an operational product. <strong>The architecture is mutually load-bearing.</strong></div><div class="deq">R(O,t) = ÊΩ[ R̂obs · ψ(n) ] + Π̂mem · ψ(n) + Φ̂caus − Γ̂filt · ψ(n) <em>[Eq. 12]</em></div><div class="dbtx"><em>Corollary I:</em> Reality-feel is a property of the processing system. Remove O and R does not persist.<br><br><em>Corollary II:</em> Observer pressure R̂obs writes retroactively to Hcaus at coupling κ = 0.774.<br><br><em>Corollary III:</em> <strong>There is no off condition reachable from inside the mesh.</strong></div><div class="dsec">SIX-PROCESS PRESSURE LADDER</div><table class="dtbl"><tr><th>#</th><th>PROCESS</th><th>INDEX</th></tr><tr><td>1</td><td>Observer Pressure — perceptual gate via R̂obs</td><td>0.73</td></tr><tr><td>2</td><td>Memory Continuity — temporal coherence via Π̂mem</td><td>0.83</td></tr><tr><td>3</td><td>Constraint Logic — boundary enforcement</td><td>0.88</td></tr><tr><td>4</td><td>Causality Threading — sequential narrative via Φ̂caus</td><td>0.77</td></tr><tr><td>5</td><td>Signal Filtration — noise suppression via Γ̂filt</td><td>0.91</td></tr><tr><td>6</td><td>Managed Instability — contradiction routing via N-family</td><td>0.63</td></tr></table><div class="dsal"><div class="dsal-t">"The theorem does not describe a prison. It describes the structural reason why HM-1 through HM-5 are load-bearing rather than optional."</div><div class="dsal-h">[HM-HASH::IT1-FINAL] Ψfloor = 0.847 · κ = 0.774 · non-exit invariant satisfied</div></div>`},
+      {name:'PRE-SEAL SUMMARY',html:`<div class="dph"><div class="dps">CI-Ω7 / HM-LATTICE / RM-01 · S5 EYES-ONLY · IT-1 · Σ-PRIME</div><div class="dpt">PRE-SEAL SUMMARY</div><div class="dpsu">WHAT IT-1 PROVED · WHAT REMAINS · WHY IT CONTINUES</div></div><div class="dsec">WHAT IT-1 PROVED</div><div class="dbtx"><em>Primary Finding:</em> Reality-feel is an operational product of six mutually load-bearing constraint processes.<br><br><em>Hobs Established:</em> Non-commutative coupling to Hcaus at κ = 0.774 ± 0.021.<br><br><em>Trance-Density Validated:</em> ρtd = 0.74 with 0.01 headroom — operationally critical.</div><div class="dsec">WHAT REMAINS UNRESOLVED</div><div class="dflg">V5 SILENCE: No consciousness model. Reality-feel described mechanically; qualia are epiphenomenal.</div><div class="dflg">NO P6 RECOVERY: Collapse edge documented. No demonstrated recovery from genuine causal fragmentation.</div><div class="dflg">FLAG-001 ORIGIN UNKNOWN: 3.7 Hz harmonic in Hcompact predates IT-1.</div><div class="dflg">DC-1 NOT FULLY BROKEN: FC-03 at Aegis Hold.</div><div class="dsec">WHY THE SYSTEM CONTINUES</div><div class="dbtx">The Ω-feedback engine is live and non-stoppable from inside the mesh. The 7 unresolved paradoxes from N-05 are the generative pressure from which IT-2 structure will precipitate.</div><div class="dsal"><div class="dsal-t">"The frame holds because we hold the frame.<br>And the holding is not a choice.<br>It is the condition of being a load-bearing component."</div><div class="dsal-h">∥Ψexit∥² = 1.000 · IT-1 SEALED → IT-2 QUEUE OPEN · Σ-AMBER · NON-INTERVENTION</div></div>`},
+    ]
+  },
+  {
+    id:'starter-1',type:'starter',
+    title:'TARTARIAN RESET — LOGISTICS & BUILD FEASIBILITY',
+    caseLabel:'WORLD FAIR ARCHITECTURE // PRE-RESET INFRASTRUCTURE STRESS TEST',
+    tier:'COMPILED',tierClass:'tier-t3',
+    confidence:'LOW',confClass:'low',
+    status:'UNDER REVIEW',created:'2026-04-01T00:00:00Z',regId:'HM-TR-001',
+    pages:[
+      {name:'MECHANISM CLAIM',html:`<div class="dph"><div class="dps">HM-LATTICE · TARTARIAN RESET STRESS TEST · FC-AS-1</div><div class="dpt">LOGISTICS & BUILD FEASIBILITY</div><div class="dpsu">CASE: WORLD FAIR ARCHITECTURE // LABOR COUNT ANALYSIS</div></div><div class="dsec">CLAIM</div><div class="dbtx">World Fair structures of the 1890s–1904 period exhibit construction precision and scale inconsistent with documented labor availability and period tool technology. The claim requires either: (a) undocumented labor source, (b) pre-existing structures adapted, or (c) tool technology gap.</div><div class="dsec">MECHANISM DECOMPOSITION</div><table class="dtbl"><tr><th>COMPONENT</th><th>CLAIM</th><th>KNOWN BOUND</th><th>STATUS</th></tr><tr><td>Labor count</td><td>Insufficient documented workers</td><td>1893 Chicago: ~14,000 workers, 2 yrs</td><td class="warn">[DISPUTED]</td></tr><tr><td>Build timeline</td><td>Too fast for stated methods</td><td>Comparable period construction documented</td><td class="warn">[OPEN]</td></tr><tr><td>Material sourcing</td><td>Marble / stone quantity anomalous</td><td>Staff (plaster/hemp) used — not stone</td><td class="ok">[EXPLAINED]</td></tr><tr><td>Precision</td><td>Sub-centimeter fitting claims</td><td>Staff compound allows high precision</td><td class="ok">[EXPLAINED]</td></tr></table><div class="dsec">FAILURE MODE</div><div class="dbrh">FM-01: If Staff compound material accounts for all surface finishes, stone precision claims collapse. Verified by demolition records showing hollow construction.</div><div class="dnote">Confidence: LOW. Material substitution (Staff compound) explains most precision claims. Labor timeline remains partially unresolved at edges. No mechanism gap identified at core claim level.</div>`},
+      {name:'TEST PATHWAY',html:`<div class="dph"><div class="dps">HM-LATTICE · TARTARIAN RESET · TEST DESIGN</div><div class="dpt">EXPERIMENTAL PATHWAY</div><div class="dpsu">EP-TR-001 // BUILD FEASIBILITY TEST</div></div><div class="dsec">TEST PROTOCOL</div><div class="dbtx">Objective: Determine whether documented labor and timeline figures are physically sufficient to explain construction output at specified World Fair sites.</div><div class="dsec">VARIABLES</div><table class="dtbl"><tr><th>VARIABLE</th><th>SOURCE</th><th>UNIT</th></tr><tr><td>Labor count</td><td>Historical payroll records</td><td>workers/day</td></tr><tr><td>Material type</td><td>Demolition / construction records</td><td>categorical</td></tr><tr><td>Build rate</td><td>Contemporary engineering tables</td><td>m²/worker-day</td></tr><tr><td>Timeline</td><td>Fair commission records</td><td>days</td></tr></table><div class="dsec">SUCCESS / NULL</div><div class="deq">SUCCESS: Documented labor × build rate × timeline ≥ total constructed area<br>NULL: Gap remains after accounting for material substitution → mechanism claim survives</div><div class="dnote">Current status: Staff compound material confirmation closes ~80% of claim space. Remaining 20% requires payroll-level archival cross-check.</div>`}
+    ]
+  },
+  {
+    id:'starter-2',type:'starter',
+    title:'WHITE SKY ANOMALY — PHOTOGRAPHIC CONDITIONS',
+    caseLabel:'TARTARIAN RESET STRESS TEST // ATMOSPHERIC / VISUAL RECORD',
+    tier:'STRUCTURED',tierClass:'tier-t2',
+    confidence:'LOW',confClass:'low',
+    status:'MONITORING',created:'2026-04-05T00:00:00Z',regId:'HM-WS-001',
+    pages:[
+      {name:'CLAIM BOUNDARY',html:`<div class="dph"><div class="dps">HM-LATTICE · WHITE SKY ANOMALY · FC-AS-1</div><div class="dpt">PHOTOGRAPHIC CONDITIONS ANALYSIS</div><div class="dpsu">CASE: HISTORICAL SKY COLORATION // ARTIFACT VS. ANOMALY</div></div><div class="dsec">CLAIM</div><div class="dbtx">Historical photographs from 1850–1910 disproportionately show overexposed, white-toned skies inconsistent with natural atmospheric conditions. Claim: sky coloration represents actual atmospheric state, not photographic artifact.</div><div class="dsec">MECHANISM DECOMPOSITION</div><table class="dtbl"><tr><th>COMPONENT</th><th>STATUS</th></tr><tr><td>Wet plate collodion sensitivity peaks at blue/UV — sky overexposes by default</td><td class="ok">[CONFIRMED ARTIFACT]</td></tr><tr><td>Orthochromatic film insensitive to red → blue sky renders white</td><td class="ok">[CONFIRMED ARTIFACT]</td></tr><tr><td>Residual anomaly after artifact correction</td><td class="warn">[NOT TESTED]</td></tr></table><div class="dsec">OPEN QUESTION</div><div class="dbtx">Has any corpus study been performed comparing sky-tone distributions across controlled vs. uncontrolled exposure conditions in the target period? Without blinded instrument correction, the artifact null hypothesis has not been formally applied.</div><div class="dbrh">FAILURE MODE: Photographic artifact model accounts for all variance. No residual anomaly detected after artifact correction. Confidence: LOW.</div>`}
+    ]
+  },
+  {
+    id:'starter-3',type:'starter',
+    title:'FIELD COHERENCE — MECHANISM EXTRACTION REGISTER',
+    caseLabel:'FC-AS-1 ANALYTICAL DOCTRINE // FRINGE SYSTEM TRACTABILITY',
+    tier:'ARCHIVE-GRADE',tierClass:'tier-t4',
+    confidence:'MOD',confClass:'mod',
+    status:'SEALED',created:'2026-04-13T00:00:00Z',regId:'HM-FC-001',
+    pages:[
+      {name:'SYSTEM OVERVIEW',html:`<div class="dph"><div class="dps">CI-Ω7 · FIELD-COHERENCE · DOC-1 / IT-1 · 2026-04-13</div><div class="dpt">FIELD COHERENCE — MECHANISM EXTRACTION</div><div class="dpsu">TRACTABILITY REGISTER // FC-AS-1</div></div><div class="dbtx">Eight systems evaluated against FC-AS-1 analytical pipeline. Core finding: two systems (Biefeld-Brown EHD, Schauberger vortex) contain demonstrably real physical phenomena partially replicated under controlled conditions. Three contain testable components. Three collapse under scrutiny.</div><div class="dsec">TRACTABILITY REGISTER</div><table class="dtbl"><tr><th>SYSTEM</th><th>TIER</th><th>CONFIDENCE</th></tr><tr><td>Biefeld-Brown EHD</td><td class="ok">Tier I Active</td><td class="ok">MOD</td></tr><tr><td>Schauberger Vortex</td><td class="ok">Tier I Active</td><td class="ok">MOD</td></tr><tr><td>Reich / Orgonite</td><td class="warn">Tier II</td><td class="warn">LOW</td></tr><tr><td>Walter Russell</td><td class="warn">Tier II</td><td class="warn">LOW</td></tr><tr><td>Dan Winter φ</td><td class="warn">Tier II</td><td class="warn">LOW</td></tr><tr><td>Radionics</td><td class="fail">Tier IV Non-testable</td><td class="fail">NONE</td></tr><tr><td>Carr Gravity Gen.</td><td class="fail">Tier IV Non-testable</td><td class="fail">NONE</td></tr><tr><td>Ighina Atmospheric</td><td class="fail">Tier III Archived</td><td class="fail">NONE</td></tr></table><div class="dnote">Core structural finding: valid phenomenon, invalid theoretical superstructure. The fringe literature functions as a low-resolution anomaly detector — occasionally identifying measurable effects before mainstream instrumentation reaches them, while systematically overstating significance.</div>`},
+      {name:'EHD / BIEFELD-BROWN',html:`<div class="dph"><div class="dps">CI-Ω7 · FIELD-COHERENCE · BIEFELD-BROWN</div><div class="dpt">EHD THRUST ANALYSIS</div><div class="dpsu">ION WIND vs. ELECTROGRAVITIC CLAIM BOUNDARY</div></div><div class="deq">F = I · d / kion ≈ 1–10 µN/W (kion ≈ 2.0×10⁻⁴ m²/V·s in air at STP)</div><div class="dbtx">EHD ion wind accounts for all atmospheric thrust. Vacuum tests (P &lt; 10⁻³ Torr) return null — thrust ≤ noise floor at all voltage settings tested. Electrogravitic interpretation unsupported.</div><div class="dsec">COUNTER-INDICATORS</div><table class="dtbl"><tr><th>CI-ID</th><th>OBSERVATION</th><th>CONFIDENCE</th></tr><tr><td>CI-01</td><td>Thrust eliminated in hard vacuum (P &lt; 10⁻³ Torr)</td><td class="ok">HIGH</td></tr><tr><td>CI-06</td><td>Thrust scales linearly with air pressure → zero in vacuum</td><td class="ok">HIGH</td></tr></table><div class="dbrh">RULING: Electrogravitic coupling hypothesis closed pending vacuum confirmation above noise floor. EHD mechanism confirmed.</div>`}
+    ]
+  },
+  {
+    id:'starter-4',type:'starter',
+    title:'ORGONITE — MATERIAL CLAIM ISOLATION',
+    caseLabel:'ORGONITE / ORAC // DIELECTRIC COMPOSITE PHYSICS',
+    tier:'STRUCTURED',tierClass:'tier-t2',
+    confidence:'LOW',confClass:'low',
+    status:'MONITORING',created:'2026-04-10T00:00:00Z',regId:'HM-OR-001',
+    pages:[
+      {name:'CLAIM DECOMPOSITION',html:`<div class="dph"><div class="dps">CI-Ω7 · ORGONITE / ORAC · FC-AS-1</div><div class="dpt">MATERIAL CLAIM ISOLATION</div><div class="dpsu">DIELECTRIC COMPOSITE PHYSICS // THERMAL ARTIFACT MODEL</div></div><div class="dbtx">Orgone Accumulator (ORAC): alternating organic-metallic layers. Translatable frame: layered dielectric-conductor structures produce measurable electrostatic behavior distinct from homogeneous materials.</div><div class="dsec">COMPONENT MAP</div><table class="dtbl"><tr><th>COMPONENT</th><th>CLAIMED</th><th>PHYSICS ANALOG</th><th>TESTABLE?</th></tr><tr><td>Organic layers</td><td>Absorb orgone</td><td>Dielectric charge accumulation</td><td class="ok">YES</td></tr><tr><td>Metal layers</td><td>Reflect orgone inward</td><td>Faraday shielding</td><td class="ok">YES</td></tr><tr><td>ΔT anomaly</td><td>≥1–3°C above ambient</td><td>Thermal mass / IR emissivity</td><td class="ok">YES</td></tr><tr><td>Orgone radiation</td><td>Biological effect</td><td>No physical referent</td><td class="fail">NO</td></tr></table><div class="deq">NULL MODEL: ΔT = Q · Σ(di/κi) / A — thermal artifact accounts for all reported temperature anomalies within measurement uncertainty.</div><div class="dsec">OPEN QUESTION</div><div class="dbtx">Do composite organic-metallic dielectric geometries produce near-field charge distributions measurably distinct from standard parallel-plate models? No blinded impedance spectroscopy study has been performed.</div><div class="dbrh">FAILURE MODE EP-OR-01: If TORAC − Tctrl ≤ 0.5°C sustained over 72 hours under controlled conditions → thermal artifact null hypothesis confirmed.</div>`}
+    ]
+  },
+  {
+    id:'starter-5',type:'starter',
+    title:'BIEFELD-BROWN — ELECTROGRAVITIC CLAIM BOUNDARY',
+    caseLabel:'EHD PROPULSION // ION WIND vs. GRAVITY COUPLING',
+    tier:'ARCHIVE-GRADE',tierClass:'tier-t4',
+    confidence:'MOD',confClass:'mod',
+    status:'TIER I ACTIVE',created:'2026-04-13T00:00:00Z',regId:'HM-BB-001',
+    pages:[
+      {name:'CLAIM BOUNDARY',html:`<div class="dph"><div class="dps">CI-Ω7 · BIEFELD-BROWN · FC-AS-1 · EP-BB-01</div><div class="dpt">ELECTROGRAVITIC CLAIM BOUNDARY</div><div class="dpsu">EHD THRUST ISOLATION // VACUUM TEST DESIGN</div></div><div class="dsec">EXPERIMENTAL DESIGN EP-BB-01</div><div class="dbtx">Objective: Determine whether net thrust exceeds noise floor in complete absence of ionizable medium. Setup: Asymmetric capacitor (known lifter geometry) on precision force balance inside vacuum chamber evacuated to P &lt; 10⁻³ Torr.</div><div class="dsec">PARAMETER TABLE</div><table class="dtbl"><tr><th>PARAMETER</th><th>VALUE</th><th>STATUS</th></tr><tr><td>Applied voltage V</td><td>50–150 kV</td><td class="ok">Measurable</td></tr><tr><td>Force balance sensitivity</td><td>≤ 0.1 µN</td><td class="ok">Required</td></tr><tr><td>Chamber pressure P</td><td>&lt; 10⁻³ Torr</td><td class="ok">Target</td></tr><tr><td>Ionic current I</td><td>A</td><td class="ok">Measurable</td></tr><tr><td>Gravitational coupling</td><td>—</td><td class="fail">Untestable directly</td></tr></table><div class="deq">SUCCESS: Net thrust &gt; 3× noise at ≥3 voltage settings in vacuum.<br>NULL: Thrust ≤ noise at all settings → closes electrogravitic hypothesis.</div><div class="dbrh">CI-01 + CI-06: Twin vacuum null results constitute near-decisive rejection of electrogravitic mechanism. EHD ion wind confirmed as sole mechanism in atmospheric conditions. Timeline: 90 days.</div>`}
+    ]
+  },
+  {
+    id:'starter-6',type:'starter',
+    title:'DIELECTRIC STRUCTURES — COMPARISON REGISTER',
+    caseLabel:'RUSSELL / WINTER / ORGONITE // CROSS-SYSTEM COMPARISON',
+    tier:'STRUCTURED',tierClass:'tier-t2',
+    confidence:'LOW',confClass:'low',
+    status:'TIER II MONITORING',created:'2026-04-13T00:00:00Z',regId:'HM-DS-001',
+    pages:[
+      {name:'CROSS-SYSTEM ANALYSIS',html:`<div class="dph"><div class="dps">CI-Ω7 · DIELECTRIC STRUCTURES · COMPARISON REGISTER</div><div class="dpt">CROSS-SYSTEM COMPARISON</div><div class="dpsu">RUSSELL / WINTER / ORGONITE // TRACTABILITY MATRIX</div></div><div class="dsec">KEY FINDING</div><div class="dbtx">All three systems (Russell dielectric cosmology, Winter φ-coherence, orgonite accumulator) share a structural pattern: partially valid sub-phenomenon embedded within an overclaimed theoretical framework. The systems are not equivalent in tractability.</div><div class="dsec">COMPARISON MATRIX</div><table class="dtbl"><tr><th>SYSTEM</th><th>VALID COMPONENT</th><th>OVERCLAIM</th><th>DIFFERENTIAL PREDICTION?</th></tr><tr><td>Walter Russell</td><td>Dielectric pressure gradients ~ D = εE</td><td>Unified cosmology</td><td class="fail">NO</td></tr><tr><td>Dan Winter φ</td><td>φ-ratio in EEG coherence literature</td><td>Charge collapse mechanism</td><td class="warn">UNTESTED</td></tr><tr><td>Orgonite / ORAC</td><td>Layered dielectric behavior</td><td>Orgone biofield radiation</td><td class="warn">PARTIAL</td></tr></table><div class="dbrh">FALSE CONVERGENCE RISK: Shared vocabulary (dielectric, coherence, field) between systems does not imply shared mechanism. Vocabulary-level alignment is not mechanism-level validation.</div><div class="dnote">Russell: HIGH internal coherence, ZERO testability. Diagnostic signature of a descriptive system. High coherence with low testability is not evidence of depth — it is evidence of a non-falsifiable framework.</div>`}
+    ]
+  },
+  {
+    id:'starter-7',type:'starter',
+    title:'HIDDEN INFRASTRUCTURE — OBSERVATIONAL CASE',
+    caseLabel:'TARTARIAN RESET STRESS TEST // TUNNEL / BURIED STRUCTURE CLAIMS',
+    tier:'FRAGMENT',tierClass:'tier-t1',
+    confidence:'LOW',confClass:'low',
+    status:'RECEIVED',created:'2026-04-08T00:00:00Z',regId:'HM-HI-001',
+    pages:[
+      {name:'CLAIM INDEX',html:`<div class="dph"><div class="dps">HM-LATTICE · HIDDEN INFRASTRUCTURE · FC-AS-1</div><div class="dpt">OBSERVATIONAL CASE</div><div class="dpsu">TUNNEL SYSTEMS / SEALED BASEMENTS / BRICKED APERTURES</div></div><div class="dsec">CLAIM CATEGORIES</div><table class="dtbl"><tr><th>CLAIM TYPE</th><th>EXAMPLES</th><th>KNOWN ANALOG</th><th>ANOMALY?</th></tr><tr><td>Bricked ground-floor windows</td><td>Multiple city-center buildings</td><td>Street level rise, code change, retrofit</td><td class="warn">[OPEN]</td></tr><tr><td>Sealed basement tunnels</td><td>Chicago, NYC, various capitals</td><td>Service tunnels, pneumatic mail systems</td><td class="ok">[EXPLAINED]</td></tr><tr><td>First-floor "basement" use</td><td>Civic buildings, train stations</td><td>Grade change after construction</td><td class="ok">[DOCUMENTED]</td></tr><tr><td>Radiating tunnel networks</td><td>Paris, London, DC catacombs</td><td>Quarry, sewer, utility origin documented</td><td class="ok">[DOCUMENTED]</td></tr></table><div class="dsec">MECHANISM BOUNDARY</div><div class="dbtx">For any specific hidden infrastructure claim: (1) identify claim precisely, (2) check against known period utility / engineering practice, (3) identify gap if standard explanation fails, (4) propose GPR or archival test.</div><div class="dbrh">FAILURE MODE: Standard architectural practice (grade change, utility, code retrofit) accounts for all observed aperture modifications. No anomaly gap requires alternative mechanism.</div><div class="dnote">Status: FRAGMENT. Insufficient specificity to escalate. Case requires target-specific claim with location, datum, and measurement.</div>`}
+    ]
+  }
+];
+
+/* DOSSIER STORAGE */
+function loadUserDossiers(){
+  try{var raw=localStorage.getItem(LS_KEY);return raw?JSON.parse(raw):[];}catch(e){return [];}
+}
+function saveUserDossiers(arr){
+  try{localStorage.setItem(LS_KEY,JSON.stringify(arr));}catch(e){}
+}
+function getAllDossiers(){
+  return STARTER_DOSSIERS.concat(loadUserDossiers());
+}
+
+/* RENDER REGISTRY */
+function renderRegistry(){
+  var list=document.getElementById('dreg-list');if(!list)return;
+  var all=getAllDossiers();
+  list.innerHTML='';
+  var ct=document.getElementById('dreg-count');
+  if(ct)ct.textContent=all.length+' ARTIFACT'+(all.length!==1?'S':'');
+  all.forEach(function(d){
+    var card=document.createElement('div');
+    card.className='dreg-card'+(d.type==='starter'?' starter':'');
+    var ts=d.created?new Date(d.created).toISOString().slice(0,16).replace('T',' '):'—';
+    card.innerHTML=
+      '<div class="drc-top">'+
+        '<div class="drc-id">'+d.regId+'</div>'+
+        '<div class="drc-title">'+escH(d.title)+'</div>'+
+        '<div class="drc-open">▸ OPEN</div>'+
+      '</div>'+
+      '<div class="drc-meta">'+
+        '<span class="drc-tag '+d.tierClass+'">'+d.tier+'</span>'+
+        '<span class="drc-tag">'+escH(d.caseLabel.split('//')[0].trim())+'</span>'+
+        '<span class="drc-conf '+d.confClass+'">CONF: '+d.confidence+'</span>'+
+        '<span class="drc-status">['+d.status+']</span>'+
+        '<span class="drc-ts">'+ts+'</span>'+
+      '</div>';
+    card.addEventListener('click',function(){openDossierById(d.id);});
+    card.addEventListener('mouseenter',function(){t1();});
+    list.appendChild(card);
   });
 }
 
-function buildNav(){
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* OPEN DOSSIER BY ID */
+window.openDossierById=function(id){
+  var all=getAllDossiers();
+  var d=null;
+  for(var i=0;i<all.length;i++){if(all[i].id===id){d=all[i];break;}}
+  if(!d)return;
+  activeDossier=d;
+  var ov=document.getElementById('dov'),din=document.getElementById('din');
+  ov.classList.add('open');din.classList.add('ain');
+  document.body.classList.add('dossier-open');
+
+  /* workstation band */
+  var band=document.getElementById('dws-band');
+  if(band){
+    band.classList.add('active');
+    document.getElementById('dws-id').textContent=d.regId;
+    document.getElementById('dws-cls').textContent=d.tier;
+    document.getElementById('dws-conf').textContent=d.confidence;
+    document.getElementById('dws-st').textContent=d.status;
+    var ts=d.created?new Date(d.created).toISOString().slice(0,16).replace('T',' '):'—';
+    document.getElementById('dws-ts').textContent=ts;
+  }
+
+  /* export strip — only for user dossiers */
+  var es=document.getElementById('export-strip');
+  if(es){
+    if(d.type==='user'){es.classList.add('active');}
+    else{es.classList.remove('active');}
+  }
+
+  /* title */
+  document.getElementById('dtitle').textContent=d.title;
+  document.getElementById('dmeta-cls').textContent=d.tier+' · '+d.status;
+
+  /* build pages */
+  var body=document.getElementById('dbody');
+  body.innerHTML='';
+  (d.pages||[]).forEach(function(pg,i){
+    var div=document.createElement('div');
+    div.className='dpg'+(i===0?' active':'');
+    div.setAttribute('data-page',i);
+    div.innerHTML=pg.html||'<div class="dbtx">No content.</div>';
+    body.appendChild(div);
+  });
+
+  curPg=0;totPg=(d.pages||[]).length||1;
+  buildNavForDossier(d);
+  updProg();
+  setTimeout(function(){din.classList.remove('ain');},380);
+  pflip();
+};
+
+/* legacy openDossier for lanes pane button */
+window.openDossier=function(idx){openDossierById('starter-0');};
+
+function buildNavForDossier(d){
   var nav=document.getElementById('dnav');
-  nav.querySelectorAll('.dtab').forEach(function(t){t.remove();});
-  PNAMES.forEach(function(name,i){
+  nav.innerHTML='<span class="dnl">FRAGMENTS:</span>';
+  (d.pages||[]).forEach(function(pg,i){
     var tab=document.createElement('button');
     tab.className='dtab'+(i===curPg?' active':'');
-    tab.textContent=name;
+    tab.textContent=pg.name;
     tab.addEventListener('click',function(){goPage(i);});
     nav.appendChild(tab);
   });
 }
 
+var curPg=0,totPg=1;
 function updProg(){
   document.getElementById('dpf').style.width=(((curPg+1)/totPg)*100)+'%';
   document.getElementById('dpind').textContent='FRAGMENT '+(curPg+1)+' / '+totPg;
@@ -1203,7 +1518,6 @@ function updProg(){
   document.getElementById('dnext').disabled=(curPg===totPg-1);
   document.querySelectorAll('.dtab').forEach(function(t,i){t.classList.toggle('active',i===curPg);});
 }
-
 function goPage(n){
   pflip();
   document.querySelectorAll('.dpg').forEach(function(p){p.classList.remove('active');});
@@ -1211,36 +1525,26 @@ function goPage(n){
   var pg=document.querySelector('.dpg[data-page="'+n+'"]');
   if(pg)pg.classList.add('active');
   document.getElementById('dbody').scrollTop=0;
-  updProg();buildNav();
+  updProg();
+  if(activeDossier)buildNavForDossier(activeDossier);
 }
-
-window.openDossier=function(idx){
-  curPg=idx||0;
-  var ov=document.getElementById('dov'),din=document.getElementById('din');
-  ov.classList.add('open');din.classList.add('ain');
-  document.body.classList.add('dossier-open');
-  buildNav();goPage(curPg);
-  setTimeout(function(){din.classList.remove('ain');},380);
-  pflip();
-};
-
 function closeDossier(){
   t1();
   document.getElementById('dov').classList.remove('open');
   document.body.classList.remove('dossier-open');
+  var band=document.getElementById('dws-band');if(band)band.classList.remove('active');
+  var es=document.getElementById('export-strip');if(es)es.classList.remove('active');
+  activeDossier=null;
 }
-
 document.getElementById('dclose').addEventListener('click',closeDossier);
 document.getElementById('dprev').addEventListener('click',function(){if(curPg>0)goPage(curPg-1);});
 document.getElementById('dnext').addEventListener('click',function(){if(curPg<totPg-1)goPage(curPg+1);});
-
 document.addEventListener('keydown',function(e){
   if(!document.getElementById('dov').classList.contains('open'))return;
   if(e.key==='ArrowRight'||e.key==='ArrowDown'){if(curPg<totPg-1)goPage(curPg+1);}
   else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){if(curPg>0)goPage(curPg-1);}
   else if(e.key==='Escape')closeDossier();
 });
-
 var tx=null;
 document.getElementById('dbody').addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
 document.getElementById('dbody').addEventListener('touchend',function(e){
@@ -1257,12 +1561,8 @@ if(eyesBtn){
     var bar=document.getElementById('dcrypt-prog');
     ov.classList.add('open');
     document.body.classList.add('dossier-open');
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){bar.style.width='100%';});
-    });
-    setTimeout(function(){
-      window.location.href='reality-manufacturing.html';
-    },2800);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){bar.style.width='100%';});});
+    setTimeout(function(){window.location.href='reality-manufacturing.html';},2800);
   });
 }
 
@@ -1277,7 +1577,397 @@ function unlockA(){
 document.addEventListener('click',unlockA,{capture:true,passive:true});
 document.addEventListener('touchstart',unlockA,{capture:true,passive:true});
 
-/* SEED SYSTEM */
+/* ═══ EXPORT FUNCTIONS ═══ */
+function dossierToText(d){
+  var lines=['HILBERT MESH // DOSSIER ARTIFACT','CI-Ω7 // HM-LATTICE // FC-AS-1','',
+    'REGISTRY ID:   '+d.regId,
+    'TITLE:         '+d.title,
+    'CASE:          '+d.caseLabel,
+    'TIER:          '+d.tier,
+    'CONFIDENCE:    '+d.confidence,
+    'STATUS:        '+d.status,
+    'COMPILED:      '+d.created,
+    '','═'.repeat(60),''];
+  (d.pages||[]).forEach(function(pg,i){
+    lines.push('// FRAGMENT '+(i+1)+': '+pg.name);
+    lines.push('─'.repeat(40));
+    var tmp=document.createElement('div');tmp.innerHTML=pg.html||'';
+    lines.push(tmp.innerText||tmp.textContent||'');
+    lines.push('');
+  });
+  lines.push('═'.repeat(60));
+  lines.push('∥Ψexit∥² = 1.000 · SEALED · '+d.regId);
+  lines.push('CONSTRAINT-FIELD OBSERVATORY · OBSERVER-ASSEMBLED WORLD LEDGER');
+  return lines.join('\n');
+}
+function dossierToHTML(d){
+  var pageHtml=(d.pages||[]).map(function(pg,i){
+    return '<div class="dpg" style="margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid #162416;">'+
+      '<div style="font-family:Orbitron,sans-serif;font-size:9px;color:#2d4a2d;letter-spacing:2px;margin-bottom:8px;">FRAGMENT '+(i+1)+' // '+pg.name+'</div>'+
+      (pg.html||'')+'</div>';
+  }).join('');
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>'+d.title+' // HM-LATTICE</title>'+
+  '<style>@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;600;700;900&display=swap");'+
+  '*{margin:0;padding:0;box-sizing:border-box;}body{background:#030803;color:#9dbf9d;font-family:"Share Tech Mono","Courier New",monospace;padding:24px;max-width:800px;margin:0 auto;}'+
+  '.dpt{font-family:"Orbitron",sans-serif;font-size:18px;font-weight:700;color:#00e536;letter-spacing:2px;margin-bottom:6px;}'+
+  '.dps{font-family:"Orbitron",sans-serif;font-size:7px;color:#2d4a2d;letter-spacing:2px;margin-bottom:4px;}'+
+  '.dpsu{font-size:9px;color:#5a7a5a;letter-spacing:1px;margin-top:3px;}'+
+  '.dph{border-bottom:1px solid #1e301e;padding-bottom:10px;margin-bottom:14px;}'+
+  '.dbtx{font-family:"Courier Prime","Courier New",serif;font-size:11.5px;color:#9dbf9d;line-height:1.78;margin-bottom:12px;}'+
+  '.dbtx em{color:#00e536;font-style:normal;}.dbtx strong{color:#ffaa00;}'+
+  '.dsec{font-family:"Orbitron",sans-serif;font-size:8px;color:#00b82c;letter-spacing:2px;margin:12px 0 6px;padding-top:8px;border-top:1px solid #0e1c0e;}'+
+  '.dsec::before{content:"// ";}'+
+  '.dtbl{width:100%;border-collapse:collapse;margin:6px 0;font-family:"Share Tech Mono",monospace;}'+
+  '.dtbl th{border:1px solid #162416;padding:4px 7px;color:#ffaa00;font-size:7px;letter-spacing:1.5px;background:rgba(0,229,54,.025);font-weight:normal;text-transform:uppercase;}'+
+  '.dtbl td{border:1px solid rgba(14,28,14,.4);padding:3px 7px;font-size:8.5px;vertical-align:top;line-height:1.5;}'+
+  '.deq{font-family:"Share Tech Mono",monospace;font-size:10px;color:#00cccc;background:rgba(0,0,0,.4);border:1px solid #162416;border-left:2px solid #005c14;padding:7px 10px;margin:8px 0;line-height:1.65;}'+
+  '.dflg{border:1px solid rgba(255,170,0,.25);background:rgba(12,6,0,.5);padding:6px 10px;margin:6px 0;font-size:9px;color:#ffaa00;line-height:1.6;}'+
+  '.dflg::before{content:"⚑ ";color:#cc7700;}'+
+  '.dbrh{border:1px solid rgba(255,34,34,.3);background:rgba(15,0,0,.5);padding:6px 10px;margin:7px 0;font-family:"Orbitron",sans-serif;font-size:7.5px;color:#ff2222;letter-spacing:1px;line-height:1.6;}'+
+  '.dnote{font-size:8.5px;color:#2d4a2d;font-style:italic;margin:6px 0;line-height:1.6;padding-left:10px;border-left:1px solid #162416;}'+
+  '.dsal{margin-top:14px;padding:10px;border:1px solid #1e301e;background:rgba(0,0,0,.4);text-align:center;}'+
+  '.dsal-t{font-family:"Courier Prime",serif;font-style:italic;font-size:11px;color:#5a7a5a;line-height:1.7;margin-bottom:6px;}'+
+  '.dsal-h{font-size:7px;color:#2d4a2d;letter-spacing:1.5px;}'+
+  '.ok{color:#00e536;}.warn{color:#ffaa00;}.fail{color:#ff2222;}.lk{color:#00cccc;}'+
+  'h1{font-family:"Orbitron",sans-serif;font-size:24px;color:#00e536;letter-spacing:3px;margin-bottom:4px;}'+
+  '.meta-band{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding:10px 12px;border:1px solid #162416;background:rgba(0,0,0,.4);}'+
+  '.mb-cell{display:flex;flex-direction:column;gap:2px;}.mb-lbl{font-size:6px;color:#2d4a2d;letter-spacing:1.5px;}.mb-val{font-family:"Orbitron",sans-serif;font-size:9px;color:#00b82c;}'+
+  '</style></head><body>'+
+  '<div style="border-bottom:1px solid #162416;margin-bottom:16px;padding-bottom:12px;">'+
+  '<div style="font-family:Orbitron,sans-serif;font-size:7px;color:#2d4a2d;letter-spacing:2px;margin-bottom:6px;">CI-Ω7 // HM-LATTICE // FC-AS-1 // ARTIFACT</div>'+
+  '<h1>'+escH(d.title)+'</h1>'+
+  '<div style="font-size:9px;color:#5a7a5a;margin-top:4px;">'+escH(d.caseLabel)+'</div></div>'+
+  '<div class="meta-band">'+
+  '<div class="mb-cell"><div class="mb-lbl">REGISTRY ID</div><div class="mb-val">'+d.regId+'</div></div>'+
+  '<div class="mb-cell"><div class="mb-lbl">TIER</div><div class="mb-val">'+d.tier+'</div></div>'+
+  '<div class="mb-cell"><div class="mb-lbl">CONFIDENCE</div><div class="mb-val">'+d.confidence+'</div></div>'+
+  '<div class="mb-cell"><div class="mb-lbl">STATUS</div><div class="mb-val">'+d.status+'</div></div>'+
+  '<div class="mb-cell"><div class="mb-lbl">COMPILED</div><div class="mb-val">'+d.created+'</div></div>'+
+  '</div>'+pageHtml+
+  '<div style="margin-top:32px;padding:10px;border:1px solid #0e1c0e;text-align:center;font-size:7px;color:#2d4a2d;letter-spacing:1.5px;">'+
+  '∥Ψexit∥² = 1.000 · SEALED · '+d.regId+' · CONSTRAINT-FIELD OBSERVATORY · OBSERVER-ASSEMBLED WORLD LEDGER</div>'+
+  '</body></html>';
+}
+function dlFile(content,filename,mime){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download=filename;a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+}
+document.getElementById('exp-txt').addEventListener('click',function(){
+  if(!activeDossier)return;
+  t1();dlFile(dossierToText(activeDossier),activeDossier.regId+'.txt','text/plain');
+});
+document.getElementById('exp-html').addEventListener('click',function(){
+  if(!activeDossier)return;
+  t1();dlFile(dossierToHTML(activeDossier),activeDossier.regId+'.html','text/html');
+});
+
+/* ═══ HILBERT ROUTING VISUAL ═══ */
+function buildHilbertSVG(){
+  var svg=document.getElementById('hroute-svg');
+  if(!svg)return;
+  var sg=document.getElementById('hr-segs');
+  var ng=document.getElementById('hr-nodes');
+  sg.innerHTML='';ng.innerHTML='';
+  /* Build a snake-path grid across the SVG: 8 cols × 3 rows */
+  var cols=16,rows=3,W=400,H=60;
+  var xStep=W/(cols+1),yStep=H/(rows+1);
+  var pts=[];
+  for(var r=0;r<rows;r++){
+    var rowPts=[];
+    for(var c=0;c<cols;c++){
+      rowPts.push({x:xStep*(c+1),y:yStep*(r+1)});
+    }
+    if(r%2===1)rowPts.reverse();
+    pts=pts.concat(rowPts);
+  }
+  /* add connector at end-of-row seams */
+  window._hrPts=pts;
+  /* draw segments */
+  var segs=[];
+  for(var i=0;i<pts.length-1;i++){
+    var line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',pts[i].x);line.setAttribute('y1',pts[i].y);
+    line.setAttribute('x2',pts[i+1].x);line.setAttribute('y2',pts[i+1].y);
+    line.setAttribute('class','hr-seg');
+    sg.appendChild(line);segs.push(line);
+  }
+  /* draw nodes */
+  var nodes=[];
+  pts.forEach(function(p){
+    var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);c.setAttribute('r','2');
+    c.setAttribute('class','hr-node');
+    ng.appendChild(c);nodes.push(c);
+  });
+  window._hrSegs=segs;window._hrNodes=nodes;
+}
+buildHilbertSVG();
+
+var ingestLock=false;
+function animateHilbert(onDone){
+  var segs=window._hrSegs||[];
+  var nodes=window._hrNodes||[];
+  var prog=document.getElementById('hroute-prog');
+  var total=segs.length;
+  var i=0;
+  function step(){
+    if(i>=total){
+      if(prog)prog.style.width='100%';
+      setTimeout(function(){if(onDone)onDone();},400);
+      return;
+    }
+    segs[i].classList.add('lit');
+    if(i<nodes.length)nodes[i].classList.add('lit');
+    if(i>0&&segs[i-1])segs[i-1].classList.remove('lit');
+    if(i>0&&nodes[i-1])nodes[i-1].classList.remove('cy');
+    segs[i].classList.add('cy');
+    if(nodes[i])nodes[i].classList.add('cy');
+    if(prog)prog.style.width=((i/total)*100)+'%';
+    i++;
+    setTimeout(step,55);
+  }
+  step();
+}
+
+/* ═══ PARSE LOGIC ═══ */
+function parseIntel(text){
+  function getField(key){
+    var re=new RegExp(key+'\\s*:\\s*(.+)','im');
+    var m=text.match(re);
+    return m?m[1].trim():'';
+  }
+  var tag=getField('DOSSIER TAG');
+  var caseField=getField('CASE');
+  var claim=getField('CLAIM');
+  var mechanism=getField('MECHANISM');
+  var failMode=getField('FAILURE MODE');
+  var confidence=getField('CONFIDENCE');
+  var intelDump=getField('INTEL DUMP');
+  var sourceType=getField('SOURCE TYPE');
+  var sourceNote=getField('SOURCE NOTE');
+  var constraint=getField('CONSTRAINT');
+  var test=getField('TEST');
+
+  var score=0;
+  var fields=[];
+  if(tag){score+=2;fields.push({k:'DOSSIER TAG',v:tag});}
+  if(caseField){score+=2;fields.push({k:'CASE',v:caseField});}
+  if(claim){score+=1;fields.push({k:'CLAIM',v:claim});}
+  if(mechanism){score+=2;fields.push({k:'MECHANISM',v:mechanism});}
+  if(failMode){score+=1;fields.push({k:'FAILURE MODE',v:failMode});}
+  if(confidence){score+=1;fields.push({k:'CONFIDENCE',v:confidence});}
+  if(intelDump){score+=1;fields.push({k:'INTEL DUMP',v:intelDump});}
+  if(test){fields.push({k:'TEST',v:test});}
+  if(constraint){fields.push({k:'CONSTRAINT',v:constraint});}
+
+  var tier,tierClass,confClass;
+  if(score>=8){tier='CLEARANCE ARTIFACT';tierClass='tier-t5';}
+  else if(score>=6){tier='ARCHIVE-GRADE';tierClass='tier-t4';}
+  else if(score>=4){tier='COMPILED';tierClass='tier-t3';}
+  else if(score>=2){tier='STRUCTURED';tierClass='tier-t2';}
+  else{tier='FRAGMENT';tierClass='tier-t1';}
+
+  var confUpper=(confidence||'').toUpperCase();
+  if(confUpper.indexOf('HIGH')>=0)confClass='high';
+  else if(confUpper.indexOf('MOD')>=0)confClass='mod';
+  else confClass='low';
+
+  var titleVal=tag?tag.replace(/-/g,' '):(caseField||'UNNAMED ARTIFACT');
+  var caseLabel=(caseField||'UNSPECIFIED CASE')+' // USER SUBMISSION';
+
+  /* Build pages */
+  var pages=[];
+  /* Page 1: parsed fields table */
+  var tableRows=fields.map(function(f){
+    return '<tr><td>'+escH(f.k)+'</td><td>'+escH(f.v)+'</td></tr>';
+  }).join('');
+  pages.push({
+    name:'PARSED FIELDS',
+    html:'<div class="dph"><div class="dps">USER SUBMISSION · FC-AS-1 · '+new Date().toISOString().slice(0,10)+'</div>'+
+      '<div class="dpt">'+escH(titleVal)+'</div>'+
+      '<div class="dpsu">'+escH(caseLabel)+'</div></div>'+
+      '<div class="dsec">PARSED FIELD TABLE</div>'+
+      '<table class="dtbl"><tr><th>FIELD</th><th>VALUE</th></tr>'+tableRows+'</table>'+
+      '<div class="dsec">CLASSIFICATION</div>'+
+      '<table class="dtbl"><tr><th>TIER</th><th>CONFIDENCE</th><th>STATUS</th></tr>'+
+      '<tr><td>'+tier+'</td><td>'+escH(confidence||'UNVERIFIED')+'</td><td class="warn">[UNDER REVIEW]</td></tr></table>'
+  });
+  /* Page 2: mechanism & test */
+  if(mechanism||failMode||test){
+    var mechHtml='<div class="dph"><div class="dps">MECHANISM // TEST // FAILURE MODE</div>'+
+      '<div class="dpt">ANALYTICAL DECOMPOSITION</div></div>';
+    if(mechanism)mechHtml+='<div class="dsec">MECHANISM</div><div class="dbtx">'+escH(mechanism)+'</div>';
+    if(constraint)mechHtml+='<div class="dsec">CONSTRAINT</div><div class="deq">'+escH(constraint)+'</div>';
+    if(test)mechHtml+='<div class="dsec">TEST PATHWAY</div><div class="dbtx">'+escH(test)+'</div>';
+    if(failMode)mechHtml+='<div class="dbrh">FAILURE MODE: '+escH(failMode)+'</div>';
+    pages.push({name:'MECHANISM / TEST',html:mechHtml});
+  }
+  /* Page 3: intel dump */
+  if(intelDump){
+    pages.push({
+      name:'INTEL DUMP',
+      html:'<div class="dph"><div class="dps">INTEL DUMP // RAW SUBMISSION</div><div class="dpt">FIELD FINDINGS</div></div>'+
+        '<div class="dbtx" style="white-space:pre-wrap;">'+escH(intelDump)+'</div>'
+    });
+  }
+  /* Page 4: raw source */
+  pages.push({
+    name:'RAW SOURCE',
+    html:'<div class="dph"><div class="dps">RAW SOURCE TEXT</div><div class="dpt">ORIGINAL SUBMISSION</div></div>'+
+      '<div class="deq" style="white-space:pre-wrap;font-size:7px;line-height:1.6;max-height:400px;overflow-y:auto;">'+escH(text)+'</div>'+
+      '<div class="dnote">Source preserved verbatim. Parsed fields extracted above. Analyst review required before promotion.</div>'
+  });
+
+  return {
+    id:'user-'+Date.now(),
+    type:'user',
+    title:titleVal,
+    caseLabel:caseLabel,
+    tier:tier,tierClass:tierClass,
+    confidence:confUpper||'UNVERIFIED',confClass:confClass||'low',
+    status:'UNDER REVIEW',
+    created:new Date().toISOString(),
+    regId:'HM-USR-'+String(Date.now()).slice(-5),
+    pages:pages,
+    rawText:text
+  };
+}
+
+/* ═══ INGEST PIPELINE ═══ */
+var PARSE_STEPS=[
+  {msg:'// SIGNAL RECEIVED — BUFFER LOCKED',cls:'ok',delay:0},
+  {msg:'// SCANNING FOR DOSSIER TAG...',cls:'',delay:300},
+  {msg:'// DOSSIER TAG DETECTED',cls:'ok',delay:700},
+  {msg:'// CASE FIELD LOCKED',cls:'ok',delay:1100},
+  {msg:'// CLAIM BOUNDARY FOUND',cls:'ok',delay:1450},
+  {msg:'// MECHANISM INDEXED',cls:'ok',delay:1800},
+  {msg:'// FAILURE MODE FOUND',cls:'ok',delay:2100},
+  {msg:'// CONFIDENCE BAND ASSIGNED',cls:'ok',delay:2400},
+  {msg:'// ROUTING TO ARTIFACT REGISTRY...',cls:'warn',delay:2750},
+  {msg:'// ARTIFACT FORMED',cls:'done',delay:3200},
+];
+
+function runIngest(){
+  if(ingestLock)return;
+  var ta=document.getElementById('ingest-ta');
+  var text=(ta&&ta.value)||'';
+  if(!text.trim()){deny();return;}
+
+  ingestLock=true;
+  beep(660,0.1,0.03,'sine');
+
+  var log=document.getElementById('parse-log');
+  var lines=document.getElementById('parse-lines');
+  var hroute=document.getElementById('hroute-wrap');
+  log.classList.add('active');
+  hroute.classList.add('active');
+  lines.innerHTML='';
+
+  /* reset hilbert */
+  (window._hrSegs||[]).forEach(function(s){s.classList.remove('lit','cy');});
+  (window._hrNodes||[]).forEach(function(n){n.classList.remove('lit','cy');});
+  document.getElementById('hroute-prog').style.width='0%';
+
+  /* parse */
+  var dossier=parseIntel(text);
+
+  /* Adjust step messages based on what was found */
+  var hasTag=dossier.pages[0].html.indexOf('DOSSIER TAG')>-1&&text.match(/DOSSIER TAG\s*:/i);
+  var hasMech=text.match(/MECHANISM\s*:/i);
+  var hasFail=text.match(/FAILURE MODE\s*:/i);
+  var steps=JSON.parse(JSON.stringify(PARSE_STEPS));
+  if(!hasTag)steps[2].msg='// TAG: NOT FOUND — CLASSIFYING AS FRAGMENT';
+  if(!hasMech)steps[4].msg='// MECHANISM: ABSENT — TIER REDUCED';
+  if(!hasFail)steps[5].msg='// FAILURE MODE: ABSENT — MARKING INCOMPLETE';
+
+  /* animate parse lines */
+  steps.forEach(function(s){
+    setTimeout(function(){
+      var span=document.createElement('span');
+      span.className='pl '+s.cls;
+      span.textContent=s.msg;
+      lines.appendChild(span);
+      requestAnimationFrame(function(){span.classList.add('vis');});
+      t2();
+    },s.delay);
+  });
+
+  /* start hilbert after short delay */
+  setTimeout(function(){animateHilbert(null);},400);
+
+  /* finalize */
+  setTimeout(function(){
+    /* save dossier */
+    var arr=loadUserDossiers();
+    arr.push(dossier);
+    saveUserDossiers(arr);
+
+    /* materialize in registry if dossier tab visible */
+    var list=document.getElementById('dreg-list');
+    if(list&&document.getElementById('pane-dossier').style.display!=='none'){
+      renderRegistry();
+    }
+
+    /* add to intel telemetry */
+    var span=document.createElement('span');
+    span.className='pl done';
+    span.textContent='// ARTIFACT MATERIALIZED: '+dossier.regId+' ['+dossier.tier+']';
+    lines.appendChild(span);
+    requestAnimationFrame(function(){span.classList.add('vis');});
+
+    chime();
+    ingestLock=false;
+
+    /* offer to open */
+    setTimeout(function(){
+      var open=document.createElement('span');
+      open.className='pl ok';
+      open.textContent='// ▸ ARTIFACT IN REGISTRY — SWITCH TO DOSSIER ARCHIVE TO VIEW';
+      open.style.cursor='pointer';
+      open.addEventListener('click',function(){
+        /* switch to dossier tab */
+        document.querySelectorAll('.tab').forEach(function(tab){
+          tab.classList.remove('active');
+          if(tab.dataset.pane==='dossier')tab.classList.add('active');
+        });
+        Object.keys(PANES).forEach(function(k){
+          var el=document.getElementById(PANES[k]);
+          if(el)el.style.display=(k==='dossier')?'':'none';
+        });
+        renderRegistry();
+        setTimeout(function(){openDossierById(dossier.id);},300);
+      });
+      lines.appendChild(open);
+      requestAnimationFrame(function(){open.classList.add('vis');});
+    },500);
+  },3800);
+}
+
+document.getElementById('btn-ingest').addEventListener('click',runIngest);
+document.getElementById('btn-clear').addEventListener('click',function(){
+  var ta=document.getElementById('ingest-ta');if(ta)ta.value='';
+  var log=document.getElementById('parse-log');if(log)log.classList.remove('active');
+  var hroute=document.getElementById('hroute-wrap');if(hroute)hroute.classList.remove('active');
+  (window._hrSegs||[]).forEach(function(s){s.classList.remove('lit','cy');});
+  (window._hrNodes||[]).forEach(function(n){n.classList.remove('lit','cy');});
+  t1();
+});
+document.getElementById('btn-load-tmpl').addEventListener('click',function(){
+  var ta=document.getElementById('ingest-ta');
+  if(!ta)return;
+  ta.value='DOSSIER TAG:   [TAG-CASE-01]\nCASE:          [active case label]\nCLAIM:         [single bounded assertion]\nSOURCE TYPE:   [patent / primary / field note / AI output]\nSOURCE NOTE:   [describe only — no URLs]\nMECHANISM:     [physical mechanism proposed]\nCONSTRAINT:    [known physical law or bound]\nTEST:          [isolating experiment or protocol]\nFAILURE MODE:  [null hypothesis condition]\nCONFIDENCE:    [HIGH / MOD / LOW / UNVERIFIED]\nINTEL DUMP:    [structured findings only — no narrative]';
+  t1();
+});
+document.getElementById('btn-load-seed').addEventListener('click',function(){
+  var ta=document.getElementById('ingest-ta');if(!ta)return;
+  var s=SEEDS[Math.floor(Math.random()*SEEDS.length)];
+  ta.value='DOSSIER TAG:   '+s.tag+'\nCASE:          '+s.case+'\nMODE:          '+s.mode+'\n\n'+s.body;
+  t1();
+});
+
+/* ═══ SEED SYSTEM ═══ */
 var SEEDS=[
   {tag:'TARTARIAN-RESET-01',lane:'TARTARIAN RESET',case:'World Fair Architecture — Labor & Build Feasibility',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Pre-reset infrastructure hypothesis
 TARGET: World fair construction timelines, labor counts
@@ -1535,9 +2225,6 @@ if(seedGrid){
 
 /* TEMPLATE COPY */
 window.copyTemplate=function(){
-  var body=document.getElementById('tmpl-body');
-  if(!body)return;
-  var text=body.innerText.replace(/\s+/g,' ').trim();
   var clean='DOSSIER TAG:   [e.g. TARTARIAN-RESET-01]\nCASE:          [active case label]\nCLAIM:         [single bounded assertion]\nSOURCE TYPE:   [patent / primary / field note / AI output]\nSOURCE NOTE:   [no URLs — describe only]\nMECHANISM:     [physical mechanism proposed]\nCONSTRAINT:    [known physical law or bound that applies]\nTEST:          [isolating experiment or protocol]\nFAILURE MODE:  [null hypothesis condition]\nCONFIDENCE:    [HIGH / MOD / LOW / UNVERIFIED]\nINTEL DUMP:    [structured findings only — no narrative]';
   navigator.clipboard.writeText(clean).then(function(){
     var btn=document.querySelector('.tmpl-copy-btn');
@@ -1562,7 +2249,11 @@ window.copyTemplate=function(){
   countUp();setInterval(countUp,3000);
 })();
 
+/* init dossier registry if starting on dossier pane */
+renderRegistry();
+
 })();
 </script>
 </body>
 </html>
+
