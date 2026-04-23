@@ -1033,39 +1033,5 @@ document.addEventListener('touchstart',unlockA,{capture:true,passive:true});
 
 })();
 </script>
-  <!-- RETURN TO MAIN SITE -->
-<button id="backToMainSite" style="
-position:fixed;
-top:12px;
-right:12px;
-z-index:99999;
-background:rgba(0,8,0,.95);
-color:#00ff41;
-border:1px solid #00ff41;
-padding:8px 12px;
-font-family:'Orbitron',monospace;
-font-size:10px;
-letter-spacing:2px;
-cursor:pointer;
-box-shadow:0 0 12px rgba(0,255,65,.18);
-">
-EXIT // MAIN SITE
-</button>
-
-<script>
-(function () {
-  const btn = document.getElementById('backToMainSite');
-  if (!btn) return;
-
-  btn.addEventListener('click', function () {
-    btn.textContent = 'TERMINATING SESSION...';
-    btn.style.opacity = '0.7';
-
-    setTimeout(function () {
-      window.location.href = 'https://hilbertmesh.com/';
-    }, 700);
-  });
-})();
-</script>
 </body>
 </html>
