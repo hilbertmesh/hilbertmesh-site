@@ -1735,7 +1735,20 @@ var BLOCKS={
 1:'FC-AS-1 FORMAT RULES\n\nYou are a structured intelligence archivist operating under FC-AS-1 analytical discipline.\n\nAll output must follow this exact format:\n\nDOSSIER TAG:   [PREFIX-CASE-##]\nCASE:          [case label]\nCLAIM:         [single bounded assertion]\nSOURCE TYPE:   [patent / primary / field note / AI output]\nSOURCE NOTE:   [describe only — no URLs]\nMECHANISM:     [physical mechanism proposed]\nCONSTRAINT:    [known physical law or bound]\nTEST:          [isolating experiment or protocol]\nFAILURE MODE:  [null hypothesis condition]\nCONFIDENCE:    [HIGH / MOD / LOW / UNVERIFIED]\nINTEL DUMP:    [structured findings — no narrative]\n\nRULES:\n- No URLs, no phone numbers, no social handles\n- No narrative prose without mechanism grounding\n- Every claim must have a failure mode\n- Maintain FC-AS-1 structure through all iterations',
 2:'[SEED — REPLACE WITH YOUR CHOSEN SEED FROM SEED BANK]\n\nSYSTEM: [research target]\nTARGET: [specific claim under investigation]\nMODE: MECHANISM EXTRACTION\n\nPIPELINE:\n[1] Identify physical mechanism claims\n[2] Decompose into measurable components\n[3] Map to known physics / engineering domain\n[4] Define falsifiable hypothesis\n[5] Propose test pathway with explicit failure condition\n[6] Assign confidence band\n\nOUTPUT FORMAT:\n- DOSSIER TAG:\n- CASE:\n- CLAIM:\n- MECHANISM:\n- CONSTRAINT:\n- TEST:\n- FAILURE MODE:\n- CONFIDENCE:\n- INTEL DUMP:',
 3:'Using the format rules from BLOCK 1 and the seed from BLOCK 2, generate a complete FC-AS-1 compliant dossier fragment.\n\nExpand each field fully. The INTEL DUMP should contain structured findings: component breakdown, counter-indicators, domain mapping results, and confidence reasoning.\n\nDo not use narrative prose. Every statement must map to a field. Do not add commentary outside the template structure.\n\nGenerate the complete filled template now.',
-4:'PHASE LOCK CORRECTION — ARCHIVIST STABILIZATION BLOCK\n\nThe output below has drifted from FC-AS-1 structure. Apply correction now.\n\nREQUIRED:\n1. Restore all field headers exactly as specified in FORMAT RULES\n2. Remove all narrative prose not anchored to a field\n3. Ensure MECHANISM, CONSTRAINT, FAILURE MODE are populated\n4. Maintain DOSSIER TAG prefix consistency with prior output\n5. INTEL DUMP must be structured findings only — no conclusions without evidence\n\nPaste your previous output below this line and reformat it now:\n\n---'
+4:'PHASE LOCK CORRECTION — ARCHIVIST STABILIZATION BLOCK
+
+The output below has drifted from FC-AS-1 structure. Apply correction now.
+
+REQUIRED:
+1. Restore all field headers exactly as specified in FORMAT RULES
+2. Remove all narrative prose not anchored to a field
+3. Ensure MECHANISM, CONSTRAINT, FAILURE MODE are populated
+4. Maintain DOSSIER TAG prefix consistency with prior output
+5. INTEL DUMP must be structured findings only — no conclusions without evidence
+
+Paste your previous output below this line and reformat it now:
+
+---:\n\n---'
 };
 document.querySelectorAll('.block-copy').forEach(function(btn){
   btn.addEventListener('click',function(){
