@@ -556,6 +556,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
   <div class="tab" data-pane="lanes">LANE REGISTRY</div>
   <div class="tab" data-pane="feed">SYSTEM FEED</div>
   <div class="tab" data-pane="footprint">NODE FOOTPRINT</div>
+  <div class="tab" data-pane="forge">DOSSIER FORGE</div>
 </div>
 <!-- PANE: OVERVIEW -->
 <div id="pane-overview">
@@ -944,6 +945,51 @@ INTEL DUMP:    <em>[structured findings only — no narrative]</em></div>
   </div>
 </div>
 </div>
+<!-- PANE: DOSSIER FORGE -->
+<div id="pane-forge" style="display:none;">
+  <div class="pnl">
+    <div class="ph" style="justify-content:space-between;">
+      <span>HILBERT DOSSIER FORGE</span>
+      <span style="font-size:6px;color:var(--g);letter-spacing:1px;font-family:'Share Tech Mono',monospace;">PUBLIC ACCESS — INITIALIZED</span>
+    </div>
+    <div style="padding:8px 10px;border-bottom:1px solid var(--bd);font-size:clamp(7.5px,1.7vw,9px);color:var(--fgd);line-height:1.75;font-family:'Share Tech Mono',monospace;">
+      Constraint-driven dossier generation system. Public interface active. Backend generation routing pending.
+    </div>
+    <div style="padding:6px 10px;font-size:clamp(6px,1.3vw,7px);color:var(--fgk);letter-spacing:1px;border-bottom:1px solid var(--bd);font-style:italic;">
+      Public forge access is active in limited mode. Full dossier generation routes through secured backend systems currently being deployed.
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:5px;padding:8px 10px;">
+      <div style="border:1px solid var(--bd2);background:rgba(0,229,54,.012);padding:9px 11px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);color:var(--g);letter-spacing:2px;margin-bottom:5px;">HILBERT MODE</div>
+        <div style="font-size:clamp(6.5px,1.4vw,7.5px);color:var(--fgk);line-height:1.6;margin-bottom:8px;">Generates structured dossiers anchored to the Hilbert Mesh framework. H-space metrics, observer coupling, constraint field analysis. Full FC-AS-1 compliance enforced.</div>
+        <button disabled style="width:100%;font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:1px;color:var(--fgk);border:1px solid var(--bd);background:rgba(0,0,0,.3);padding:5px;cursor:not-allowed;opacity:.5;">[ BACKEND PENDING ]</button>
+      </div>
+      <div style="border:1px solid var(--bd2);background:rgba(0,229,54,.012);padding:9px 11px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);color:var(--a);letter-spacing:2px;margin-bottom:5px;">INTELLIGENCE MODE</div>
+        <div style="font-size:clamp(6.5px,1.4vw,7.5px);color:var(--fgk);line-height:1.6;margin-bottom:8px;">Mechanism extraction and fringe hypothesis stress-testing. Decomposes claims into measurable components. Assigns confidence tiers and failure modes per FC-AS-1 protocol.</div>
+        <button disabled style="width:100%;font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:1px;color:var(--fgk);border:1px solid var(--bd);background:rgba(0,0,0,.3);padding:5px;cursor:not-allowed;opacity:.5;">[ BACKEND PENDING ]</button>
+      </div>
+      <div style="border:1px solid var(--bd2);background:rgba(0,229,54,.012);padding:9px 11px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);color:var(--cy);letter-spacing:2px;margin-bottom:5px;">LORE PAGES</div>
+        <div style="font-size:clamp(6.5px,1.4vw,7.5px);color:var(--fgk);line-height:1.6;margin-bottom:8px;">Narrative-structured dossier pages for worldbuilding output. Generates classified-aesthetic lore fragments, entity profiles, and universe-layer documentation in Σ-AMBER format.</div>
+        <button disabled style="width:100%;font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:1px;color:var(--fgk);border:1px solid var(--bd);background:rgba(0,0,0,.3);padding:5px;cursor:not-allowed;opacity:.5;">[ BACKEND PENDING ]</button>
+      </div>
+    </div>
+    <div style="padding:6px 10px 10px;">
+      <!-- POST /api/forge -->
+      <!-- GET /api/job-status -->
+      <!-- GET /api/download -->
+      <a href="DossierForgeDev.html?fresh=1" style="display:block;width:100%;text-align:center;text-decoration:none;">
+        <button class="dob" style="margin-top:0;width:100%;font-size:clamp(8px,1.8vw,10px);letter-spacing:2px;">▸ ACCESS DOSSIER FORGE</button>
+      </a>
+    </div>
+  </div>
+  <div class="pnl warnpnl" style="margin-top:0;">
+    <div class="wico"><div class="wsk" style="font-size:10px;">⚑</div></div>
+    <div class="wtx">FORGE SYSTEM: Public interface initialized in read-only mode. Generation endpoints require Σ-AMBER clearance. Session state is not persisted. All runs initialize clean.</div>
+    <div class="wst"></div>
+  </div>
+</div>
 <!-- DOSSIER OVERLAY -->
 <div id="dov">
 <div id="din">
@@ -1031,7 +1077,7 @@ function tick(){
   if(uv)uv.textContent=pad(Math.floor(up/3600))+':'+pad(Math.floor(up/60)%60)+':'+pad(up%60);
 }
 setInterval(tick,1000);tick();
-var PANES={overview:'pane-overview',dossier:'pane-dossier',intel:'pane-intel',lanes:'pane-lanes',feed:'pane-feed',footprint:'pane-footprint'};
+var PANES={overview:'pane-overview',dossier:'pane-dossier',intel:'pane-intel',lanes:'pane-lanes',feed:'pane-feed',footprint:'pane-footprint',forge:'pane-forge'};
 document.querySelectorAll('.tab').forEach(function(tab){
   tab.addEventListener('click',function(){
     t1();
