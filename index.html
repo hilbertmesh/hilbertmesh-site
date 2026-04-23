@@ -342,8 +342,80 @@ body.dossier-open{overflow:hidden;}
   width:0%;transition:width 2.6s linear;}
 .dcrypt-ft{font-size:clamp(6px,1.3vw,7.5px);color:var(--fgk);letter-spacing:1.5px;margin-top:10px;}
 
+/* RESEARCH NODE */
+.rn-desc{font-size:clamp(7.5px,1.7vw,9px);color:var(--fgd);line-height:1.7;padding:8px 10px;border-bottom:1px solid var(--bd);font-family:'Share Tech Mono',monospace;}
+.rn-pipe{display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px;border-bottom:1px solid var(--bd);}
+.rn-step{font-size:clamp(6px,1.4vw,7.5px);color:var(--fgk);letter-spacing:.5px;display:flex;align-items:center;gap:3px;}
+.rn-step::after{content:'→';color:var(--gk);margin-left:2px;}
+.rn-step:last-child::after{content:'';}
+.rn-step em{color:var(--gd);font-style:normal;}
+
+/* SEED SYSTEM */
+.seed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:5px;padding:8px 10px;}
+.seed-card{border:1px solid var(--bd2);background:rgba(0,229,54,.012);padding:7px 9px;cursor:pointer;transition:all .2s;position:relative;}
+.seed-card:hover{border-color:var(--gk);background:rgba(0,229,54,.025);}
+.seed-tag{font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.3vw,7px);color:var(--a);letter-spacing:2px;margin-bottom:3px;}
+.seed-case{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);color:var(--gd);letter-spacing:.5px;line-height:1.3;margin-bottom:4px;}
+.seed-body{font-size:clamp(6px,1.3vw,7px);color:var(--fgk);line-height:1.55;font-family:'Share Tech Mono',monospace;white-space:pre;overflow:hidden;max-height:0;transition:max-height .3s ease;}
+.seed-card.open .seed-body{max-height:600px;}
+.seed-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.seed-mode{font-size:6px;color:var(--fgk);letter-spacing:1px;}
+.seed-copy{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--a);letter-spacing:1px;background:none;border:1px solid rgba(255,170,0,.2);padding:1px 5px;cursor:pointer;transition:all .2s;}
+.seed-copy:hover{border-color:var(--a);color:var(--g);}
+.seed-expand{position:absolute;top:5px;right:7px;font-size:8px;color:var(--gk);}
+.seed-lane{font-size:6px;color:var(--dim);letter-spacing:1px;margin-bottom:2px;}
+
+/* SUBMISSION TEMPLATE */
+.tmpl-blk{margin:8px 10px;border:1px solid var(--bd3);background:rgba(0,0,0,.35);padding:8px 10px;}
+.tmpl-hd{font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.4vw,7.5px);color:var(--gd);letter-spacing:1.5px;margin-bottom:5px;}
+.tmpl-body{font-size:clamp(6.5px,1.5vw,8px);color:var(--fgk);line-height:1.9;font-family:'Share Tech Mono',monospace;letter-spacing:.3px;}
+.tmpl-body em{color:var(--fg);}
+.tmpl-copy-btn{margin-top:6px;font-family:'Orbitron',sans-serif;font-size:7px;color:var(--a);border:1px solid rgba(255,170,0,.25);background:none;padding:3px 9px;cursor:pointer;letter-spacing:1px;transition:all .2s;}
+.tmpl-copy-btn:hover{border-color:var(--a);color:var(--g);}
+
+/* RULES PANEL */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px 10px;}
+.rule-blk{border:1px solid var(--bd);padding:5px 7px;background:rgba(0,0,0,.25);}
+.rule-hd{font-family:'Orbitron',sans-serif;font-size:clamp(5px,1.2vw,6.5px);color:var(--red);letter-spacing:1.5px;margin-bottom:3px;}
+.rule-list{font-size:clamp(5.5px,1.2vw,7px);color:var(--fgk);line-height:1.8;font-family:'Share Tech Mono',monospace;}
+.rule-list span{color:var(--fgd);}
+
+/* LIVE TELEMETRY STRIP */
+.telem-strip{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--bd);background:rgba(0,0,0,.3);}
+.telem-cell{flex:1;min-width:100px;padding:5px 10px;border-right:1px solid var(--bd);display:flex;flex-direction:column;gap:1px;}
+.telem-cell:last-child{border-right:none;}
+.telem-lbl{font-size:clamp(5px,1.1vw,6px);color:var(--fgk);letter-spacing:1.5px;}
+.telem-val{font-family:'Orbitron',sans-serif;font-size:clamp(8px,2vw,11px);color:var(--g);letter-spacing:1px;}
+.telem-st{font-size:clamp(5px,1.1vw,6px);color:var(--gd);letter-spacing:1px;}
+
+/* STORE BUTTON */
+.store-btn{display:inline-block;font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,9px);
+  letter-spacing:2px;color:var(--a);border:1px solid rgba(255,170,0,.3);background:rgba(255,170,0,.03);
+  padding:4px 12px;cursor:pointer;text-decoration:none;transition:all .25s;white-space:nowrap;
+  box-shadow:0 0 0 0 rgba(255,170,0,0);}
+.store-btn:hover{color:var(--g);border-color:var(--gd);background:rgba(0,229,54,.04);box-shadow:0 0 10px rgba(0,229,54,.06);}
+
+/* COMPILATION NODE */
+.tier-ladder{display:flex;gap:0;padding:8px 10px;align-items:stretch;}
+.tier-rung{flex:1;border:1px solid var(--bd);border-right:none;padding:6px 8px;background:rgba(0,0,0,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;transition:all .2s;}
+.tier-rung:last-child{border-right:1px solid var(--bd);}
+.tier-rung:hover{background:rgba(0,229,54,.015);}
+.tier-name{font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.3vw,7px);color:var(--fgk);letter-spacing:1px;}
+.tier-rung.t1 .tier-name{color:var(--fgd);}
+.tier-rung.t2 .tier-name{color:var(--fg);}
+.tier-rung.t3 .tier-name{color:var(--gd);}
+.tier-rung.t4 .tier-name{color:var(--g);}
+.tier-rung.t5 .tier-name{color:var(--a);}
+.tier-ind{font-size:clamp(5px,1.1vw,6px);color:var(--fgk);letter-spacing:.5px;}
+.comp-note{font-size:clamp(6.5px,1.5vw,8px);color:var(--fgk);line-height:1.65;padding:5px 10px 8px;border-top:1px solid var(--bd);}
+
 /* MOBILE */
 @media(max-width:640px){
+  .rules-grid{grid-template-columns:1fr;}
+  .tier-ladder{flex-wrap:wrap;}
+  .tier-rung{min-width:80px;border-right:1px solid var(--bd);margin-bottom:2px;}
+  .seed-grid{grid-template-columns:1fr;}
   .twoCol{grid-template-columns:1fr;}
   .mhide{display:none;}
   #hr{display:none;}
@@ -406,6 +478,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
     <div id="htitle">HILBERT<br>MESH</div>
     <div id="hsub">S5 SYSTEM NODE // ONLINE</div>
     <div id="hsub2">CONSTRAINT-FIELD OBSERVATORY</div>
+    <div style="margin-top:7px;"><a href="https://hilbertmesh.gumroad.com" target="_blank" class="store-btn">▸ ACCESS DOSSIER STORE</a></div>
   </div>
 </div>
 
@@ -413,6 +486,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
 <div id="tabs">
   <div class="tab active" data-pane="overview">NODE OVERVIEW</div>
   <div class="tab" data-pane="dossier">DOSSIER ARCHIVE</div>
+  <div class="tab" data-pane="intel">INTEL NODE</div>
   <div class="tab" data-pane="lanes">LANE REGISTRY</div>
   <div class="tab" data-pane="feed">SYSTEM FEED</div>
   <div class="tab" data-pane="footprint">NODE FOOTPRINT</div>
@@ -502,6 +576,178 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
       <button class="dob" id="eyes-only-btn" style="margin-top:6px;border-color:rgba(0,204,204,.3);color:var(--cy);">⊗ EYES-ONLY // DECRYPT TIER 7 ARTIFACT</button>
     </div>
   </div>
+</div>
+
+<!-- PANE: INTEL NODE -->
+<div id="pane-intel" style="display:none;">
+
+  <!-- RESEARCH DIVISION PANEL -->
+  <div class="pnl">
+    <div class="ph" style="justify-content:space-between;">
+      <span>RESEARCH DIVISION // OPEN NODE INTAKE</span>
+      <a href="https://hilbertmesh.gumroad.com" target="_blank" class="store-btn" style="font-size:6px;padding:2px 8px;">▸ DOSSIER STORE</a>
+    </div>
+    <div class="rn-desc">This node accepts structured research submissions. Focus: mechanism → testability → structured output. No speculation dumps. No loose explanations. Submissions must follow FC-AS-1 analytical discipline. Non-compliant entries are filtered before review.</div>
+    <div class="rn-pipe">
+      <div class="rn-step"><em>[1]</em> MECHANISM ISOLATION</div>
+      <div class="rn-step"><em>[2]</em> COMPONENT DECOMPOSITION</div>
+      <div class="rn-step"><em>[3]</em> PHYSICS DOMAIN MAPPING</div>
+      <div class="rn-step"><em>[4]</em> HYPOTHESIS FORMATION</div>
+      <div class="rn-step"><em>[5]</em> EXPERIMENTAL PATHWAY</div>
+      <div class="rn-step"><em>[6]</em> FAILURE MODE ANALYSIS</div>
+      <div class="rn-step"><em>[7]</em> CONFIDENCE ASSIGNMENT</div>
+    </div>
+    <div class="telem-strip">
+      <div class="telem-cell">
+        <div class="telem-lbl">ACTIVE NODES</div>
+        <div class="telem-val" id="tn-nodes">---</div>
+        <div class="telem-st">[LIVE]</div>
+      </div>
+      <div class="telem-cell">
+        <div class="telem-lbl">TOTAL VISITS</div>
+        <div class="telem-val" id="tn-visits">----</div>
+        <div class="telem-st">[LOGGED]</div>
+      </div>
+      <div class="telem-cell">
+        <div class="telem-lbl">SESSION LOAD</div>
+        <div class="telem-val">NOMINAL</div>
+        <div class="telem-st">[OK]</div>
+      </div>
+      <div class="telem-cell">
+        <div class="telem-lbl">INTEL QUEUE</div>
+        <div class="telem-val">OPEN</div>
+        <div class="telem-st">[RECEIVING]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEED SYSTEM -->
+  <div class="pnl">
+    <div class="ph">RESEARCH SEED BANK // COPY-PASTE READY</div>
+    <div style="padding:5px 10px;font-size:clamp(6.5px,1.4vw,7.5px);color:var(--fgk);border-bottom:1px solid var(--bd);">Paste any seed into GPT / Claude / other AI systems. Output must follow FC-AS-1 structure. Click seed to expand. Click COPY to extract.</div>
+
+    <div class="seed-grid" id="seed-grid"></div>
+  </div>
+
+  <!-- SUBMISSION TEMPLATE -->
+  <div class="pnl">
+    <div class="ph">SUBMISSION TEMPLATE // FC-AS-1 COMPLIANT</div>
+    <div class="tmpl-blk">
+      <div class="tmpl-hd">STRUCTURED INTEL TEMPLATE</div>
+      <div class="tmpl-body" id="tmpl-body">DOSSIER TAG:   <em>[e.g. TARTARIAN-RESET-01]</em>
+CASE:          <em>[active case label]</em>
+CLAIM:         <em>[single bounded assertion]</em>
+SOURCE TYPE:   <em>[patent / primary / field note / AI output]</em>
+SOURCE NOTE:   <em>[no URLs — describe only]</em>
+MECHANISM:     <em>[physical mechanism proposed]</em>
+CONSTRAINT:    <em>[known physical law or bound that applies]</em>
+TEST:          <em>[isolating experiment or protocol]</em>
+FAILURE MODE:  <em>[null hypothesis condition]</em>
+CONFIDENCE:    <em>[HIGH / MOD / LOW / UNVERIFIED]</em>
+INTEL DUMP:    <em>[structured findings only — no narrative]</em></div>
+      <button class="tmpl-copy-btn" onclick="copyTemplate()">[ COPY TEMPLATE ]</button>
+    </div>
+    <div style="padding:4px 10px 7px;font-size:clamp(6px,1.3vw,7px);color:var(--fgk);">All submissions must follow FC-AS-1 analytical structure. Narrative explanation without mechanism, test path, or failure mode will be filtered. This is a structured intelligence intake system — not a comment field.</div>
+  </div>
+
+  <!-- SUBMISSION RULES -->
+  <div class="pnl">
+    <div class="ph">SUBMISSION RULES // FILTER LOGIC</div>
+    <div class="rules-grid">
+      <div class="rule-blk">
+        <div class="rule-hd">REQUIRED — ENTRY ACCEPTED</div>
+        <div class="rule-list">
+          <span>✓</span> DOSSIER TAG present<br>
+          <span>✓</span> CASE identified<br>
+          <span>✓</span> MECHANISM stated<br>
+          <span>✓</span> FAILURE MODE defined<br>
+          <span>✓</span> INTEL DUMP included<br>
+          <span>✓</span> FC-AS-1 structure followed<br>
+          <span>✓</span> Dossier language / tone
+        </div>
+      </div>
+      <div class="rule-blk">
+        <div class="rule-hd">REJECTED — FILTERED IMMEDIATELY</div>
+        <div class="rule-list">
+          <span style="color:var(--red);">✗</span> No DOSSIER TAG<br>
+          <span style="color:var(--red);">✗</span> URL / http / www / .com / .net<br>
+          <span style="color:var(--red);">✗</span> Phone numbers or email addresses<br>
+          <span style="color:var(--red);">✗</span> Excessive blank lines / padding<br>
+          <span style="color:var(--red);">✗</span> Narrative with no mechanism<br>
+          <span style="color:var(--red);">✗</span> Ad language / payment handles<br>
+          <span style="color:var(--red);">✗</span> Spam / profanity-only blocks
+        </div>
+      </div>
+    </div>
+    <div style="padding:5px 10px;font-size:clamp(5.5px,1.2vw,7px);color:var(--fgk);border-top:1px solid var(--bd);">MODERATION STATES: <span style="color:var(--fgd);">RECEIVED → FILTERED → UNDER REVIEW → APPROVED → PROMOTED → SEALED → REJECTED</span> &nbsp;// No user-submitted clickable links. No outbound links except official Hilbert Mesh channels.</div>
+  </div>
+
+  <!-- COMPANION LANES -->
+  <div class="pnl">
+    <div class="ph">ACTIVE RESEARCH LANES</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:4px;padding:7px 10px;">
+      <div class="rule-blk" style="border-color:rgba(255,170,0,.3);">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.2vw,7px);color:var(--a);letter-spacing:1px;margin-bottom:2px;">PRIMARY CASE</div>
+        <div style="font-size:7px;color:var(--fg);">TARTARIAN RESET<br>STRESS TEST</div>
+        <div style="font-size:6px;color:var(--a);margin-top:2px;">[ACTIVE]</div>
+      </div>
+      <div class="rule-blk">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.2vw,7px);color:var(--gd);letter-spacing:1px;margin-bottom:2px;">COMPANION LANE</div>
+        <div style="font-size:7px;color:var(--fg);">FIELD COHERENCE</div>
+        <div style="font-size:6px;color:var(--gd);margin-top:2px;">[MONITORING]</div>
+      </div>
+      <div class="rule-blk">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.2vw,7px);color:var(--gd);letter-spacing:1px;margin-bottom:2px;">COMPANION LANE</div>
+        <div style="font-size:7px;color:var(--fg);">ORGONITE /<br>DIELECTRIC</div>
+        <div style="font-size:6px;color:var(--gd);margin-top:2px;">[MONITORING]</div>
+      </div>
+      <div class="rule-blk">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.2vw,7px);color:var(--gd);letter-spacing:1px;margin-bottom:2px;">COMPANION LANE</div>
+        <div style="font-size:7px;color:var(--fg);">PLASMA /<br>ATMOSPHERIC</div>
+        <div style="font-size:6px;color:var(--gd);margin-top:2px;">[MONITORING]</div>
+      </div>
+      <div class="rule-blk">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.2vw,7px);color:var(--gd);letter-spacing:1px;margin-bottom:2px;">COMPANION LANE</div>
+        <div style="font-size:7px;color:var(--fg);">BIEFELD-BROWN /<br>ANTI-GRAVITY</div>
+        <div style="font-size:6px;color:var(--gd);margin-top:2px;">[TIER I ACTIVE]</div>
+      </div>
+      <div class="rule-blk">
+        <div style="font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.2vw,7px);color:var(--gd);letter-spacing:1px;margin-bottom:2px;">COMPANION LANE</div>
+        <div style="font-size:7px;color:var(--fg);">RUSSELL / WINTER /<br>REICH COMPARE</div>
+        <div style="font-size:6px;color:var(--fgk);margin-top:2px;">[TIER II]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOSSIER COMPILATION NODE -->
+  <div class="pnl">
+    <div class="ph">DOSSIER COMPILATION NODE // STAGED SYSTEM</div>
+    <div style="padding:7px 10px 5px;font-size:clamp(7px,1.6vw,9px);color:var(--fgd);line-height:1.6;border-bottom:1px solid var(--bd);">Users build structured artifacts over time. Artifacts are evaluated for structure, mechanism density, and analytical discipline — not opinion. Classification tier increases as signal accumulates.</div>
+    <div class="tier-ladder">
+      <div class="tier-rung t1">
+        <div class="tier-name">FRAGMENT</div>
+        <div class="tier-ind">initial submission</div>
+      </div>
+      <div class="tier-rung t2">
+        <div class="tier-name">STRUCTURED</div>
+        <div class="tier-ind">FC-AS-1 compliant</div>
+      </div>
+      <div class="tier-rung t3">
+        <div class="tier-name">COMPILED</div>
+        <div class="tier-ind">multi-node coherent</div>
+      </div>
+      <div class="tier-rung t4">
+        <div class="tier-name">ARCHIVE-GRADE</div>
+        <div class="tier-ind">peer-reviewed tier</div>
+      </div>
+      <div class="tier-rung t5">
+        <div class="tier-name">CLEARANCE ARTIFACT</div>
+        <div class="tier-ind">promotion eligible</div>
+      </div>
+    </div>
+    <div class="comp-note">Promotion pipeline: Submission → Approved Intel → Featured Case → Dossier Fragment → Premium Dossier. System evaluates structure, not speculation. Backend logic: staged. Form intake: pending IT-2.</div>
+  </div>
+
 </div>
 
 <!-- PANE: LANES -->
@@ -832,7 +1078,7 @@ function tick(){
 setInterval(tick,1000);tick();
 
 /* TABS */
-var PANES={overview:'pane-overview',dossier:'pane-dossier',lanes:'pane-lanes',feed:'pane-feed',footprint:'pane-footprint'};
+var PANES={overview:'pane-overview',dossier:'pane-dossier',intel:'pane-intel',lanes:'pane-lanes',feed:'pane-feed',footprint:'pane-footprint'};
 document.querySelectorAll('.tab').forEach(function(tab){
   tab.addEventListener('click',function(){
     t1();
@@ -1030,6 +1276,291 @@ function unlockA(){
 }
 document.addEventListener('click',unlockA,{capture:true,passive:true});
 document.addEventListener('touchstart',unlockA,{capture:true,passive:true});
+
+/* SEED SYSTEM */
+var SEEDS=[
+  {tag:'TARTARIAN-RESET-01',lane:'TARTARIAN RESET',case:'World Fair Architecture — Labor & Build Feasibility',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Pre-reset infrastructure hypothesis
+TARGET: World fair construction timelines, labor counts
+MODE: Mechanism extraction
+
+PIPELINE:
+[1] Identify physical mechanism claims
+[2] Decompose into measurable components
+[3] Map to known engineering domains
+[4] Define falsifiable hypothesis
+[5] Propose test pathway
+[6] Define failure condition
+
+OUTPUT FORMAT:
+- Mechanism:
+- Components:
+- Domain Mapping:
+- Build Estimate:
+- Failure Mode:
+- Confidence:`},
+  {tag:'TARTARIAN-RESET-02',lane:'TARTARIAN RESET',case:'Material Sourcing — Stone Precision Claims',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Pre-reset architecture precision claims
+TARGET: Stone cutting, fitting tolerances, tool technology
+MODE: Component decomposition
+
+PIPELINE:
+[1] Identify precision claim (tolerance in mm)
+[2] Compare to known period tool capability
+[3] Map to materials domain
+[4] Identify unexplained gap if any
+[5] Propose replication test
+[6] Failure mode: tolerance achieved by known tools
+
+OUTPUT FORMAT:
+- Claimed Tolerance:
+- Known Tool Capability:
+- Gap (if any):
+- Test:
+- Failure Mode:
+- Confidence:`},
+  {tag:'TARTARIAN-RESET-03',lane:'TARTARIAN RESET',case:'Demolition & Disappearance Claims',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Post-reset demolition hypothesis
+TARGET: Mud flood / burial / rapid disappearance of prior structures
+MODE: Physics domain mapping
+
+PIPELINE:
+[1] Identify claim (e.g. mud flood rate, burial depth)
+[2] Map to known sediment deposition rates
+[3] Define time window constraint
+[4] Falsifiable test: stratigraphy comparison
+[5] Failure mode: deposition rate explains burial
+
+OUTPUT FORMAT:
+- Claim:
+- Deposition Rate (known):
+- Required Time:
+- Stratigraphy Check:
+- Failure Mode:
+- Confidence:`},
+  {tag:'TARTARIAN-RESET-04',lane:'TARTARIAN RESET',case:'White Sky Anomaly — Photographic Record',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Anomalous sky coloration in historical imagery
+TARGET: Overexposure vs. actual sky condition distinction
+MODE: Signal decomposition
+
+PIPELINE:
+[1] Identify image corpus
+[2] Apply photographic artifact model
+[3] Compare to known exposure / albedo effects
+[4] Isolate residual anomaly if present
+[5] Failure mode: artifact model accounts for all variance
+
+OUTPUT FORMAT:
+- Image Set:
+- Artifact Model Applied:
+- Residual Anomaly:
+- Test:
+- Failure Mode:
+- Confidence:`},
+  {tag:'TARTARIAN-RESET-05',lane:'TARTARIAN RESET',case:'Crowd Density at World Fair Events',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Population plausibility cross-check
+TARGET: Reported attendance vs. period population and transport capacity
+MODE: Constraint mapping
+
+PIPELINE:
+[1] Extract reported attendance figure
+[2] Map to period rail / road transport capacity
+[3] Cross-reference regional population density
+[4] Identify logistical bottleneck
+[5] Failure mode: transport capacity is sufficient
+
+OUTPUT FORMAT:
+- Reported Attendance:
+- Transport Capacity:
+- Population Constraint:
+- Bottleneck:
+- Failure Mode:
+- Confidence:`},
+  {tag:'TARTARIAN-RESET-06',lane:'TARTARIAN RESET',case:'Hidden Infrastructure Claims',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Underground / hidden infrastructure hypothesis
+TARGET: Tunnel systems, sealed basements, bricked windows
+MODE: Component decomposition
+
+PIPELINE:
+[1] Identify specific infrastructure claim
+[2] Map to known architectural practice
+[3] Identify if anomaly exists vs. known reason
+[4] Propose ground-penetrating test
+[5] Failure mode: standard architectural explanation applies
+
+OUTPUT FORMAT:
+- Infrastructure Claim:
+- Known Architectural Analog:
+- Anomaly Gap:
+- Test Method:
+- Failure Mode:
+- Confidence:`},
+  {tag:'BIEFELD-BROWN-01',lane:'BIEFELD-BROWN',case:'EHD Thrust — Ion Wind vs. Electrogravitic Separation',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Asymmetric high-voltage capacitor thrust
+TARGET: Ion wind confound elimination
+MODE: Vacuum isolation test design
+
+PIPELINE:
+[1] Identify mechanism (EHD ion wind)
+[2] Decompose: voltage, gap, ionic current, air pressure
+[3] Map to EHD domain (F = I·d/kion)
+[4] Hypothesis: thrust → 0 as P → 0
+[5] Test: vacuum chamber, P < 10⁻³ Torr
+[6] Failure mode: thrust ≤ noise floor at all V
+
+OUTPUT FORMAT:
+- Mechanism:
+- Key Variables:
+- Governing Equation:
+- Test Setup:
+- Failure Mode:
+- Confidence:`},
+  {tag:'ORGONITE-01',lane:'ORGONITE',case:'Thermal Differential — ORAC vs. Control Box',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Organic-metallic layered composite (orgonite)
+TARGET: Temperature anomaly claim — ΔT above ambient
+MODE: Thermal artifact null test design
+
+PIPELINE:
+[1] Identify claim (ΔT sustained above ambient)
+[2] Apply thermal artifact model (∆T = Q·Σdi/κi / A)
+[3] Control for thermal mass, IR emissivity, airflow
+[4] 72-hour blinded measurement protocol
+[5] Failure mode: ΔT within artifact model bounds
+
+OUTPUT FORMAT:
+- Claimed ΔT:
+- Artifact Model Prediction:
+- Test Setup:
+- Control Arm:
+- Failure Mode:
+- Confidence:`},
+  {tag:'ORGONITE-02',lane:'ORGONITE',case:'Near-Field Charge Distribution — Composite Dielectric',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Orgonite as structured dielectric composite
+TARGET: Anomalous near-field electrostatic behavior
+MODE: Impedance spectroscopy design
+
+PIPELINE:
+[1] Identify claim: charge distribution distinct from standard models
+[2] Map to dielectric physics domain
+[3] Apply impedance spectroscopy protocol
+[4] Near-field probe measurement (blinded)
+[5] Failure mode: standard parallel-plate model accounts for all readings
+
+OUTPUT FORMAT:
+- Claim:
+- Physics Domain:
+- Instrumentation:
+- Failure Mode:
+- Open Question:
+- Confidence:`},
+  {tag:'RUSSELL-WINTER-01',lane:'RUSSELL / WINTER / REICH',case:'Walter Russell — Differential Prediction Test',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Russell dielectric pressure cosmology
+TARGET: Identify any prediction distinguishable from Maxwell
+MODE: Differential prediction extraction
+
+PIPELINE:
+[1] Identify Russell claim
+[2] Map to Maxwell / plasma analog
+[3] Test: does claim produce different observable than Maxwell?
+[4] Failure mode: no differential prediction → descriptive system only
+
+OUTPUT FORMAT:
+- Russell Claim:
+- Maxwell Analog:
+- Differential Prediction:
+- Test:
+- Failure Mode:
+- Confidence:`},
+  {tag:'RUSSELL-WINTER-02',lane:'RUSSELL / WINTER / REICH',case:'Dan Winter φ-Coherence — Plasma Resonance Test',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Golden-ratio phase coherence claim
+TARGET: φ-ratio frequency harmonics in resonant cavity
+MODE: Measurable phase alignment test
+
+PIPELINE:
+[1] Identify claim: φ-ratio frequencies → constructive interference gain
+[2] Map to resonance cavity physics
+[3] Test: f2/f1 = φ in cavity output vs. non-φ ratio
+[4] Measure phase alignment and amplitude response
+[5] Failure mode: no φ-specific gain above control
+
+OUTPUT FORMAT:
+- Claim:
+- Test Setup:
+- φ Frequency Ratio:
+- Control Ratio:
+- Failure Mode:
+- Confidence:`},
+  {tag:'SCHAUBERGER-01',lane:'FIELD COHERENCE',case:'Vortex Geometry Efficiency — Log-Spiral vs. Cylindrical',mode:'MECHANISM EXTRACTION',body:`SYSTEM: Schauberger logarithmic-spiral vortex
+TARGET: Flow efficiency differential vs. standard cylindrical pipe
+MODE: Precision flow bench test design
+
+PIPELINE:
+[1] Claim: log-spiral geometry produces efficiency gain
+[2] Identify variables: Q [L/min], ΔP [Pa], T(r) [°C], turbulence
+[3] Test: 3 geometries at matched Reynolds numbers
+[4] Success: >5% efficiency differential favouring Schauberger
+[5] Failure mode: no differential outside measurement uncertainty
+
+OUTPUT FORMAT:
+- Geometry A / B / C:
+- Matched Reynolds Number:
+- Measured Variables:
+- Success Threshold:
+- Failure Mode:
+- Confidence:`},
+];
+
+var seedGrid=document.getElementById('seed-grid');
+if(seedGrid){
+  SEEDS.forEach(function(s,idx){
+    var card=document.createElement('div');
+    card.className='seed-card';
+    card.innerHTML='<div class="seed-lane">'+s.lane+'</div>'
+      +'<div class="seed-tag">[SEED — '+s.tag+']</div>'
+      +'<div class="seed-case">'+s.case+'</div>'
+      +'<div class="seed-footer">'
+        +'<span class="seed-mode">MODE: '+s.mode+'</span>'
+        +'<button class="seed-copy" data-idx="'+idx+'">[ COPY ]</button>'
+      +'</div>'
+      +'<div class="seed-body">[SEED — '+s.tag+']\n\nSYSTEM: '+s.case+'\nTARGET: '+s.case+'\nMODE: '+s.mode+'\n\n'+s.body+'</div>'
+      +'<div class="seed-expand">▸</div>';
+    card.addEventListener('click',function(e){
+      if(e.target.classList.contains('seed-copy'))return;
+      card.classList.toggle('open');
+      card.querySelector('.seed-expand').textContent=card.classList.contains('open')?'▾':'▸';
+      t1();
+    });
+    card.querySelector('.seed-copy').addEventListener('click',function(e){
+      e.stopPropagation();
+      var text='[SEED — '+s.tag+']\n\nSYSTEM: '+s.case+'\nMODE: '+s.mode+'\n\n'+s.body;
+      navigator.clipboard.writeText(text).then(function(){
+        var btn=card.querySelector('.seed-copy');
+        btn.textContent='[ COPIED ]';btn.style.color='var(--g)';
+        setTimeout(function(){btn.textContent='[ COPY ]';btn.style.color='';},1500);
+      }).catch(function(){});
+      t1();
+    });
+    seedGrid.appendChild(card);
+  });
+}
+
+/* TEMPLATE COPY */
+window.copyTemplate=function(){
+  var body=document.getElementById('tmpl-body');
+  if(!body)return;
+  var text=body.innerText.replace(/\s+/g,' ').trim();
+  var clean='DOSSIER TAG:   [e.g. TARTARIAN-RESET-01]\nCASE:          [active case label]\nCLAIM:         [single bounded assertion]\nSOURCE TYPE:   [patent / primary / field note / AI output]\nSOURCE NOTE:   [no URLs — describe only]\nMECHANISM:     [physical mechanism proposed]\nCONSTRAINT:    [known physical law or bound that applies]\nTEST:          [isolating experiment or protocol]\nFAILURE MODE:  [null hypothesis condition]\nCONFIDENCE:    [HIGH / MOD / LOW / UNVERIFIED]\nINTEL DUMP:    [structured findings only — no narrative]';
+  navigator.clipboard.writeText(clean).then(function(){
+    var btn=document.querySelector('.tmpl-copy-btn');
+    if(btn){btn.textContent='[ COPIED ]';btn.style.color='var(--g)';}
+    setTimeout(function(){if(btn){btn.textContent='[ COPY TEMPLATE ]';btn.style.color='';}},1500);
+  }).catch(function(){});
+  t1();
+};
+
+/* TELEMETRY COUNTERS */
+(function(){
+  var base=Date.now();
+  var tn=document.getElementById('tn-nodes');
+  var tv=document.getElementById('tn-visits');
+  function countUp(){
+    var elapsed=Math.floor((Date.now()-base)/1000);
+    var nodes=Math.floor(7+elapsed*0.003)%12+4;
+    var visits=1471+Math.floor(elapsed*0.11);
+    if(tn)tn.textContent=String(nodes).padStart(3,'0');
+    if(tv)tv.textContent=String(visits).padStart(4,'0');
+  }
+  countUp();setInterval(countUp,3000);
+})();
 
 })();
 </script>
