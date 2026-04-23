@@ -1033,5 +1033,41 @@ document.addEventListener('touchstart',unlockA,{capture:true,passive:true});
 
 })();
 </script>
+<!-- RETURN TO MAIN SITE BUTTON -->
+<div id="returnWrap" style="
+  position:fixed;
+  top:10px;
+  right:10px;
+  z-index:9999;
+">
+  <button id="returnMain" style="
+    background:rgba(0,5,0,.9);
+    border:1px solid #00ff41;
+    color:#00ff41;
+    font-family:monospace;
+    font-size:10px;
+    letter-spacing:2px;
+    padding:6px 12px;
+    cursor:pointer;
+    box-shadow:0 0 10px rgba(0,255,65,.15);
+  ">
+    EXIT // RETURN TO NODE
+  </button>
+</div>
+
+<script>
+document.getElementById("returnMain").addEventListener("click", () => {
+  const btn = document.getElementById("returnMain");
+  
+  // change text for S5 feel
+  btn.textContent = "TERMINATING SESSION...";
+  btn.style.opacity = "0.6";
+
+  // redirect after short delay
+  setTimeout(() => {
+    window.location.href = "https://hilbertmesh.com";
+  }, 800);
+});
+</script>
 </body>
 </html>
