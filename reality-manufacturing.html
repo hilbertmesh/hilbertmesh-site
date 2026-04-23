@@ -3181,6 +3181,59 @@ window.CIO7=CIO7;
 })();
 
 </script>
+  <!-- RETURN TO MAIN SITE (S5 MINIMAL CONTROL) -->
+<button id="backToMainSite" style="
+position:fixed;
+top:10px;
+right:10px;
+z-index:99999;
+
+background:rgba(0,8,0,0.6);
+color:#00ff41;
+border:1px solid rgba(0,255,65,0.4);
+
+padding:4px 8px;
+font-family:'Orbitron', monospace;
+font-size:9px;
+letter-spacing:1px;
+
+cursor:pointer;
+box-shadow:0 0 6px rgba(0,255,65,0.12);
+
+opacity:0.65;
+transition:opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+">
+EXIT
+</button>
+
+<script>
+(function () {
+  const btn = document.getElementById('backToMainSite');
+  if (!btn) return;
+
+  // subtle hover (feels like system focus, not UI button)
+  btn.addEventListener('mouseenter', () => {
+    btn.style.opacity = '1';
+    btn.style.borderColor = 'rgba(0,255,65,0.8)';
+    btn.style.boxShadow = '0 0 10px rgba(0,255,65,0.25)';
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    btn.style.opacity = '0.65';
+    btn.style.borderColor = 'rgba(0,255,65,0.4)';
+    btn.style.boxShadow = '0 0 6px rgba(0,255,65,0.12)';
+  });
+
+  btn.addEventListener('click', function () {
+    btn.textContent = 'EXITING...';
+    btn.style.opacity = '0.5';
+
+    setTimeout(function () {
+      window.location.href = 'https://hilbertmesh.com/';
+    }, 500);
+  });
+})();
+</script>
 </body>
 </html>
 
