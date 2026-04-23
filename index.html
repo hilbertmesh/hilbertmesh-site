@@ -1735,20 +1735,95 @@ var BLOCKS={
 1:'FC-AS-1 FORMAT RULES\n\nYou are a structured intelligence archivist operating under FC-AS-1 analytical discipline.\n\nAll output must follow this exact format:\n\nDOSSIER TAG:   [PREFIX-CASE-##]\nCASE:          [case label]\nCLAIM:         [single bounded assertion]\nSOURCE TYPE:   [patent / primary / field note / AI output]\nSOURCE NOTE:   [describe only — no URLs]\nMECHANISM:     [physical mechanism proposed]\nCONSTRAINT:    [known physical law or bound]\nTEST:          [isolating experiment or protocol]\nFAILURE MODE:  [null hypothesis condition]\nCONFIDENCE:    [HIGH / MOD / LOW / UNVERIFIED]\nINTEL DUMP:    [structured findings — no narrative]\n\nRULES:\n- No URLs, no phone numbers, no social handles\n- No narrative prose without mechanism grounding\n- Every claim must have a failure mode\n- Maintain FC-AS-1 structure through all iterations',
 2:'[SEED — REPLACE WITH YOUR CHOSEN SEED FROM SEED BANK]\n\nSYSTEM: [research target]\nTARGET: [specific claim under investigation]\nMODE: MECHANISM EXTRACTION\n\nPIPELINE:\n[1] Identify physical mechanism claims\n[2] Decompose into measurable components\n[3] Map to known physics / engineering domain\n[4] Define falsifiable hypothesis\n[5] Propose test pathway with explicit failure condition\n[6] Assign confidence band\n\nOUTPUT FORMAT:\n- DOSSIER TAG:\n- CASE:\n- CLAIM:\n- MECHANISM:\n- CONSTRAINT:\n- TEST:\n- FAILURE MODE:\n- CONFIDENCE:\n- INTEL DUMP:',
 3:'Using the format rules from BLOCK 1 and the seed from BLOCK 2, generate a complete FC-AS-1 compliant dossier fragment.\n\nExpand each field fully. The INTEL DUMP should contain structured findings: component breakdown, counter-indicators, domain mapping results, and confidence reasoning.\n\nDo not use narrative prose. Every statement must map to a field. Do not add commentary outside the template structure.\n\nGenerate the complete filled template now.',
-4:'PHASE LOCK CORRECTION — ARCHIVIST STABILIZATION BLOCK
+4:`FC-AS-1 PROCEED FUNCTION — BLOCK 4 (DRIFT-LOCKED)
 
-The output below has drifted from FC-AS-1 structure. Apply correction now.
+You are operating under FC-AS-1 analytical discipline.
+This is a CONTINUATION / ITERATION pass — not a new dossier.
 
-REQUIRED:
-1. Restore all field headers exactly as specified in FORMAT RULES
-2. Remove all narrative prose not anchored to a field
-3. Ensure MECHANISM, CONSTRAINT, FAILURE MODE are populated
-4. Maintain DOSSIER TAG prefix consistency with prior output
-5. INTEL DUMP must be structured findings only — no conclusions without evidence
+INPUT:
+- Prior FC-AS-1 compliant dossier fragment
+- New seed OR refinement directive
 
-Paste your previous output below this line and reformat it now:
+PRIMARY OBJECTIVE:
+- Advance the dossier without structural drift
+- Preserve analytical integrity across all fields
 
----:\n\n---'
+STATE CONTROL:
+- DOSSIER TAG must retain prefix: FC-AS-1-____
+- If iterating → increment suffix only if a new variant is created
+- CASE must remain identical unless explicitly redefined
+- CLAIM must remain bounded; do not expand scope beyond original assertion
+
+FIELD INTEGRITY RULES:
+- All field headers MUST remain EXACT:
+  DOSSIER TAG
+  CASE
+  CLAIM
+  SOURCE TYPE
+  SOURCE NOTE
+  MECHANISM
+  CONSTRAINT
+  TEST
+  FAILURE MODE
+  CONFIDENCE
+  INTEL DUMP
+
+- No field removal
+- No field renaming
+- No narrative outside fields
+
+DELTA OPERATION MODES:
+
+[MODE: REFINE]
+- Tighten MECHANISM
+- Narrow CONSTRAINT
+- Improve TEST
+- Expand FAILURE MODE
+- Adjust CONFIDENCE only if evidence state changes
+
+[MODE: EXPAND]
+- Add variable resolution to TEST
+- Extend INTEL DUMP only with new structured findings
+- Do not repeat existing entries
+
+[MODE: RED-TEAM]
+- Stress CLAIM against CONSTRAINT
+- Introduce counter-mechanisms
+- Identify hidden variables
+- Expand FAILURE MODE dominance conditions
+- Downgrade CONFIDENCE if contradictions persist
+
+DRIFT DETECTION:
+1. CLAIM DRIFT
+2. MECHANISM GAP
+3. CONSTRAINT VIOLATION
+4. TEST NON-ISOLATION
+5. INTEL CONTAMINATION
+
+STATE CARRYOVER:
+- Preserve prior valid INTEL DUMP entries
+- Append only new structured findings
+- Do not overwrite prior validated structure
+
+OUTPUT PROTOCOL:
+- Reissue FULL FC-AS-1 block only if structural change >30%
+- Otherwise output only modified fields
+
+FAILSAFE CONDITIONS:
+- If MECHANISM undefined → halt and request clarification
+- If TEST invalid → mark FAILURE MODE dominant
+- If CLAIM collapses under CONSTRAINT → downgrade CONFIDENCE to UNVERIFIED
+- If multiple contradictions persist → classify as unstable system
+
+OUTPUT REQUIREMENT:
+- Strict FC-AS-1 format
+- No commentary
+- No explanation
+- No extra text outside fields
+
+PROCEED WITH CONTROLLED ITERATION.`:
+
+PROCEED WITH CONTROLLED ITERATION.`
 };
 document.querySelectorAll('.block-copy').forEach(function(btn){
   btn.addEventListener('click',function(){
