@@ -209,14 +209,14 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
   </div>
 </div>
 <script>
+const API_BASE = "https://hilbert-backend.vercel.app";
+
 const $ = (id) => document.getElementById(id);
 
-function esc(s) {
-  return String(s == null ? "" : s).replace(/[&<>]/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;"
-  })[c]);
+function apiUrl(path) {
+  if (!path) return API_BASE;
+  if (path.startsWith("http")) return path;
+  return API_BASE + path;
 }
 
 function clean(v, fb, n) {
@@ -224,12 +224,12 @@ function clean(v, fb, n) {
   return v.slice(0, n).replace(/[<>]/g, "").trim();
 }
 
-async function postJson(url, payload) {
+async function postJson(path, payload) {
   try {
-    const r = await fetch(url, {
+    const r = await fetch(apiUrl(path), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
+      credentials: "omit",
       body: JSON.stringify(payload || {})
     });
 
@@ -243,7 +243,8 @@ async function postJson(url, payload) {
         ok: false,
         error: "invalid_json_response",
         httpStatus: r.status,
-        responseText: text.slice(0, 300)
+        postedTo: apiUrl(path),
+        responseText: text.slice(0, 400)
       };
     }
 
@@ -252,21 +253,23 @@ async function postJson(url, payload) {
       d.httpStatus = r.status;
     }
 
+    d.postedTo = apiUrl(path);
     return d;
   } catch (e) {
     return {
       ok: false,
       error: "network_error",
+      postedTo: apiUrl(path),
       detail: e?.message || ""
     };
   }
 }
 
-async function getJson(url) {
+async function getJson(path) {
   try {
-    const r = await fetch(url, {
+    const r = await fetch(apiUrl(path), {
       method: "GET",
-      credentials: "include",
+      credentials: "omit",
       cache: "no-store"
     });
 
@@ -280,7 +283,7 @@ async function getJson(url) {
         ok: false,
         error: "invalid_json_response",
         httpStatus: r.status,
-        responseText: text.slice(0, 300)
+        responseText: text.slice(0, 400)
       };
     }
 
@@ -301,10 +304,13 @@ async function getJson(url) {
 
 function fmtErr(r) {
   if (!r) return "UNKNOWN ERROR";
-  if (r.error === "invalid_json_response") {
-    return "INVALID JSON RESPONSE // BACKEND RETURNED HTML OR WRONG ROUTE";
-  }
-  return String(r.error || "unknown_error").toUpperCase().replace(/_/g, " ");
+  let msg = String(r.error || "unknown_error").toUpperCase().replace(/_/g, " ");
+
+  if (r.postedTo) msg += "\n\nPOSTED TO:\n" + r.postedTo;
+  if (r.httpStatus) msg += "\n\nHTTP STATUS:\n" + r.httpStatus;
+  if (r.responseText) msg += "\n\nFIRST RESPONSE:\n" + r.responseText;
+
+  return msg;
 }
 
 const LS_CODE = "hmf_s5_code";
@@ -342,26 +348,26 @@ let state = {
   user: null
 };
 
+function sigmaText(user) {
+  if (!user) return "Σ 0";
+  if (user.isDev || user.sigmaDisplay === "INFINITY") return "Σ ∞";
+  return "Σ " + Number(user.sigma || 0);
+}
+
 function statusLineFor(user) {
   if (!user) return { label: "STATUS: CIVILIAN", cls: "" };
 
-  if (user.isDev || String(user.clearance || "").toUpperCase() === "THE GUY") {
+  if (user.isDev || user.sigmaDisplay === "INFINITY") {
     return { label: "STATUS: THE GUY", cls: "dev" };
   }
 
   const c = String(user.clearance || "CIVILIAN").toUpperCase();
 
-  if (c === "DEV OVERRIDE") return { label: "STATUS: THE GUY", cls: "dev" };
+  if (c === "THE GUY" || c === "DEV OVERRIDE") return { label: "STATUS: THE GUY", cls: "dev" };
   if (c === "SENIOR AGENT") return { label: "STATUS: SENIOR AGENT", cls: "amber" };
   if (c === "AGENT") return { label: "STATUS: AGENT", cls: "amber" };
 
   return { label: "STATUS: CIVILIAN", cls: "" };
-}
-
-function sigmaText(user) {
-  if (!user) return "Σ 0";
-  if (user.isDev || user.sigmaDisplay === "INFINITY") return "Σ ∞";
-  return "Σ " + Number(user.sigma || 0);
 }
 
 function renderUser() {
@@ -406,17 +412,7 @@ async function authenticate(rawCode) {
   const r = await postJson("/api/verify-s5-code", { code: rawCode });
 
   if (!r.ok) {
-    let msg = fmtErr(r);
-
-    if (r.error === "access_locked_retry_later") {
-      msg = "ACCESS LOCKED // RETRY LATER";
-    }
-
-    if (r.error === "invalid_json_response" && r.responseText) {
-      msg += "\n\nFIRST RESPONSE BYTES:\n" + r.responseText;
-    }
-
-    $("loginErr").textContent = msg;
+    $("loginErr").textContent = fmtErr(r);
     $("loginErr").classList.remove("hidden");
     return false;
   }
@@ -432,11 +428,13 @@ async function authenticate(rawCode) {
 }
 
 async function verifySession() {
-  const r = await getJson("/api/verify-session");
+  if (!state.s5SessionId) return false;
+
+  const qs = "?sessionId=" + encodeURIComponent(state.s5SessionId);
+  const r = await getJson("/api/verify-session" + qs);
 
   if (r.ok && r.user) {
     state.authenticated = true;
-    state.s5SessionId = r.sessionId || state.s5SessionId || "";
     state.user = r.user;
     renderUser();
     showTerminal();
@@ -494,7 +492,7 @@ $("runBtn").onclick = async () => {
   const seed = clean($("fSeed").value, "", 3000);
 
   if (!seed || seed.length < 3) {
-    $("forgeOut").textContent = "SEED REQUIRED (paste text into the seed field).";
+    $("forgeOut").textContent = "SEED REQUIRED.";
     $("runBtn").disabled = false;
     running = false;
     $("forgeScan").classList.add("hidden");
@@ -503,30 +501,18 @@ $("runBtn").onclick = async () => {
 
   $("forgeOut").textContent = "BUFFERING...\nRUNNING S5 EXECUTION LAYER...";
 
-  let r = await postJson("/api/forge", authBody({ mode, pages, seed }));
-
-  if (!r.ok && (r.error === "invalid_s5_code" || r.httpStatus === 401) && state.code) {
-    r = await postJson("/api/forge", {
-      s5Code: state.code,
-      mode,
-      pages,
-      seed
-    });
-  }
+  const r = await postJson("/api/forge", authBody({ mode, pages, seed }));
 
   if (r.ok) {
     const data = r.data || {};
     const body = typeof data.output === "string" ? data.output : JSON.stringify(data, null, 2);
 
-    const meta =
+    $("forgeOut").textContent =
+      "FORGE AUTHORIZED // OUTPUT RECEIVED\n" +
       "PATH: " + (r.path || "?") +
       (r.sigmaDisplay === "INFINITY" ? " · Σ AFTER: ∞" : "") +
       (r.sigma != null ? " · Σ AFTER: " + r.sigma : "") +
-      (r.clearance ? " · " + r.clearance : "");
-
-    $("forgeOut").textContent =
-      "FORGE AUTHORIZED // OUTPUT RECEIVED\n" +
-      meta +
+      (r.clearance ? " · " + r.clearance : "") +
       "\n\n" +
       body;
 
@@ -540,8 +526,7 @@ $("runBtn").onclick = async () => {
       refreshUser();
     }
   } else if (r.error === "insufficient_sigma") {
-    $("forgeOut").textContent =
-      "INSUFFICIENT Σ.\n\nAdd Σ via the SIGMA CHARGE tab to continue forge runs.";
+    $("forgeOut").textContent = "INSUFFICIENT Σ.\n\nAdd Σ via SIGMA CHARGE.";
     selectTab("charge");
   } else {
     $("forgeOut").textContent = "FORGE ERROR:\n\n" + JSON.stringify(r, null, 2);
@@ -572,7 +557,7 @@ document.querySelectorAll("[data-pack]").forEach(b => {
       return;
     }
 
-    alert("CHECKOUT FAILED: " + fmtErr(r));
+    alert("CHECKOUT FAILED:\n" + fmtErr(r));
   };
 });
 
@@ -590,7 +575,7 @@ $("upAgent").onclick = async () => {
     return;
   }
 
-  alert("CHECKOUT FAILED: " + fmtErr(r));
+  alert("CHECKOUT FAILED:\n" + fmtErr(r));
 };
 
 $("upSenior").onclick = async () => {
@@ -607,7 +592,7 @@ $("upSenior").onclick = async () => {
     return;
   }
 
-  alert("CHECKOUT FAILED: " + fmtErr(r));
+  alert("CHECKOUT FAILED:\n" + fmtErr(r));
 };
 
 $("refreshBtn").onclick = () => refreshUser();
@@ -652,14 +637,10 @@ $("codeInput").addEventListener("keydown", e => {
   state.code = local.code || "";
   state.s5SessionId = local.sessionId || "";
 
-  if (local.code) {
-    $("codeInput").value = local.code;
-  }
+  if (local.code) $("codeInput").value = local.code;
 
-  const hasSession = await verifySession();
-  if (hasSession) return;
-
-  showLogin();
+  const ok = await verifySession();
+  if (!ok) showLogin();
 })();
 </script>
 </body>
