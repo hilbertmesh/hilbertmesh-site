@@ -208,299 +208,458 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
     Recovery channel: support@hilbertmesh.com
   </div>
 </div>
-
 <script>
-// ── Helpers ────────────────────────────────────────────────
-const $ = (id)=>document.getElementById(id);
-function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c])}
-function clean(v,fb,n){if(typeof v!=='string')return fb;return v.slice(0,n).replace(/[<>]/g,'').trim()}
+const $ = (id) => document.getElementById(id);
 
-async function postJson(url,payload){
-  try{
-    const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload||{})});
-    let d; try{d=await r.json()}catch{d={ok:false,error:'invalid_json_response'}}
-    if(!r.ok){d.ok=false;d.httpStatus=r.status}
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>]/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
+  })[c]);
+}
+
+function clean(v, fb, n) {
+  if (typeof v !== "string") return fb;
+  return v.slice(0, n).replace(/[<>]/g, "").trim();
+}
+
+async function postJson(url, payload) {
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload || {})
+    });
+
+    const text = await r.text();
+    let d;
+
+    try {
+      d = text ? JSON.parse(text) : {};
+    } catch {
+      return {
+        ok: false,
+        error: "invalid_json_response",
+        httpStatus: r.status,
+        responseText: text.slice(0, 300)
+      };
+    }
+
+    if (!r.ok) {
+      d.ok = false;
+      d.httpStatus = r.status;
+    }
+
     return d;
-  }catch(e){
-    return {ok:false,error:'network_error',detail:e?.message||''};
+  } catch (e) {
+    return {
+      ok: false,
+      error: "network_error",
+      detail: e?.message || ""
+    };
   }
 }
 
-// ── Local cache (cosmetic only — server is truth) ─────────
-const LS_CODE    = 'hmf_s5_code';
-const LS_SESSION = 'hmf_s5_session';
+async function getJson(url) {
+  try {
+    const r = await fetch(url, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
 
-function saveLocal(code,sessionId){
-  try{
-    if(code) localStorage.setItem(LS_CODE,code);
-    if(sessionId) localStorage.setItem(LS_SESSION,sessionId);
-  }catch{}
-}
-function loadLocal(){
-  let code='',sessionId='';
-  try{ code=localStorage.getItem(LS_CODE)||''; sessionId=localStorage.getItem(LS_SESSION)||''; }catch{}
-  return {code,sessionId};
-}
-function clearLocal(){
-  try{ localStorage.removeItem(LS_CODE); localStorage.removeItem(LS_SESSION); }catch{}
+    const text = await r.text();
+    let d;
+
+    try {
+      d = text ? JSON.parse(text) : {};
+    } catch {
+      return {
+        ok: false,
+        error: "invalid_json_response",
+        httpStatus: r.status,
+        responseText: text.slice(0, 300)
+      };
+    }
+
+    if (!r.ok) {
+      d.ok = false;
+      d.httpStatus = r.status;
+    }
+
+    return d;
+  } catch (e) {
+    return {
+      ok: false,
+      error: "network_error",
+      detail: e?.message || ""
+    };
+  }
 }
 
-// ── State ─────────────────────────────────────────────────
+function fmtErr(r) {
+  if (!r) return "UNKNOWN ERROR";
+  if (r.error === "invalid_json_response") {
+    return "INVALID JSON RESPONSE // BACKEND RETURNED HTML OR WRONG ROUTE";
+  }
+  return String(r.error || "unknown_error").toUpperCase().replace(/_/g, " ");
+}
+
+const LS_CODE = "hmf_s5_code";
+const LS_SESSION = "hmf_s5_session";
+
+function saveLocal(code, sessionId) {
+  try {
+    if (code) localStorage.setItem(LS_CODE, code);
+    if (sessionId) localStorage.setItem(LS_SESSION, sessionId);
+  } catch {}
+}
+
+function loadLocal() {
+  try {
+    return {
+      code: localStorage.getItem(LS_CODE) || "",
+      sessionId: localStorage.getItem(LS_SESSION) || ""
+    };
+  } catch {
+    return { code: "", sessionId: "" };
+  }
+}
+
+function clearLocal() {
+  try {
+    localStorage.removeItem(LS_CODE);
+    localStorage.removeItem(LS_SESSION);
+  } catch {}
+}
+
 let state = {
   authenticated: false,
-  s5SessionId: '',
-  code: '',          // kept locally for convenience only
-  user: null         // { username, clearance, sigma, monthlyTier, discountRate, emblemRank }
+  s5SessionId: "",
+  code: "",
+  user: null
 };
 
-// ── Auth flow ─────────────────────────────────────────────
-async function authenticate(rawCode){
-  $('loginErr').classList.add('hidden');
-  $('loginErr').textContent = '';
-  const r = await postJson('/api/verify-s5-code',{code:rawCode});
-  if(!r.ok){
-    let msg = 'INVALID S5 CODE';
-    if(r.error === 'contamination_breach') msg = 'CONTAMINATION BREACH // SECTOR TRANSFER DETECTED';
-    else if(r.error) msg = r.error.toUpperCase().replace(/_/g,' ');
-    $('loginErr').textContent = msg;
-    $('loginErr').classList.remove('hidden');
+function statusLineFor(user) {
+  if (!user) return { label: "STATUS: CIVILIAN", cls: "" };
+
+  if (user.isDev || String(user.clearance || "").toUpperCase() === "THE GUY") {
+    return { label: "STATUS: THE GUY", cls: "dev" };
+  }
+
+  const c = String(user.clearance || "CIVILIAN").toUpperCase();
+
+  if (c === "DEV OVERRIDE") return { label: "STATUS: THE GUY", cls: "dev" };
+  if (c === "SENIOR AGENT") return { label: "STATUS: SENIOR AGENT", cls: "amber" };
+  if (c === "AGENT") return { label: "STATUS: AGENT", cls: "amber" };
+
+  return { label: "STATUS: CIVILIAN", cls: "" };
+}
+
+function sigmaText(user) {
+  if (!user) return "Σ 0";
+  if (user.isDev || user.sigmaDisplay === "INFINITY") return "Σ ∞";
+  return "Σ " + Number(user.sigma || 0);
+}
+
+function renderUser() {
+  const u = state.user || {};
+  const s = statusLineFor(u);
+  const sl = $("statusLine");
+
+  sl.textContent = s.label;
+  sl.classList.remove("amber", "dev");
+  if (s.cls) sl.classList.add(s.cls);
+
+  const dr = Number(u.discountRate || 0);
+
+  $("kUser").textContent = u.username || "OPERATOR";
+  $("kSigma").textContent = sigmaText(u);
+  $("kClear").textContent = u.clearance || "CIVILIAN";
+  $("kDisc").textContent = dr > 0 ? Math.round(dr * 100) + "%" : "—";
+
+  $("aUser").textContent = u.username || "OPERATOR";
+  $("aClear").textContent = u.clearance || "CIVILIAN";
+  $("aSigma").textContent = sigmaText(u);
+  $("aTier").textContent = u.monthlyTier || "—";
+  $("aDisc").textContent = dr > 0 ? Math.round(dr * 100) + "% off Σ packs" : "—";
+  $("aEmblem").textContent = String(u.emblemRank || 0);
+}
+
+function showTerminal() {
+  $("loginPanel").classList.add("hidden");
+  $("termPanel").classList.remove("hidden");
+  renderUser();
+}
+
+function showLogin() {
+  $("termPanel").classList.add("hidden");
+  $("loginPanel").classList.remove("hidden");
+}
+
+async function authenticate(rawCode) {
+  $("loginErr").classList.add("hidden");
+  $("loginErr").textContent = "";
+
+  const r = await postJson("/api/verify-s5-code", { code: rawCode });
+
+  if (!r.ok) {
+    let msg = fmtErr(r);
+
+    if (r.error === "access_locked_retry_later") {
+      msg = "ACCESS LOCKED // RETRY LATER";
+    }
+
+    if (r.error === "invalid_json_response" && r.responseText) {
+      msg += "\n\nFIRST RESPONSE BYTES:\n" + r.responseText;
+    }
+
+    $("loginErr").textContent = msg;
+    $("loginErr").classList.remove("hidden");
     return false;
   }
+
   state.authenticated = true;
-  state.s5SessionId = r.sessionId;
+  state.s5SessionId = r.sessionId || "";
   state.code = rawCode;
   state.user = r.user || null;
-  saveLocal(rawCode, r.sessionId);
+
+  saveLocal(rawCode, state.s5SessionId);
   showTerminal();
   return true;
 }
 
-function statusLineFor(user){
-  if(!user) return {label:'STATUS: CIVILIAN',cls:''};
-  const c = String(user.clearance||'CIVILIAN').toUpperCase();
-  if(c === 'DEV OVERRIDE')   return {label:'STATUS: THE GUY',cls:'dev'};
-  if(c === 'SENIOR AGENT')   return {label:'STATUS: SENIOR AGENT',cls:'amber'};
-  if(c === 'AGENT')          return {label:'STATUS: AGENT',cls:'amber'};
-  return {label:'STATUS: CIVILIAN',cls:''};
-}
+async function verifySession() {
+  const r = await getJson("/api/verify-session");
 
-function renderUser(){
-  const u = state.user || {};
-  const s = statusLineFor(u);
-  const sl = $('statusLine');
-  sl.textContent = s.label;
-  sl.classList.remove('amber','dev');
-  if(s.cls) sl.classList.add(s.cls);
-
-  $('kUser').textContent  = u.username || 'OPERATOR';
-  $('kSigma').textContent = 'Σ ' + Number(u.sigma||0);
-  $('kClear').textContent = u.clearance || 'CIVILIAN';
-  const dr = Number(u.discountRate||0);
-  $('kDisc').textContent  = dr > 0 ? Math.round(dr*100)+'%' : '—';
-
-  $('aUser').textContent   = u.username || 'OPERATOR';
-  $('aClear').textContent  = u.clearance || 'CIVILIAN';
-  $('aSigma').textContent  = 'Σ ' + Number(u.sigma||0);
-  $('aTier').textContent   = u.monthlyTier || '—';
-  $('aDisc').textContent   = dr > 0 ? Math.round(dr*100)+'% off Σ packs' : '—';
-  $('aEmblem').textContent = String(u.emblemRank||0);
-}
-
-function showTerminal(){
-  $('loginPanel').classList.add('hidden');
-  $('termPanel').classList.remove('hidden');
-  renderUser();
-}
-function showLogin(){
-  $('termPanel').classList.add('hidden');
-  $('loginPanel').classList.remove('hidden');
-}
-
-async function refreshUser(){
-  if(!state.code) return;
-  const r = await postJson('/api/verify-s5-code',{code:state.code});
-  if(r.ok){
-    state.s5SessionId = r.sessionId;
-    state.user = r.user || null;
-    saveLocal(state.code, r.sessionId);
+  if (r.ok && r.user) {
+    state.authenticated = true;
+    state.s5SessionId = r.sessionId || state.s5SessionId || "";
+    state.user = r.user;
     renderUser();
-  } else {
-    // Server says no — clear and force re-login.
-    clearLocal();
-    state = {authenticated:false,s5SessionId:'',code:'',user:null};
-    showLogin();
-    if(r.error === 'contamination_breach'){
-      $('loginErr').textContent = 'CONTAMINATION BREACH // SECTOR TRANSFER DETECTED';
-      $('loginErr').classList.remove('hidden');
-    }
+    showTerminal();
+    return true;
   }
+
+  return false;
 }
 
-// ── Tabs ──────────────────────────────────────────────────
-function selectTab(name){
-  document.querySelectorAll('.tabbody').forEach(el=>el.classList.add('hidden'));
-  $('tab-'+name).classList.remove('hidden');
-  document.querySelectorAll('.tabs .btn').forEach(b=>{
-    b.classList.toggle('amber', b.dataset.tab===name);
-  });
-}
-document.querySelectorAll('.tabs .btn').forEach(b=>{
-  b.onclick = ()=>selectTab(b.dataset.tab);
-});
+async function refreshUser() {
+  const ok = await verifySession();
+  if (ok) return;
 
-// ── Forge ─────────────────────────────────────────────────
-let running = false;
-$('runBtn').onclick = async () => {
-  if(running) return;
-  running = true;
-  $('runBtn').disabled = true;
-  $('forgeScan').classList.remove('hidden');
-
-  const mode  = clean($('fMode').value || 'paid_test', 'paid_test', 64);
-  const pages = Math.max(1, Math.min(25, Number($('fPages').value)||1));
-  const seed  = clean($('fSeed').value, '', 3000);
-
-  if(!seed || seed.length < 3){
-    $('forgeOut').textContent = 'SEED REQUIRED (paste text into the seed field).';
-    $('runBtn').disabled = false; running = false; $('forgeScan').classList.add('hidden');
+  if (state.code) {
+    await authenticate(state.code);
     return;
   }
 
-  $('forgeOut').textContent = 'BUFFERING...\nRUNNING S5 EXECUTION LAYER...';
+  clearLocal();
+  state = { authenticated: false, s5SessionId: "", code: "", user: null };
+  showLogin();
+}
 
-  const payload = { s5SessionId: state.s5SessionId, mode, pages, seed };
-  // Fall back to raw code if session expired.
-  const r = await postJson('/api/forge', payload);
+function authBody(extra) {
+  return Object.assign({}, extra || {}, {
+    s5SessionId: state.s5SessionId || undefined,
+    s5Code: state.code || undefined
+  });
+}
 
-  if(r.ok){
-    const head = 'FORGE AUTHORIZED // OUTPUT RECEIVED';
-    const meta = 'PATH: ' + (r.path||'?') +
-                 (r.sigma!=null ? ' · Σ AFTER: ' + r.sigma : '') +
-                 (r.clearance ? ' · ' + r.clearance : '');
-    const data = r.data || {};
-    const body = (typeof data.output === 'string') ? data.output : JSON.stringify(data,null,2);
-    $('forgeOut').textContent = head + '\n' + meta + '\n\n' + body;
-    if(r.sigma != null){
-      state.user = { ...(state.user||{}), sigma: r.sigma };
-      renderUser();
-    } else {
-      // Dev / unknown — reconcile from server.
-      refreshUser();
-    }
-  } else if(r.error === 'invalid_s5_code' || r.httpStatus === 401){
-    // Session expired — try once more with raw code if available.
-    if(state.code){
-      const r2 = await postJson('/api/forge',{ s5Code: state.code, mode, pages, seed });
-      if(r2.ok){
-        const body2 = (typeof r2.data?.output === 'string') ? r2.data.output : JSON.stringify(r2.data,null,2);
-        $('forgeOut').textContent = 'FORGE AUTHORIZED (re-auth)\n\n' + body2;
-        await refreshUser();
-      } else {
-        $('forgeOut').textContent = 'FORGE ERROR:\n\n' + JSON.stringify(r2,null,2);
-        if(r2.error === 'invalid_s5_code'){ clearLocal(); showLogin(); }
-      }
-    } else {
-      $('forgeOut').textContent = 'SESSION EXPIRED. RE-ENTER S5 CODE.';
-      clearLocal(); showLogin();
-    }
-  } else if(r.error === 'insufficient_sigma'){
-    $('forgeOut').textContent =
-      'INSUFFICIENT Σ.\n\n' +
-      'Add Σ via the SIGMA CHARGE tab to continue forge runs.';
-    selectTab('charge');
-  } else {
-    $('forgeOut').textContent = 'FORGE ERROR:\n\n' + JSON.stringify(r,null,2);
+function selectTab(name) {
+  document.querySelectorAll(".tabbody").forEach(el => el.classList.add("hidden"));
+  $("tab-" + name).classList.remove("hidden");
+
+  document.querySelectorAll(".tabs .btn").forEach(b => {
+    b.classList.toggle("amber", b.dataset.tab === name);
+  });
+}
+
+document.querySelectorAll(".tabs .btn").forEach(b => {
+  b.onclick = () => selectTab(b.dataset.tab);
+});
+
+let running = false;
+
+$("runBtn").onclick = async () => {
+  if (running) return;
+
+  running = true;
+  $("runBtn").disabled = true;
+  $("forgeScan").classList.remove("hidden");
+
+  const mode = clean($("fMode").value || "paid_test", "paid_test", 64);
+  const pages = Math.max(1, Math.min(25, Number($("fPages").value) || 1));
+  const seed = clean($("fSeed").value, "", 3000);
+
+  if (!seed || seed.length < 3) {
+    $("forgeOut").textContent = "SEED REQUIRED (paste text into the seed field).";
+    $("runBtn").disabled = false;
+    running = false;
+    $("forgeScan").classList.add("hidden");
+    return;
   }
 
-  $('runBtn').disabled = false; running = false;
-  $('forgeScan').classList.add('hidden');
+  $("forgeOut").textContent = "BUFFERING...\nRUNNING S5 EXECUTION LAYER...";
+
+  let r = await postJson("/api/forge", authBody({ mode, pages, seed }));
+
+  if (!r.ok && (r.error === "invalid_s5_code" || r.httpStatus === 401) && state.code) {
+    r = await postJson("/api/forge", {
+      s5Code: state.code,
+      mode,
+      pages,
+      seed
+    });
+  }
+
+  if (r.ok) {
+    const data = r.data || {};
+    const body = typeof data.output === "string" ? data.output : JSON.stringify(data, null, 2);
+
+    const meta =
+      "PATH: " + (r.path || "?") +
+      (r.sigmaDisplay === "INFINITY" ? " · Σ AFTER: ∞" : "") +
+      (r.sigma != null ? " · Σ AFTER: " + r.sigma : "") +
+      (r.clearance ? " · " + r.clearance : "");
+
+    $("forgeOut").textContent =
+      "FORGE AUTHORIZED // OUTPUT RECEIVED\n" +
+      meta +
+      "\n\n" +
+      body;
+
+    if (r.sigma != null || r.sigmaDisplay === "INFINITY") {
+      state.user = Object.assign({}, state.user || {}, {
+        sigma: r.sigma,
+        sigmaDisplay: r.sigmaDisplay
+      });
+      renderUser();
+    } else {
+      refreshUser();
+    }
+  } else if (r.error === "insufficient_sigma") {
+    $("forgeOut").textContent =
+      "INSUFFICIENT Σ.\n\nAdd Σ via the SIGMA CHARGE tab to continue forge runs.";
+    selectTab("charge");
+  } else {
+    $("forgeOut").textContent = "FORGE ERROR:\n\n" + JSON.stringify(r, null, 2);
+  }
+
+  $("runBtn").disabled = false;
+  running = false;
+  $("forgeScan").classList.add("hidden");
 };
 
-$('clearOut').onclick = ()=>{ $('forgeOut').textContent = 'FORGE STANDING BY.'; };
+$("clearOut").onclick = () => {
+  $("forgeOut").textContent = "FORGE STANDING BY.";
+};
 
-// ── Sigma packs ───────────────────────────────────────────
-document.querySelectorAll('[data-pack]').forEach(b=>{
-  b.onclick = async ()=>{
+document.querySelectorAll("[data-pack]").forEach(b => {
+  b.onclick = async () => {
     b.disabled = true;
-    const r = await postJson('/api/create-checkout-session',{
-      productType: 'sigma_pack',
-      pack: b.dataset.pack,
-      s5SessionId: state.s5SessionId
-    });
+
+    const r = await postJson("/api/create-checkout-session", authBody({
+      productType: "sigma_pack",
+      pack: b.dataset.pack
+    }));
+
     b.disabled = false;
-    if(r.ok && r.url){ location.href = r.url; return; }
-    alert('CHECKOUT FAILED: ' + (r.error || 'unknown'));
+
+    if (r.ok && r.url) {
+      location.href = r.url;
+      return;
+    }
+
+    alert("CHECKOUT FAILED: " + fmtErr(r));
   };
 });
 
-// ── Memberships ───────────────────────────────────────────
-$('upAgent').onclick = async ()=>{
-  $('upAgent').disabled = true;
-  const r = await postJson('/api/create-checkout-session',{
-    productType: 'membership_agent',
-    s5SessionId: state.s5SessionId
-  });
-  $('upAgent').disabled = false;
-  if(r.ok && r.url){ location.href = r.url; return; }
-  alert('CHECKOUT FAILED: ' + (r.error || 'unknown'));
-};
-$('upSenior').onclick = async ()=>{
-  $('upSenior').disabled = true;
-  const r = await postJson('/api/create-checkout-session',{
-    productType: 'membership_senior_agent',
-    s5SessionId: state.s5SessionId
-  });
-  $('upSenior').disabled = false;
-  if(r.ok && r.url){ location.href = r.url; return; }
-  alert('CHECKOUT FAILED: ' + (r.error || 'unknown'));
+$("upAgent").onclick = async () => {
+  $("upAgent").disabled = true;
+
+  const r = await postJson("/api/create-checkout-session", authBody({
+    productType: "membership_agent"
+  }));
+
+  $("upAgent").disabled = false;
+
+  if (r.ok && r.url) {
+    location.href = r.url;
+    return;
+  }
+
+  alert("CHECKOUT FAILED: " + fmtErr(r));
 };
 
-// ── Account actions ───────────────────────────────────────
-$('refreshBtn').onclick = ()=>refreshUser();
-$('forgetBtn').onclick = ()=>{
-  clearLocal();
-  state = {authenticated:false,s5SessionId:'',code:'',user:null};
-  showLogin();
+$("upSenior").onclick = async () => {
+  $("upSenior").disabled = true;
+
+  const r = await postJson("/api/create-checkout-session", authBody({
+    productType: "membership_senior_agent"
+  }));
+
+  $("upSenior").disabled = false;
+
+  if (r.ok && r.url) {
+    location.href = r.url;
+    return;
+  }
+
+  alert("CHECKOUT FAILED: " + fmtErr(r));
 };
-$('logoutBtn').onclick = async ()=>{
-  try{ await postJson('/api/logout-s5-code',{sessionId: state.s5SessionId}); }catch{}
+
+$("refreshBtn").onclick = () => refreshUser();
+
+$("forgetBtn").onclick = () => {
   clearLocal();
-  state = {authenticated:false,s5SessionId:'',code:'',user:null};
+  state = { authenticated: false, s5SessionId: "", code: "", user: null };
   showLogin();
 };
 
-// ── Login form ────────────────────────────────────────────
-$('loginBtn').onclick = async ()=>{
-  const raw = clean($('codeInput').value,'',48);
-  if(!raw){ $('loginErr').textContent = 'ENTER YOUR S5 OPERATOR CREDENTIAL'; $('loginErr').classList.remove('hidden'); return; }
-  $('loginBtn').disabled = true;
+$("logoutBtn").onclick = async () => {
+  try {
+    await postJson("/api/logout-s5-code", { sessionId: state.s5SessionId });
+  } catch {}
+
+  clearLocal();
+  state = { authenticated: false, s5SessionId: "", code: "", user: null };
+  showLogin();
+};
+
+$("loginBtn").onclick = async () => {
+  const raw = clean($("codeInput").value, "", 80);
+
+  if (!raw) {
+    $("loginErr").textContent = "ENTER YOUR S5 OPERATOR CREDENTIAL";
+    $("loginErr").classList.remove("hidden");
+    return;
+  }
+
+  $("loginBtn").disabled = true;
   await authenticate(raw);
-  $('loginBtn').disabled = false;
+  $("loginBtn").disabled = false;
 };
-$('codeInput').addEventListener('keydown',(e)=>{
-  if(e.key === 'Enter') $('loginBtn').click();
+
+$("codeInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") $("loginBtn").click();
 });
 
-// ── Bootstrap from local cache ────────────────────────────
-(async function init(){
+(async function init() {
   const local = loadLocal();
-  if(local.code){
-    $('codeInput').value = local.code;
-    // Try the cached session first; fall back to re-auth via raw code.
-    if(local.sessionId){
-      const probe = await postJson('/api/verify-s5-code',{code:local.code});
-      if(probe.ok){
-        state.authenticated = true;
-        state.s5SessionId = probe.sessionId;
-        state.code = local.code;
-        state.user = probe.user || null;
-        saveLocal(local.code, probe.sessionId);
-        showTerminal();
-        return;
-      }
-    }
-    await authenticate(local.code);
+
+  state.code = local.code || "";
+  state.s5SessionId = local.sessionId || "";
+
+  if (local.code) {
+    $("codeInput").value = local.code;
   }
+
+  const hasSession = await verifySession();
+  if (hasSession) return;
+
+  showLogin();
 })();
 </script>
 </body>
