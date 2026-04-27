@@ -596,7 +596,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
           <div class="cll">CLEARANCE INPUT</div>
           <div class="clr">
             <input class="cli" type="text" placeholder="ENTER S5 OPERATOR CODE" maxlength="50" spellcheck="false" autocomplete="off">
-            <button class="cblt">&gt;</button>
+            <button class="clbt">&gt;</button>
           </div>
         </div>
         <div class="clb">
@@ -1147,14 +1147,53 @@ document.querySelector('.lbtn').addEventListener('click',function(){
   lf.style.opacity='0';
   setTimeout(function(){lf.innerHTML=LF[lri].t;la.textContent=LF[lri].a;lf.style.transition='opacity .3s';lf.style.opacity='1';},180);
 });
-var cli=document.querySelector('.cli'),clbt=document.querySelector('.clbt');
-if(cli&&clbt){
-  clbt.addEventListener('click',function(e){
+const API = "https://hilbert-backend.vercel.app";
+
+async function login() {
+  const code = document.querySelector('.cli').value.trim();
+
+  if (!code) {
+    alert("ENTER CODE");
+    return;
+  }
+
+  const res = await fetch("https://hilbert-backend.vercel.app/api/verify-s5-code", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code })
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert("LOGIN FAILED: " + data.error);
+    return;
+  }
+
+  localStorage.setItem("hmf_s5_session", data.sessionId);
+  localStorage.setItem("hmf_s5_code", code);
+
+  location.reload();
+}
+
+    window.location.href = "/s5.html";
+
+  } catch (e) {
+    console.error(e);
+    alert("NETWORK ERROR");
+  }
+}
+var cli = document.querySelector('.cli'),
+    clbt = document.querySelector('.clbt');
+
+if (cli && clbt) {
+  clbt.addEventListener('click', function(e) {
     e.preventDefault();
     login();
   });
-  cli.addEventListener('keydown',function(e){
-    if(e.key==='Enter'){
+
+  cli.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
       e.preventDefault();
       login();
     }
