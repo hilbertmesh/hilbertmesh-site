@@ -1077,7 +1077,15 @@ function tick(){
   if(uv)uv.textContent=pad(Math.floor(up/3600))+':'+pad(Math.floor(up/60)%60)+':'+pad(up%60);
 }
 setInterval(tick,1000);tick();
-var PANES={overview:'pane-overview',dossier:'pane-dossier',intel:'pane-intel',lanes:'pane-lanes',feed:'pane-feed',footprint:'pane-footprint',forge:'pane-forge'};
+var PANES={
+  overview:'pane-overview',
+  dossier:'pane-dossier',
+  intel:'pane-intel',
+  lanes:'pane-lanes',
+  feed:'pane-feed',
+  footprint:'pane-footprint',
+  forge:'pane-forge'
+};
 document.querySelectorAll('.tab').forEach(function(tab){
   tab.addEventListener('click',function(){
     t1();
@@ -1150,50 +1158,49 @@ document.querySelector('.lbtn').addEventListener('click',function(){
 const API = "https://hilbert-backend.vercel.app";
 
 async function login() {
-  const code = document.querySelector('.cli').value.trim();
+  const input = document.querySelector(".cli");
+  const code = input ? input.value.trim() : "";
 
   if (!code) {
     alert("ENTER CODE");
     return;
   }
 
-  const res = await fetch("https://hilbert-backend.vercel.app/api/verify-s5-code", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code })
-  });
+  try {
+    const res = await fetch(API + "/api/verify-s5-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!data.ok) {
-    alert("LOGIN FAILED: " + data.error);
-    return;
-  }
+    if (!data.ok) {
+      alert("LOGIN FAILED: " + (data.error || "UNKNOWN"));
+      return;
+    }
 
-  localStorage.setItem("hmf_s5_session", data.sessionId);
-  localStorage.setItem("hmf_s5_code", code);
-
-  location.reload();
-}
+    localStorage.setItem("hmf_s5_session", data.sessionId);
+    localStorage.setItem("hmf_s5_code", code);
 
     window.location.href = "/s5.html";
-
   } catch (e) {
     console.error(e);
     alert("NETWORK ERROR");
   }
 }
-var cli = document.querySelector('.cli'),
-    clbt = document.querySelector('.clbt');
+
+var cli = document.querySelector(".cli");
+var clbt = document.querySelector(".clbt");
 
 if (cli && clbt) {
-  clbt.addEventListener('click', function(e) {
+  clbt.addEventListener("click", function(e) {
     e.preventDefault();
     login();
   });
 
-  cli.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
+  cli.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
       e.preventDefault();
       login();
     }
