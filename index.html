@@ -1180,8 +1180,8 @@ async function login() {
       return;
     }
 
-    localStorage.setItem("hmf_s5_session", data.sessionId);
-    localStorage.setItem("hmf_s5_code", code);
+    localStorage.removeItem("hmf_s5_code");
+localStorage.setItem("hmf_s5_session", data.sessionId);
 
     window.location.href = "/s5.html";
   } catch (e) {
