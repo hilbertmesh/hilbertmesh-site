@@ -19,12 +19,9 @@ body:before{content:"";position:fixed;inset:0;background:repeating-linear-gradie
 .bar .l{color:var(--amber)}
 .bar .r{color:var(--dim);font-size:10px}
 .panel{border:1px solid var(--bd);background:var(--panel);box-shadow:0 0 22px rgba(0,255,65,.08);padding:16px;margin-bottom:14px}
-.panel.amber{border-color:var(--amber);box-shadow:0 0 22px rgba(255,170,0,.1)}
 h1{font-size:clamp(18px,4.5vw,24px);letter-spacing:3px;margin:0 0 6px;text-shadow:0 0 12px rgba(0,255,65,.45)}
 h2{font-size:13px;letter-spacing:2px;color:var(--amber);margin:0 0 10px}
 .sub{color:var(--dim);font-size:11px;letter-spacing:1px;margin-bottom:10px}
-.row{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;margin:6px 0}
-.row b{color:var(--amber);letter-spacing:2px;margin-right:6px}
 .input,textarea{width:100%;padding:12px;background:#001500;border:1px solid var(--bd);color:var(--fg);font-family:inherit;font-size:14px;letter-spacing:2px;margin:6px 0;line-height:1.5}
 textarea{letter-spacing:.5px;min-height:140px;resize:vertical}
 .input:focus,textarea:focus{outline:1px solid var(--amber)}
@@ -68,13 +65,12 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
     <div class="r" id="netStatus">EGRESS: S5 ONLINE</div>
   </div>
 
-  <!-- LOGIN PANEL -->
   <div class="panel" id="loginPanel">
     <h1>S5 ACCESS</h1>
     <div class="sub">OPERATOR CREDENTIAL REQUIRED</div>
 
     <label>S5 OPERATOR CREDENTIAL</label>
-    <input class="input" id="codeInput" maxlength="48" placeholder="S5-XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+    <input class="input" id="codeInput" maxlength="128" placeholder="S5 OPERATOR CODE" autocomplete="off" spellcheck="false">
     <button class="btn amber" id="loginBtn">▸ AUTHENTICATE</button>
     <a class="btn" href="/">RETURN TO NODE</a>
 
@@ -86,7 +82,6 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
     <div class="err hidden" id="loginErr"></div>
   </div>
 
-  <!-- TERMINAL PANEL -->
   <div class="panel hidden" id="termPanel">
     <div class="statusline" id="statusLine">STATUS: CIVILIAN</div>
     <div class="kvgrid">
@@ -103,87 +98,61 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
       <button class="btn" data-tab="account">▸ OPERATOR</button>
     </div>
 
-    <!-- FORGE TAB -->
     <div id="tab-forge" class="tabbody">
       <h2>DOSSIER FORGE</h2>
       <div class="sub">1 Σ per run · paste-only seed · server-side execution</div>
 
       <label>MODE</label>
       <select class="input" id="fMode">
-        <option value="paid_test">paid_test (default)</option>
-        <option value="hilbert">hilbert (mesh)</option>
-        <option value="intelligence">intelligence (clean)</option>
+        <option value="paid_test">paid_test</option>
+        <option value="hilbert">hilbert</option>
+        <option value="intelligence">intelligence</option>
         <option value="intel-clean">intel-clean</option>
       </select>
 
       <label>PAGES (1–25)</label>
       <input class="input" id="fPages" type="number" min="1" max="25" value="1">
 
-      <label>SEED — PASTE TEXT ONLY (no file uploads)</label>
-      <textarea id="fSeed" maxlength="3000" placeholder="Paste seed text here. 3000 char max."></textarea>
+      <label>SEED</label>
+      <textarea id="fSeed" maxlength="3000" placeholder="Paste seed text here."></textarea>
 
-      <button class="btn amber" id="runBtn">▸ RUN FORGE  (1 Σ)</button>
+      <button class="btn amber" id="runBtn">▸ RUN FORGE</button>
       <button class="btn" id="clearOut">CLEAR OUTPUT</button>
       <div class="scan hidden" id="forgeScan"></div>
       <pre id="forgeOut">FORGE STANDING BY.</pre>
     </div>
 
-    <!-- SIGMA CHARGE TAB -->
     <div id="tab-charge" class="tabbody hidden">
       <h2>SIGMA CHARGE</h2>
-      <div class="sub">Add Σ to your operator wallet. Member discount applied at checkout.</div>
       <div class="packs">
-        <div class="pack">
-          <div class="nm">SMALL</div><div class="am">5 Σ</div><div class="pr">$5.00</div>
-          <button class="btn amber" data-pack="small" style="width:100%;margin-top:8px">BUY 5 Σ</button>
-        </div>
-        <div class="pack">
-          <div class="nm">MEDIUM</div><div class="am">12 Σ</div><div class="pr">$10.00</div>
-          <div class="disc">~17% volume</div>
-          <button class="btn amber" data-pack="medium" style="width:100%;margin-top:8px">BUY 12 Σ</button>
-        </div>
-        <div class="pack">
-          <div class="nm">LARGE</div><div class="am">30 Σ</div><div class="pr">$22.00</div>
-          <div class="disc">~27% volume</div>
-          <button class="btn amber" data-pack="large" style="width:100%;margin-top:8px">BUY 30 Σ</button>
-        </div>
-        <div class="pack">
-          <div class="nm">BULK</div><div class="am">75 Σ</div><div class="pr">$50.00</div>
-          <div class="disc">~33% volume</div>
-          <button class="btn amber" data-pack="bulk" style="width:100%;margin-top:8px">BUY 75 Σ</button>
-        </div>
+        <div class="pack"><div class="nm">SMALL</div><div class="am">5 Σ</div><div class="pr">$5.00</div><button class="btn amber" data-pack="small" style="width:100%;margin-top:8px">BUY 5 Σ</button></div>
+        <div class="pack"><div class="nm">MEDIUM</div><div class="am">12 Σ</div><div class="pr">$10.00</div><button class="btn amber" data-pack="medium" style="width:100%;margin-top:8px">BUY 12 Σ</button></div>
+        <div class="pack"><div class="nm">LARGE</div><div class="am">30 Σ</div><div class="pr">$22.00</div><button class="btn amber" data-pack="large" style="width:100%;margin-top:8px">BUY 30 Σ</button></div>
+        <div class="pack"><div class="nm">BULK</div><div class="am">75 Σ</div><div class="pr">$50.00</div><button class="btn amber" data-pack="bulk" style="width:100%;margin-top:8px">BUY 75 Σ</button></div>
       </div>
       <div class="warn">Frontend Σ counts are cosmetic. Server is ground truth.</div>
     </div>
 
-    <!-- UPGRADE TAB -->
     <div id="tab-upgrade" class="tabbody hidden">
       <h2>CLEARANCE UPGRADE</h2>
-      <div class="sub">Monthly clearance grants Σ on schedule and applies a discount on Σ packs.</div>
-
       <div class="packs">
         <div class="pack">
           <div class="nm">AGENT RELAY</div>
           <div class="am">20 Σ / month</div>
           <div class="pr">$20.00 / month</div>
-          <div class="disc">33% off Σ packs</div>
           <button class="btn amber" id="upAgent" style="width:100%;margin-top:8px">▸ BECOME AGENT</button>
         </div>
         <div class="pack">
           <div class="nm">SENIOR AGENT RELAY</div>
           <div class="am">75 Σ / month</div>
           <div class="pr">$50.00 / month</div>
-          <div class="disc">50% off Σ packs · upgraded emblem</div>
           <button class="btn amber" id="upSenior" style="width:100%;margin-top:8px">▸ BECOME SENIOR AGENT</button>
         </div>
       </div>
-      <div class="warn">Subscriptions auto-renew monthly. Cancellation downgrades you to CIVILIAN at period end.</div>
     </div>
 
-    <!-- OPERATOR TAB -->
     <div id="tab-account" class="tabbody hidden">
       <h2>OPERATOR RECORD</h2>
-      <div class="sub">Identity is bound to your S5 code. No email, no password.</div>
       <div class="kvgrid">
         <div class="k">USERNAME</div><div class="v" id="aUser">—</div>
         <div class="k">CLEARANCE</div><div class="v" id="aClear">—</div>
@@ -197,9 +166,6 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
         <button class="btn" id="forgetBtn">FORGET LOCAL CODE</button>
         <button class="btn danger" id="logoutBtn">LOG OUT</button>
       </div>
-      <div class="warn">
-        FORGET LOCAL CODE clears the cached credential from this device. Your operator record on the server is unchanged. To return, re-enter your S5 code.
-      </div>
     </div>
   </div>
 
@@ -208,13 +174,12 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
     Recovery channel: support@hilbertmesh.com
   </div>
 </div>
+
 <script>
 const API_BASE = "https://hilbert-backend.vercel.app";
-
 const $ = (id) => document.getElementById(id);
 
 function apiUrl(path) {
-  if (!path) return API_BASE;
   if (path.startsWith("http")) return path;
   return API_BASE + path;
 }
@@ -236,15 +201,14 @@ async function postJson(path, payload) {
     const text = await r.text();
     let d;
 
-    try {
-      d = text ? JSON.parse(text) : {};
-    } catch {
+    try { d = text ? JSON.parse(text) : {}; }
+    catch {
       return {
-        ok: false,
-        error: "invalid_json_response",
-        httpStatus: r.status,
-        postedTo: apiUrl(path),
-        responseText: text.slice(0, 400)
+        ok:false,
+        error:"invalid_json_response",
+        httpStatus:r.status,
+        postedTo:apiUrl(path),
+        responseText:text.slice(0,400)
       };
     }
 
@@ -257,10 +221,10 @@ async function postJson(path, payload) {
     return d;
   } catch (e) {
     return {
-      ok: false,
-      error: "network_error",
-      postedTo: apiUrl(path),
-      detail: e?.message || ""
+      ok:false,
+      error:"network_error",
+      postedTo:apiUrl(path),
+      detail:e?.message || ""
     };
   }
 }
@@ -276,14 +240,13 @@ async function getJson(path) {
     const text = await r.text();
     let d;
 
-    try {
-      d = text ? JSON.parse(text) : {};
-    } catch {
+    try { d = text ? JSON.parse(text) : {}; }
+    catch {
       return {
-        ok: false,
-        error: "invalid_json_response",
-        httpStatus: r.status,
-        responseText: text.slice(0, 400)
+        ok:false,
+        error:"invalid_json_response",
+        httpStatus:r.status,
+        responseText:text.slice(0,400)
       };
     }
 
@@ -295,9 +258,9 @@ async function getJson(path) {
     return d;
   } catch (e) {
     return {
-      ok: false,
-      error: "network_error",
-      detail: e?.message || ""
+      ok:false,
+      error:"network_error",
+      detail:e?.message || ""
     };
   }
 }
@@ -305,11 +268,9 @@ async function getJson(path) {
 function fmtErr(r) {
   if (!r) return "UNKNOWN ERROR";
   let msg = String(r.error || "unknown_error").toUpperCase().replace(/_/g, " ");
-
   if (r.postedTo) msg += "\n\nPOSTED TO:\n" + r.postedTo;
   if (r.httpStatus) msg += "\n\nHTTP STATUS:\n" + r.httpStatus;
   if (r.responseText) msg += "\n\nFIRST RESPONSE:\n" + r.responseText;
-
   return msg;
 }
 
@@ -330,7 +291,7 @@ function loadLocal() {
       sessionId: localStorage.getItem(LS_SESSION) || ""
     };
   } catch {
-    return { code: "", sessionId: "" };
+    return { code:"", sessionId:"" };
   }
 }
 
@@ -342,10 +303,10 @@ function clearLocal() {
 }
 
 let state = {
-  authenticated: false,
-  s5SessionId: "",
-  code: "",
-  user: null
+  authenticated:false,
+  s5SessionId:"",
+  code:"",
+  user:null
 };
 
 function sigmaText(user) {
@@ -355,31 +316,25 @@ function sigmaText(user) {
 }
 
 function statusLineFor(user) {
-  if (!user) return { label: "STATUS: CIVILIAN", cls: "" };
-
-  if (user.isDev || user.sigmaDisplay === "INFINITY") {
-    return { label: "STATUS: THE GUY", cls: "dev" };
-  }
+  if (!user) return { label:"STATUS: CIVILIAN", cls:"" };
+  if (user.isDev || user.sigmaDisplay === "INFINITY") return { label:"STATUS: THE GUY", cls:"dev" };
 
   const c = String(user.clearance || "CIVILIAN").toUpperCase();
-
-  if (c === "THE GUY" || c === "DEV OVERRIDE") return { label: "STATUS: THE GUY", cls: "dev" };
-  if (c === "SENIOR AGENT") return { label: "STATUS: SENIOR AGENT", cls: "amber" };
-  if (c === "AGENT") return { label: "STATUS: AGENT", cls: "amber" };
-
-  return { label: "STATUS: CIVILIAN", cls: "" };
+  if (c === "THE GUY" || c === "DEV OVERRIDE") return { label:"STATUS: THE GUY", cls:"dev" };
+  if (c === "SENIOR AGENT") return { label:"STATUS: SENIOR AGENT", cls:"amber" };
+  if (c === "AGENT") return { label:"STATUS: AGENT", cls:"amber" };
+  return { label:"STATUS: CIVILIAN", cls:"" };
 }
 
 function renderUser() {
   const u = state.user || {};
   const s = statusLineFor(u);
+  const dr = Number(u.discountRate || 0);
   const sl = $("statusLine");
 
   sl.textContent = s.label;
-  sl.classList.remove("amber", "dev");
+  sl.classList.remove("amber","dev");
   if (s.cls) sl.classList.add(s.cls);
-
-  const dr = Number(u.discountRate || 0);
 
   $("kUser").textContent = u.username || "OPERATOR";
   $("kSigma").textContent = sigmaText(u);
@@ -409,7 +364,7 @@ async function authenticate(rawCode) {
   $("loginErr").classList.add("hidden");
   $("loginErr").textContent = "";
 
-  const r = await postJson("/api/verify-s5-code", { code: rawCode });
+  const r = await postJson("/api/verify-s5-code", { code:rawCode });
 
   if (!r.ok) {
     $("loginErr").textContent = fmtErr(r);
@@ -430,8 +385,7 @@ async function authenticate(rawCode) {
 async function verifySession() {
   if (!state.s5SessionId) return false;
 
-  const qs = "?sessionId=" + encodeURIComponent(state.s5SessionId);
-  const r = await getJson("/api/verify-session" + qs);
+  const r = await getJson("/api/verify-session?sessionId=" + encodeURIComponent(state.s5SessionId));
 
   if (r.ok && r.user) {
     state.authenticated = true;
@@ -454,7 +408,7 @@ async function refreshUser() {
   }
 
   clearLocal();
-  state = { authenticated: false, s5SessionId: "", code: "", user: null };
+  state = { authenticated:false, s5SessionId:"", code:"", user:null };
   showLogin();
 }
 
@@ -513,8 +467,7 @@ $("runBtn").onclick = async () => {
       (r.sigmaDisplay === "INFINITY" ? " · Σ AFTER: ∞" : "") +
       (r.sigma != null ? " · Σ AFTER: " + r.sigma : "") +
       (r.clearance ? " · " + r.clearance : "") +
-      "\n\n" +
-      body;
+      "\n\n" + body;
 
     if (r.sigma != null || r.sigmaDisplay === "INFINITY") {
       state.user = Object.assign({}, state.user || {}, {
@@ -546,8 +499,8 @@ document.querySelectorAll("[data-pack]").forEach(b => {
     b.disabled = true;
 
     const r = await postJson("/api/create-checkout-session", authBody({
-      productType: "sigma_pack",
-      pack: b.dataset.pack
+      productType:"sigma_pack",
+      pack:b.dataset.pack
     }));
 
     b.disabled = false;
@@ -565,7 +518,7 @@ $("upAgent").onclick = async () => {
   $("upAgent").disabled = true;
 
   const r = await postJson("/api/create-checkout-session", authBody({
-    productType: "membership_agent"
+    productType:"membership_agent"
   }));
 
   $("upAgent").disabled = false;
@@ -582,7 +535,7 @@ $("upSenior").onclick = async () => {
   $("upSenior").disabled = true;
 
   const r = await postJson("/api/create-checkout-session", authBody({
-    productType: "membership_senior_agent"
+    productType:"membership_senior_agent"
   }));
 
   $("upSenior").disabled = false;
@@ -599,22 +552,22 @@ $("refreshBtn").onclick = () => refreshUser();
 
 $("forgetBtn").onclick = () => {
   clearLocal();
-  state = { authenticated: false, s5SessionId: "", code: "", user: null };
+  state = { authenticated:false, s5SessionId:"", code:"", user:null };
   showLogin();
 };
 
 $("logoutBtn").onclick = async () => {
   try {
-    await postJson("/api/logout-s5-code", { sessionId: state.s5SessionId });
+    await postJson("/api/logout-s5-code", { sessionId:state.s5SessionId });
   } catch {}
 
   clearLocal();
-  state = { authenticated: false, s5SessionId: "", code: "", user: null };
+  state = { authenticated:false, s5SessionId:"", code:"", user:null };
   showLogin();
 };
 
 $("loginBtn").onclick = async () => {
-  const raw = clean($("codeInput").value, "", 80);
+  const raw = clean($("codeInput").value, "", 128);
 
   if (!raw) {
     $("loginErr").textContent = "ENTER YOUR S5 OPERATOR CREDENTIAL";
