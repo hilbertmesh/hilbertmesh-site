@@ -596,7 +596,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
           <div class="cll">CLEARANCE INPUT</div>
           <div class="clr">
             <input class="cli" type="text" placeholder="ENTER CLEARANCE CODE" maxlength="96" spellcheck="false" autocomplete="off">
-            <button class="clbt">&gt;</button>
+            <button class="clbt" onclick="login()">&gt;</button>
           </div>
         </div>
         <div class="clb">
@@ -1935,6 +1935,62 @@ window.copyTemplate=function(){
 })();
 renderRegistry();
 })();
+  <script>
+const API = "https://hilbert-backend.vercel.app";
+
+async function login() {
+  const input = document.querySelector(".cli");
+  const code = input.value.trim();
+
+  if (!code) {
+    alert("ENTER CODE");
+    return;
+  }
+
+  const res = await fetch(API + "/api/verify-s5-code", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ code })
+});
+const data = await res.json();
+if (!data.ok) {
+  alert("LOGIN FAILED:\n" + (data.error || "UNKNOWN"));
+  return;
+}
+
+localStorage.setItem("hmf_s5_session", data.sessionId);
+localStorage.setItem("hmf_s5_code", code);
+
+window.location.href = "/s5.html";
+if (!data.ok) {
+  alert("LOGIN FAILED:\n" + (data.error || "UNKNOWN"));
+  return;
+}
+
+// Save session + redirect
+localStorage.setItem("hmf_s5_session", data.sessionId);
+localStorage.setItem("hmf_s5_code", code);
+
+window.location.href = "/s5.html";
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert("LOGIN FAILED:\n" + (data.error || "UNKNOWN"));
+    return;
+  }
+
+  // Save session
+  localStorage.setItem("hmf_s5_session", data.sessionId);
+  localStorage.setItem("hmf_s5_code", code);
+
+  // Redirect to terminal
+  window.location.href = "/s5.html";
+}
+</script>
 </script>
 </body>
 </html>
+
