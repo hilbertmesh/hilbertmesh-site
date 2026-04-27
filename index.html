@@ -595,8 +595,8 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
         <div class="clb">
           <div class="cll">CLEARANCE INPUT</div>
           <div class="clr">
-            <input class="cli" type="text" placeholder="ENTER CLEARANCE CODE" maxlength="96" spellcheck="false" autocomplete="off">
-            <button class="clbt" onclick="login()">&gt;</button>
+            <input class="cli" type="text" placeholder="ENTER S5 OPERATOR CODE" maxlength="50" spellcheck="false" autocomplete="off">
+            <button class="cblt">&gt;</button>
           </div>
         </div>
         <div class="clb">
@@ -1149,11 +1149,16 @@ document.querySelector('.lbtn').addEventListener('click',function(){
 });
 var cli=document.querySelector('.cli'),clbt=document.querySelector('.clbt');
 if(cli&&clbt){
-  clbt.addEventListener('click',function(){
-    if(cli.value.trim().length>0){deny();cli.style.color='var(--red)';cli.value='CLEARANCE REJECTED';
-      setTimeout(function(){cli.style.color='';cli.value='';},1800);}
+  clbt.addEventListener('click',function(e){
+    e.preventDefault();
+    login();
   });
-  cli.addEventListener('keydown',function(e){if(e.key==='Enter')clbt.click();});
+  cli.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){
+      e.preventDefault();
+      login();
+    }
+  });
 }
 /* ═══ DOSSIER SYSTEM ═══ */
 var LS_KEY='hm_dossiers_v2';
@@ -1993,4 +1998,3 @@ window.location.href = "/s5.html";
 </script>
 </body>
 </html>
-
