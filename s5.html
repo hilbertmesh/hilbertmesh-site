@@ -274,7 +274,7 @@ function fmtErr(r) {
   return msg;
 }
 
-const LS_CODE = "hmf_s5_code";
+const LS_CODE = "hmf_s5_code_DEPRECATED";
 const LS_SESSION = "hmf_s5_session";
 
 function saveLocal(code, sessionId) {
@@ -286,20 +286,15 @@ function saveLocal(code, sessionId) {
 
 function loadLocal() {
   try {
+    localStorage.removeItem("hmf_s5_code");
+    localStorage.removeItem("hmf_s5_code_DEPRECATED");
     return {
-      code: localStorage.getItem(LS_CODE) || "",
+      code: "",
       sessionId: localStorage.getItem(LS_SESSION) || ""
     };
   } catch {
     return { code:"", sessionId:"" };
   }
-}
-
-function clearLocal() {
-  try {
-    localStorage.removeItem(LS_CODE);
-    localStorage.removeItem(LS_SESSION);
-  } catch {}
 }
 
 let state = {
@@ -414,8 +409,7 @@ async function refreshUser() {
 
 function authBody(extra) {
   return Object.assign({}, extra || {}, {
-    s5SessionId: state.s5SessionId || undefined,
-    s5Code: state.code || undefined
+    s5SessionId: state.s5SessionId || undefined
   });
 }
 
@@ -589,8 +583,6 @@ $("codeInput").addEventListener("keydown", e => {
 
   state.code = local.code || "";
   state.s5SessionId = local.sessionId || "";
-
-  if (local.code) $("codeInput").value = local.code;
 
   const ok = await verifySession();
   if (!ok) showLogin();
