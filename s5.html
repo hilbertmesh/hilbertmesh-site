@@ -51,6 +51,8 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
 .rowbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
 .rowbtns .btn{flex:1;min-width:160px;text-align:center}
 .inlinebuy{border:1px solid rgba(255,170,0,.45);padding:10px;margin-top:12px;background:rgba(255,170,0,.04)}
+.codebox{border:1px solid var(--amber);background:rgba(255,170,0,.06);padding:12px;margin-top:10px}
+.codebox .code{font-size:16px;color:#fff;letter-spacing:2px;word-break:break-all;user-select:all;background:rgba(0,0,0,.45);padding:12px;border:1px dashed var(--amber)}
 @media(max-width:520px){.kvgrid{grid-template-columns:1fr}.packs{grid-template-columns:1fr}.tabs .btn,.rowbtns .btn{min-width:100%}}
 </style>
 </head>
@@ -63,15 +65,45 @@ pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);pa
 
   <div class="panel" id="loginPanel">
     <h1>S5 ACCESS</h1>
-    <div class="sub">OPERATOR CREDENTIAL REQUIRED</div>
-    <label>S5 OPERATOR CREDENTIAL</label>
-    <input class="input" id="codeInput" maxlength="128" placeholder="S5 OPERATOR CODE" autocomplete="off" spellcheck="false" autocapitalize="off">
-    <button class="btn amber" id="loginBtn">▸ AUTHENTICATE</button>
-    <a class="btn" href="/">RETURN TO NODE</a>
+    <div class="sub">LOG IN OR ISSUE A CIVILIAN OPERATOR ACCOUNT</div>
+
+    <div id="loginBox">
+      <label>S5 OPERATOR CREDENTIAL</label>
+      <input class="input" id="codeInput" maxlength="128" placeholder="S5 OPERATOR CODE" autocomplete="off" spellcheck="false" autocapitalize="off">
+      <button class="btn amber" id="loginBtn">▸ AUTHENTICATE</button>
+      <button class="btn" id="showCreateBtn">▸ CREATE CIVILIAN ACCOUNT</button>
+      <a class="btn" href="/">RETURN TO NODE</a>
+    </div>
+
+    <div id="createBox" class="hidden">
+      <h2>CIVILIAN ACCOUNT CREATION</h2>
+      <div class="sub">Creates a frontend S5 account. Backend debug console remains master-only.</div>
+
+      <label>RECOVERY EMAIL</label>
+      <input class="input" id="newEmail" type="email" maxlength="254" placeholder="operator@example.com" autocomplete="email" spellcheck="false">
+
+      <label>OPERATOR HANDLE</label>
+      <input class="input" id="newUsername" maxlength="32" placeholder="OPERATOR" autocomplete="off" spellcheck="false">
+
+      <label>RECOVERY PHONE OPTIONAL</label>
+      <input class="input" id="newPhone" type="tel" maxlength="32" placeholder="+1 555 555 0123" autocomplete="tel" spellcheck="false">
+
+      <button class="btn amber" id="createBtn">▸ ISSUE CIVILIAN S5 CODE</button>
+      <button class="btn" id="showLoginBtn">▸ I ALREADY HAVE A CODE</button>
+    </div>
+
     <div class="warn">
       Raw S5 codes are never stored in this browser.<br>
       Session access is stored locally. Recovery: <span style="color:var(--amber2)">support@hilbertmesh.com</span>
     </div>
+
+    <div id="issuedBox" class="codebox hidden">
+      <div class="warn">SAVE THIS CODE NOW. It will not be shown again.</div>
+      <div class="code" id="issuedCode"></div>
+      <button class="btn amber" id="copyIssuedBtn">COPY CODE</button>
+      <button class="btn" id="enterIssuedBtn">ENTER PROFILE</button>
+    </div>
+
     <div class="err hidden" id="loginErr"></div>
   </div>
 
@@ -293,6 +325,16 @@ function selectTab(name){
     b.classList.toggle("cyan", b.dataset.tab === "dev" && name === "dev");
   });
 }
+function showCreate(){
+  $("loginBox").classList.add("hidden");
+  $("createBox").classList.remove("hidden");
+  $("loginErr").classList.add("hidden");
+}
+function showLoginBox(){
+  $("createBox").classList.add("hidden");
+  $("loginBox").classList.remove("hidden");
+  $("loginErr").classList.add("hidden");
+}
 async function authenticate(rawCode){
   $("loginErr").classList.add("hidden");
   $("loginErr").textContent = "";
@@ -309,6 +351,50 @@ async function authenticate(rawCode){
   $("codeInput").value = "";
   showTerminal("account");
   return true;
+}
+async function createCivilianAccount(){
+  $("loginErr").classList.add("hidden");
+  $("loginErr").textContent = "";
+
+  const email = clean($("newEmail").value,"",254);
+  const username = clean($("newUsername").value || "OPERATOR","OPERATOR",32);
+  const phone = clean($("newPhone").value,"",32);
+
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    $("loginErr").textContent = "VALID RECOVERY EMAIL REQUIRED";
+    $("loginErr").classList.remove("hidden");
+    return;
+  }
+
+  $("createBtn").disabled = true;
+  const r = await postJson("/api/create-s5-code",{ email, username, phone });
+  $("createBtn").disabled = false;
+
+  if(!r.ok){
+    $("loginErr").textContent = fmtErr(r);
+    $("loginErr").classList.remove("hidden");
+    return;
+  }
+
+  state.authenticated = true;
+  state.s5SessionId = r.sessionId || "";
+  state.user = {
+    username,
+    clearance:r.clearance || "CIVILIAN",
+    sigma:Number(r.sigma || 0),
+    sigmaDisplay:String(Number(r.sigma || 0)),
+    monthlyTier:"",
+    discountRate:0,
+    emblemRank:0,
+    agentNumber:r.agentNumber || ""
+  };
+
+  saveSession(state.s5SessionId);
+
+  $("issuedCode").textContent = r.code || "";
+  $("issuedBox").classList.remove("hidden");
+  $("createBox").classList.add("hidden");
+  $("loginBox").classList.add("hidden");
 }
 async function verifySession(){
   if(!state.s5SessionId) return false;
@@ -366,6 +452,11 @@ function renderForgeSuccess(r){
 }
 
 document.querySelectorAll(".tabs .btn").forEach(b => { b.onclick = () => selectTab(b.dataset.tab); });
+$("showCreateBtn").onclick = showCreate;
+$("showLoginBtn").onclick = showLoginBox;
+$("createBtn").onclick = createCivilianAccount;
+$("copyIssuedBtn").onclick = async () => { try { await navigator.clipboard.writeText($("issuedCode").textContent); $("copyIssuedBtn").textContent = "COPIED ✓"; } catch { $("copyIssuedBtn").textContent = "COPY FAILED"; } };
+$("enterIssuedBtn").onclick = () => showTerminal("account");
 $("enterForgeBtn").onclick = () => selectTab("forge");
 $("buySigmaBtn").onclick = () => selectTab("charge");
 $("upgradeBtn").onclick = () => selectTab("upgrade");
