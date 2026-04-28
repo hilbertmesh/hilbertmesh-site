@@ -6,795 +6,1333 @@
 <meta name="theme-color" content="#020802">
 <title>HILBERT // S5 OPERATOR TERMINAL</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=Courier+Prime:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&display=swap');
 
 :root{
-  --bg:#020802;--bg2:#030b03;--bg3:#061206;
-  --fg:#00ff41;--fg2:#a8ffb7;--dim:#4f8f5a;--dim2:#2f6f3c;
-  --bd:#00aa33;--bd2:#0b5f22;--amber:#ffaa00;--amber2:#ffd58f;
-  --err:#ff5555;--cyan:#00cccc;--panel:rgba(0,18,4,.92);
-  --black:#000500;--red:#ff2222;
+  --bg:#020802;
+  --bg2:#031003;
+  --panel:rgba(0,18,4,.92);
+  --panel2:rgba(0,10,2,.82);
+  --fg:#00ff41;
+  --fg2:#9dffad;
+  --dim:#4f8f5a;
+  --dim2:#24582f;
+  --bd:#00aa33;
+  --bd2:#006b25;
+  --amber:#ffaa00;
+  --amber2:#ffd58f;
+  --err:#ff5555;
+  --cyan:#00cccc;
+  --red:#ff3333;
+  --white:#d9ffe0;
 }
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  min-height:100vh;background:var(--bg);color:var(--fg);
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--fg);
   font-family:'Share Tech Mono',ui-monospace,monospace;
-  overflow-x:hidden;-webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
 }
+
 body:before{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  content:"";
+  position:fixed;
+  inset:0;
   background:
     repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,255,65,.035) 3px),
-    radial-gradient(circle at 50% 15%,rgba(0,255,65,.13),transparent 55%),
-    radial-gradient(circle at 80% 75%,rgba(255,170,0,.055),transparent 35%);
+    radial-gradient(circle at 50% 20%,rgba(0,255,65,.12),transparent 50%),
+    radial-gradient(circle at 80% 80%,rgba(0,204,204,.05),transparent 45%);
+  pointer-events:none;
+  z-index:0;
 }
+
 body:after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;
-  background-image:
-    linear-gradient(rgba(0,255,65,.035) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,255,65,.035) 1px,transparent 1px);
-  background-size:42px 42px;
+  content:"";
+  position:fixed;
+  inset:0;
+  background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.74) 100%);
+  pointer-events:none;
+  z-index:0;
 }
-.wrap{position:relative;z-index:1;max-width:1220px;margin:0 auto;padding:14px}
-.bar{
-  display:flex;justify-content:space-between;align-items:center;gap:10px;
-  font-size:11px;letter-spacing:2px;color:var(--amber);
-  padding:7px 0 11px;border-bottom:1px solid var(--bd);margin-bottom:14px;
-  position:sticky;top:0;background:rgba(2,8,2,.92);z-index:50;backdrop-filter:blur(3px);
+
+.wrap{
+  position:relative;
+  z-index:1;
+  max-width:1080px;
+  margin:0 auto;
+  padding:14px;
 }
-.bar .r{color:var(--dim);font-size:10px;text-align:right}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--amber);
+  padding:7px 0 10px;
+  border-bottom:1px solid var(--bd);
+  margin-bottom:14px;
+}
+
+.topbar .right{
+  color:var(--dim);
+  font-size:10px;
+  text-align:right;
+}
+
 .panel{
-  border:1px solid var(--bd);background:var(--panel);
-  box-shadow:0 0 22px rgba(0,255,65,.08);padding:16px;margin-bottom:14px;
+  border:1px solid var(--bd);
+  background:var(--panel);
+  box-shadow:
+    0 0 22px rgba(0,255,65,.08),
+    inset 0 0 42px rgba(0,255,65,.025);
+  padding:16px;
+  margin-bottom:14px;
 }
-.panel.soft{border-color:rgba(0,170,51,.55);background:rgba(0,12,3,.76)}
-.panel.amber{border-color:rgba(255,170,0,.55);background:rgba(20,12,0,.35)}
+
+.panel.amber{border-color:rgba(255,170,0,.65)}
+.panel.cyan{border-color:rgba(0,204,204,.65)}
+.panel.red{border-color:rgba(255,85,85,.65)}
+
 h1{
-  font-family:'Orbitron',sans-serif;font-size:clamp(22px,6vw,42px);
-  letter-spacing:5px;margin:0 0 8px;text-shadow:0 0 18px rgba(0,255,65,.45);
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(20px,5vw,30px);
+  letter-spacing:4px;
+  margin:0 0 7px;
+  color:var(--fg);
+  text-shadow:0 0 18px rgba(0,255,65,.45);
+  line-height:1.1;
 }
+
 h2{
-  font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:3px;
-  color:var(--amber);margin:0 0 10px;
+  font-family:'Orbitron',sans-serif;
+  font-size:13px;
+  letter-spacing:3px;
+  color:var(--amber);
+  margin:0 0 10px;
+  line-height:1.35;
 }
+
 h3{
-  font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;
-  color:var(--fg);margin:0 0 8px;
+  font-family:'Orbitron',sans-serif;
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--fg);
+  margin:12px 0 8px;
 }
-.sub{color:var(--dim);font-size:12px;letter-spacing:1px;margin-bottom:10px;line-height:1.6}
+
+.sub{
+  color:var(--dim);
+  font-size:12px;
+  letter-spacing:1.2px;
+  margin-bottom:12px;
+  line-height:1.65;
+}
+
+.small{
+  color:var(--dim);
+  font-size:11px;
+  line-height:1.6;
+}
+
+.hidden{display:none!important}
+
+label{
+  display:block;
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--amber);
+  margin:12px 0 5px;
+  text-transform:uppercase;
+}
+
 .input,textarea,select{
-  width:100%;padding:12px;background:#001500;border:1px solid var(--bd);
-  color:var(--fg);font-family:inherit;font-size:14px;letter-spacing:1px;
-  margin:6px 0;line-height:1.5;border-radius:0;
+  width:100%;
+  padding:12px;
+  background:#001500;
+  border:1px solid var(--bd);
+  color:var(--fg2);
+  font-family:inherit;
+  font-size:14px;
+  letter-spacing:1px;
+  margin:0 0 8px;
+  line-height:1.5;
+  border-radius:0;
 }
-textarea{min-height:150px;resize:vertical}
-.input:focus,textarea:focus,select:focus{outline:1px solid var(--amber)}
-label{display:block;font-size:11px;letter-spacing:2px;color:var(--amber);margin-top:8px}
+
+textarea{
+  min-height:140px;
+  resize:vertical;
+}
+
+.input:focus,textarea:focus,select:focus{
+  outline:1px solid var(--amber);
+  box-shadow:0 0 14px rgba(255,170,0,.13);
+}
+
+select{
+  -webkit-appearance:none;
+  appearance:none;
+  background:
+    linear-gradient(45deg,transparent 50%,var(--fg) 50%) calc(100% - 18px) 50%/7px 7px no-repeat,
+    #001500;
+}
+
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  margin:6px 6px 0 0;color:var(--fg);background:#001500;border:1px solid var(--bd);
-  padding:12px 16px;text-decoration:none;letter-spacing:2px;font-family:inherit;
-  cursor:pointer;font-size:13px;min-height:44px;text-align:center;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  margin:6px 6px 0 0;
+  color:var(--fg);
+  background:#001500;
+  border:1px solid var(--bd);
+  padding:12px 16px;
+  text-decoration:none;
+  letter-spacing:2px;
+  font-family:'Orbitron',inherit;
+  cursor:pointer;
+  font-size:12px;
+  min-height:44px;
+  text-transform:uppercase;
+  transition:background .18s,border-color .18s,color .18s,box-shadow .18s,transform .08s;
 }
-.btn:hover{background:rgba(0,255,65,.08)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.btn:hover{
+  background:rgba(0,255,65,.08);
+  border-color:var(--fg);
+  box-shadow:0 0 16px rgba(0,255,65,.13);
+}
+
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .btn.amber{color:var(--amber);border-color:var(--amber)}
+.btn.amber:hover{background:rgba(255,170,0,.08);box-shadow:0 0 16px rgba(255,170,0,.13)}
 .btn.cyan{color:var(--cyan);border-color:var(--cyan)}
 .btn.danger{color:#ff8a8a;border-color:#7a1d1d}
-.btn.ghost{border-color:rgba(0,170,51,.45);color:var(--dim)}
-.statusline{
-  font-size:14px;letter-spacing:3px;padding:10px 12px;border:1px solid var(--bd);
-  background:rgba(0,0,0,.35);margin:6px 0;
+.btn.wide{width:100%;margin-right:0}
+.btn.smallbtn{min-height:34px;padding:8px 10px;font-size:10px;letter-spacing:1.4px}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
+
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.kvgrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  font-size:13px;
+  margin-top:8px;
+}
+
+.kvgrid .k{
+  color:var(--amber);
+  letter-spacing:2px;
+}
+
+.kvgrid .v{
+  color:var(--fg2);
+  overflow-wrap:anywhere;
+}
+
+.statusline{
+  font-family:'Orbitron',sans-serif;
+  font-size:14px;
+  letter-spacing:3px;
+  padding:11px 12px;
+  border:1px solid var(--bd);
+  background:rgba(0,0,0,.35);
+  margin:6px 0 10px;
+  color:var(--fg);
+}
+
 .statusline.amber{border-color:var(--amber);color:var(--amber)}
 .statusline.dev{border-color:var(--cyan);color:var(--cyan)}
-.kvgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-top:8px}
-.kvgrid .k{color:var(--amber);letter-spacing:2px}
-.kvgrid .v{color:var(--fg2)}
-pre{
-  white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);
-  padding:12px;background:rgba(0,0,0,.4);max-height:52vh;overflow:auto;
-  font-size:12px;word-break:break-word;margin:8px 0;line-height:1.55;
+.statusline.red{border-color:var(--red);color:var(--red)}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:14px 0 12px;
 }
-.warn{color:var(--amber);font-size:12px;line-height:1.6;margin-top:8px}
-.err{color:var(--err);font-size:12px;line-height:1.6;margin-top:8px}
-.hidden{display:none!important}
-.foot{color:var(--dim);font-size:10px;letter-spacing:1px;margin-top:18px;text-align:center;line-height:1.7}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.tabs .btn{flex:1;min-width:118px;text-align:center}
-.rowbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.rowbtns .btn{flex:1;min-width:160px;text-align:center}
-.codebox{border:1px solid var(--amber);background:rgba(255,170,0,.06);padding:12px;margin-top:10px}
-.codebox .code{font-size:16px;color:#fff;letter-spacing:2px;word-break:break-all;user-select:all;background:rgba(0,0,0,.45);padding:12px;border:1px dashed var(--amber)}
-.packs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:6px}
-.pack,.vaultCard,.modeCard,.queueCard{
-  border:1px solid var(--bd);padding:12px;background:rgba(0,0,0,.3);
+
+.tabs .btn{
+  flex:1;
+  min-width:120px;
+  text-align:center;
+  margin:0;
 }
-.pack .nm,.vaultCard .title,.modeCard .mtitle,.queueCard .qtitle{
-  color:var(--amber);letter-spacing:2px;font-size:12px;line-height:1.4;
+
+.tabbody{
+  border-top:1px solid rgba(0,170,51,.45);
+  padding-top:14px;
 }
-.pack .am{font-size:18px;color:var(--fg);margin:6px 0}
-.pack .pr{color:var(--fg2);font-size:13px}
-.pack .disc,.vaultCard .meta,.modeCard .mdesc,.queueCard .qmeta{
-  color:var(--amber2);font-size:11px;margin-top:4px;line-height:1.55;
+
+pre,.outbox{
+  white-space:pre-wrap;
+  color:var(--fg2);
+  border:1px solid rgba(0,170,51,.55);
+  padding:12px;
+  background:rgba(0,0,0,.45);
+  max-height:58vh;
+  overflow:auto;
+  font-size:12px;
+  word-break:break-word;
+  margin:8px 0;
+  line-height:1.55;
 }
-.profileGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.profileHero{
-  border:1px solid rgba(0,170,51,.58);background:rgba(0,0,0,.32);
-  padding:14px;min-height:100%;
+
+.warn{
+  color:var(--amber);
+  font-size:12px;
+  line-height:1.6;
+  margin-top:8px;
 }
-.profileName{
-  font-family:'Orbitron',sans-serif;font-size:clamp(18px,5vw,30px);
-  color:var(--fg);letter-spacing:3px;text-shadow:0 0 14px rgba(0,255,65,.35);
+
+.err{
+  color:var(--err);
+  font-size:12px;
+  line-height:1.6;
+  margin-top:8px;
 }
-.profileSub{font-size:11px;letter-spacing:2px;color:var(--dim);margin-top:5px}
-.streamBox{
-  display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(255,170,0,.42);
-  background:rgba(255,170,0,.04);padding:10px;margin-top:12px;
+
+.success{
+  color:var(--fg);
+  font-size:12px;
+  line-height:1.6;
+  margin-top:8px;
 }
-.streamBox input{width:18px;height:18px;margin-top:1px;accent-color:var(--amber)}
-.streamBox .txt{font-size:12px;color:var(--amber2);line-height:1.55}
-.smallnote{font-size:11px;line-height:1.55;color:var(--dim);margin-top:8px}
-.main-return{position:fixed;right:12px;bottom:12px;z-index:80}
-.main-return .btn{background:rgba(0,18,4,.96);box-shadow:0 0 18px rgba(0,255,65,.10)}
-/* Forge shell */
-.forgeFrame{
-  border:1px solid var(--bd);background:rgba(0,8,2,.82);
-  box-shadow:inset 0 0 32px rgba(0,255,65,.035),0 0 28px rgba(0,255,65,.06);
+
+.card{
+  border:1px solid rgba(0,170,51,.5);
+  background:rgba(0,0,0,.28);
+  padding:12px;
+  margin:10px 0;
 }
-.forgeHead{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  border-bottom:1px solid var(--bd);padding:10px 12px;background:rgba(0,255,65,.025);
+
+.card.amber{border-color:rgba(255,170,0,.48);background:rgba(255,170,0,.035)}
+.card.cyan{border-color:rgba(0,204,204,.48);background:rgba(0,204,204,.025)}
+.card.red{border-color:rgba(255,85,85,.48);background:rgba(255,85,85,.025)}
+
+.packs{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:10px;
+  margin-top:8px;
 }
-.forgeTitle{
-  font-family:'Orbitron',sans-serif;color:var(--fg);letter-spacing:4px;
-  font-size:clamp(14px,3.5vw,22px);
+
+.pack{
+  border:1px solid var(--bd);
+  padding:12px;
+  background:rgba(0,0,0,.3);
 }
-.forgeMeta{font-size:10px;color:var(--dim);letter-spacing:1.5px;text-align:right}
-.forgeBody{display:grid;grid-template-columns:330px minmax(0,1fr);gap:0}
-.forgeRail{border-right:1px solid var(--bd);padding:12px;background:rgba(0,0,0,.24)}
-.forgeWork{padding:12px}
-.modeGrid{display:grid;gap:8px}
-.modeCard{cursor:pointer;transition:.2s}
-.modeCard:hover{border-color:var(--amber);background:rgba(255,170,0,.035)}
-.modeCard.active{border-color:var(--amber);background:rgba(255,170,0,.07);box-shadow:0 0 18px rgba(255,170,0,.08)}
-.modeCard .mtitle{font-family:'Orbitron',sans-serif}
-.modeCard .mkey{font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:5px}
-.forgeControls{display:grid;grid-template-columns:1fr 110px;gap:8px}
-.runbar{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;
+
+.pack .nm{
+  color:var(--amber);
+  letter-spacing:2px;
+  font-size:12px;
 }
-.terminal{
-  border:1px solid rgba(0,170,51,.55);background:rgba(0,0,0,.55);
-  padding:12px;min-height:240px;max-height:58vh;overflow:auto;
-  color:var(--fg2);font-size:12px;line-height:1.6;white-space:pre-wrap;
+
+.pack .am{
+  font-family:'Orbitron',sans-serif;
+  font-size:20px;
+  color:var(--fg);
+  margin:7px 0;
 }
-.terminal .amber{color:var(--amber)}
-.terminal .cyan{color:var(--cyan)}
-.terminal .red{color:var(--err)}
-.terminal .dim{color:var(--dim)}
-.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
-.pipeStep{
-  border:1px solid rgba(0,170,51,.45);padding:7px;background:rgba(0,0,0,.30);
-  font-size:10px;color:var(--dim);letter-spacing:1px;min-height:42px;
+
+.pack .pr{
+  color:var(--fg2);
+  font-size:13px;
 }
-.pipeStep.active{border-color:var(--amber);color:var(--amber);background:rgba(255,170,0,.035)}
-.pipeStep.done{border-color:var(--bd);color:var(--fg2)}
-.pipeStep.fail{border-color:#7a1d1d;color:#ff8a8a}
-.progress{height:4px;background:#001500;border:1px solid rgba(0,170,51,.45);overflow:hidden;margin:8px 0 12px}
-.progress .fill{height:100%;width:0%;background:var(--fg);box-shadow:0 0 12px var(--fg);transition:width .25s}
-.dossierOutput{
-  border:1px solid var(--bd);background:#050a05;
-  box-shadow:inset 0 0 24px rgba(0,255,65,.045);padding:14px;margin-top:10px;
+
+.pack .disc{
+  color:var(--amber2);
+  font-size:11px;
+  margin-top:5px;
+  line-height:1.5;
 }
-.dossierTitle{
-  font-family:'Orbitron',sans-serif;font-size:11px;color:var(--amber);
-  letter-spacing:3px;border-bottom:1px solid var(--bd);padding-bottom:8px;margin-bottom:10px;
+
+.modegrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;
+  margin:10px 0 12px;
 }
-.dossierPage{
-  font-family:'Courier Prime','Courier New',serif;font-size:14px;line-height:1.62;color:var(--fg2);
-  white-space:pre-wrap;max-height:62vh;overflow:auto;padding:12px;border:1px solid rgba(0,170,51,.35);background:rgba(0,0,0,.36);
+
+.modecard{
+  border:1px solid rgba(0,170,51,.55);
+  background:linear-gradient(180deg,rgba(0,255,65,.045),rgba(0,0,0,.25));
+  padding:13px;
+  cursor:pointer;
+  min-height:92px;
+  position:relative;
+  overflow:hidden;
 }
-.scan{height:4px;background:linear-gradient(90deg,transparent,var(--fg),transparent);animation:scan 2.4s infinite;margin:10px 0;overflow:hidden}
-@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.blink{animation:blink 1.1s infinite}
-@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:.18}}
-.queueGrid{display:grid;gap:8px}
-.queueBadge{display:inline-block;color:var(--cyan);border:1px solid rgba(0,204,204,.4);padding:2px 6px;font-size:10px;letter-spacing:1px;margin-left:4px}
-@media(max-width:860px){
-  .forgeBody{grid-template-columns:1fr}
-  .forgeRail{border-right:none;border-bottom:1px solid var(--bd)}
-  .profileGrid{grid-template-columns:1fr}
-  .pipeline{grid-template-columns:repeat(2,1fr)}
+
+.modecard:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,transparent,rgba(0,255,65,.04),transparent);
+  transform:translateX(-100%);
+  transition:transform .35s;
 }
+
+.modecard:hover:before{transform:translateX(100%)}
+
+.modecard.active{
+  border-color:var(--fg);
+  background:linear-gradient(180deg,rgba(0,255,65,.11),rgba(0,0,0,.32));
+  box-shadow:0 0 22px rgba(0,255,65,.12), inset 0 0 24px rgba(0,255,65,.04);
+}
+
+.modecard .mtitle{
+  font-family:'Orbitron',sans-serif;
+  color:var(--fg);
+  font-size:12px;
+  letter-spacing:2px;
+  margin-bottom:7px;
+}
+
+.modecard .mdesc{
+  color:var(--dim);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.modecard.amber{border-color:rgba(255,170,0,.45)}
+.modecard.amber.active{border-color:var(--amber);box-shadow:0 0 22px rgba(255,170,0,.12)}
+.modecard.amber .mtitle{color:var(--amber)}
+.modecard.cyan{border-color:rgba(0,204,204,.45)}
+.modecard.cyan.active{border-color:var(--cyan);box-shadow:0 0 22px rgba(0,204,204,.12)}
+.modecard.cyan .mtitle{color:var(--cyan)}
+
+.execbox{
+  border:1px solid rgba(255,170,0,.38);
+  background:rgba(255,170,0,.035);
+  padding:12px;
+  margin:12px 0;
+}
+
+.execsteps{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:6px;
+  margin-top:8px;
+}
+
+.step{
+  border:1px solid rgba(0,170,51,.42);
+  background:rgba(0,0,0,.25);
+  color:var(--dim);
+  padding:8px;
+  font-size:11px;
+  letter-spacing:1.5px;
+}
+
+.step.hot{
+  color:var(--amber);
+  border-color:rgba(255,170,0,.65);
+  box-shadow:0 0 12px rgba(255,170,0,.08);
+}
+
+.step.ok{
+  color:var(--fg);
+  border-color:rgba(0,255,65,.7);
+}
+
+.scan{
+  height:4px;
+  background:linear-gradient(90deg,transparent,var(--fg),transparent);
+  animation:scan 2.4s infinite;
+  margin:10px 0;
+  overflow:hidden;
+}
+
+@keyframes scan{
+  from{transform:translateX(-100%)}
+  to{transform:translateX(100%)}
+}
+
+.itemlist{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
+
+.item{
+  border:1px solid rgba(0,170,51,.45);
+  background:rgba(0,0,0,.28);
+  padding:10px;
+}
+
+.item .title{
+  font-family:'Orbitron',sans-serif;
+  color:var(--fg);
+  font-size:12px;
+  letter-spacing:1.5px;
+  margin-bottom:5px;
+}
+
+.item .meta{
+  color:var(--dim);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.item .actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:8px;
+}
+
+.coursebar{
+  border:1px solid rgba(255,170,0,.45);
+  background:rgba(255,170,0,.04);
+  padding:10px;
+  margin:10px 0;
+}
+
+.coursebar.ok{
+  border-color:rgba(0,255,65,.55);
+  background:rgba(0,255,65,.04);
+}
+
+.fixedMain{
+  position:fixed;
+  right:12px;
+  bottom:12px;
+  z-index:20;
+  background:#001500;
+  border:1px solid var(--cyan);
+  color:var(--cyan);
+  padding:12px 15px;
+  font-family:'Orbitron',sans-serif;
+  letter-spacing:3px;
+  font-size:11px;
+  text-decoration:none;
+  box-shadow:0 0 18px rgba(0,204,204,.14);
+}
+
+.foot{
+  color:var(--dim);
+  font-size:10px;
+  letter-spacing:1px;
+  margin-top:18px;
+  text-align:center;
+  line-height:1.7;
+}
+
+@media(max-width:720px){
+  .grid2,.grid3,.kvgrid{grid-template-columns:1fr}
+  .tabs .btn{min-width:calc(50% - 6px)}
+  .modegrid{grid-template-columns:1fr}
+}
+
 @media(max-width:520px){
-  .kvgrid{grid-template-columns:1fr}
-  .packs{grid-template-columns:1fr}
-  .tabs .btn,.rowbtns .btn,.runbar .btn{min-width:100%;width:100%}
-  .forgeControls,.runbar{grid-template-columns:1fr}
-  .pipeline{grid-template-columns:1fr}
+  .wrap{padding:10px}
+  .panel{padding:13px}
+  .tabs .btn{min-width:100%}
+  .btn{width:100%;margin-right:0}
+  .topbar{align-items:flex-start}
+  .topbar .right{font-size:9px}
 }
 </style>
 </head>
-<body>
+  <body>
+<a class="fixedMain" href="./index.html">MAIN SITE</a>
+
 <div class="wrap">
-  <div class="bar">
-    <div class="l">CI-Ω7 // S5 OPERATOR TERMINAL</div>
-    <div class="r" id="netStatus">EGRESS: S5 ONLINE</div>
+  <div class="topbar">
+    <div>CI-Ω7 // S5 OPERATOR TERMINAL</div>
+    <div class="right" id="netStatus">EGRESS: S5 ONLINE</div>
   </div>
 
+  <!-- AUTH / ACCOUNT CREATION -->
   <div class="panel" id="loginPanel">
     <h1>S5 ACCESS</h1>
-    <div class="sub">LOG IN OR ISSUE A CIVILIAN OPERATOR ACCOUNT</div>
+    <div class="sub">Log in with an operator code or issue a civilian account. Public shell remains separate from S5 execution.</div>
 
-    <div id="loginBox">
-      <label>S5 OPERATOR CREDENTIAL</label>
-      <input class="input" id="codeInput" maxlength="128" placeholder="S5 OPERATOR CODE" autocomplete="off" spellcheck="false" autocapitalize="off">
-      <button class="btn amber" id="loginBtn">▸ AUTHENTICATE</button>
-      <button class="btn" id="showCreateBtn">▸ CREATE CIVILIAN ACCOUNT</button>
-      <a class="btn" href="https://hilbertmesh-site.vercel.app/">RETURN TO MAIN SITE</a>
+    <div class="grid2">
+      <div class="card cyan">
+        <h2>LOG IN</h2>
+        <label>S5 Operator Code</label>
+        <input class="input" id="codeInput" maxlength="160" placeholder="S5-XXXX-XXXX-XXXX..." autocomplete="off" spellcheck="false" autocapitalize="off">
+
+        <label style="display:flex;align-items:center;gap:8px;color:var(--fg2);letter-spacing:1px;text-transform:none;margin:6px 0 8px;">
+          <input type="checkbox" id="rememberSession" checked style="width:auto;accent-color:#00ff41;">
+          Remember this browser session
+        </label>
+
+        <button class="btn amber wide" id="loginBtn">▸ Authenticate</button>
+        <div class="err hidden" id="loginErr"></div>
+      </div>
+
+      <div class="card amber">
+        <h2>CIVILIAN ACCOUNT CREATION</h2>
+        <div class="small">Creates a civilian S5 operator profile. Code is shown once; save it securely.</div>
+
+        <label>Recovery Email</label>
+        <input class="input" id="newEmail" placeholder="operator@example.com" autocomplete="email">
+
+        <label>Operator Handle</label>
+        <input class="input" id="newUsername" placeholder="OPERATOR" maxlength="32">
+
+        <label>Recovery Phone Optional</label>
+        <input class="input" id="newPhone" placeholder="+1 555 555 0123" autocomplete="tel">
+
+        <button class="btn amber wide" id="createCivilianBtn">▸ Issue Civilian S5 Code</button>
+        <div class="err hidden" id="createErr"></div>
+      </div>
     </div>
 
-    <div id="createBox" class="hidden">
-      <h2>CIVILIAN ACCOUNT CREATION</h2>
-      <div class="sub">Creates your Hilbert Mesh S5 operator account.</div>
-
-      <label>RECOVERY EMAIL</label>
-      <input class="input" id="newEmail" type="email" maxlength="254" placeholder="operator@example.com" autocomplete="email" spellcheck="false">
-
-      <label>OPERATOR HANDLE</label>
-      <input class="input" id="newUsername" maxlength="32" placeholder="OPERATOR" autocomplete="off" spellcheck="false">
-
-      <label>RECOVERY PHONE OPTIONAL</label>
-      <input class="input" id="newPhone" type="tel" maxlength="32" placeholder="+1 555 555 0123" autocomplete="tel" spellcheck="false">
-
-      <button class="btn amber" id="createBtn">▸ ISSUE CIVILIAN S5 CODE</button>
-      <button class="btn" id="showLoginBtn">▸ I ALREADY HAVE A CODE</button>
+    <div class="card hidden amber" id="issuedCodeBox">
+      <h2>SAVE THIS CODE NOW</h2>
+      <div class="sub">It will not be shown again. It is your login credential.</div>
+      <pre id="issuedCodeDisplay" style="font-size:18px;color:var(--white);max-height:none;"></pre>
+      <button class="btn amber" id="copyIssuedCode">Copy Code</button>
+      <button class="btn" id="enterIssuedProfile">Enter Profile</button>
     </div>
 
     <div class="warn">
-      Raw S5 codes are never stored in this browser.<br>
-      Session access can be saved on this device only if browser persistence remains enabled after login.
+      Raw S5 codes are not stored in this browser. If remembered, only the server-issued session token is stored locally.
+      Recovery channel: <span style="color:var(--amber2)">support@hilbertmesh.com</span>
     </div>
-
-    <div id="issuedBox" class="codebox hidden">
-      <div class="warn">SAVE THIS CODE NOW. It will not be shown again.</div>
-      <div class="code" id="issuedCode"></div>
-      <button class="btn amber" id="copyIssuedBtn">COPY CODE</button>
-      <button class="btn" id="enterIssuedBtn">ENTER PROFILE</button>
-    </div>
-
-    <div class="err hidden" id="loginErr"></div>
   </div>
 
+  <!-- MAIN TERMINAL -->
   <div class="panel hidden" id="termPanel">
     <div class="statusline" id="statusLine">STATUS: CIVILIAN</div>
 
     <div class="kvgrid">
       <div class="k">OPERATOR</div><div class="v" id="kUser">—</div>
+      <div class="k">AGENT NUMBER</div><div class="v" id="kAgent">—</div>
       <div class="k">Σ BALANCE</div><div class="v" id="kSigma">—</div>
       <div class="k">CLEARANCE</div><div class="v" id="kClear">—</div>
+      <div class="k">COURSE GATE</div><div class="v" id="kCourse">—</div>
       <div class="k">DISCOUNT</div><div class="v" id="kDisc">—</div>
     </div>
 
-    <div class="tabs" style="margin-top:14px">
-      <button class="btn amber" data-tab="account">▸ PROFILE</button>
-      <button class="btn" data-tab="forge">▸ FORGE</button>
-      <button class="btn" data-tab="queue">▸ QUEUE</button>
-      <button class="btn" data-tab="vault">▸ VAULT</button>
-      <button class="btn" data-tab="charge">▸ SIGMA</button>
-      <button class="btn" data-tab="upgrade">▸ UPGRADE</button>
-      <a class="btn" href="music.html">▸ MUSIC</a>
-      <button class="btn cyan hidden" id="devTabBtn" data-tab="dev">▸ DEV</button>
+    <div class="tabs">
+      <button class="btn amber" data-tab="account">▸ Profile</button>
+      <button class="btn" data-tab="forge">▸ Live Forge</button>
+      <button class="btn" data-tab="vault">▸ Vault</button>
+      <button class="btn" data-tab="public">▸ Public Dossiers</button>
+      <button class="btn" data-tab="chats">▸ Chats</button>
+      <button class="btn" data-tab="music">▸ DJ Booth</button>
+      <button class="btn" data-tab="charge">▸ Buy Sigma</button>
+      <button class="btn" data-tab="upgrade">▸ Upgrade</button>
+      <button class="btn cyan hidden" id="devTabBtn" data-tab="dev">▸ Dev</button>
     </div>
 
+    <!-- PROFILE -->
     <div id="tab-account" class="tabbody">
       <h2>OPERATOR PROFILE</h2>
-      <div class="profileGrid">
-        <div class="profileHero">
-          <div class="profileName" id="profileName">OPERATOR</div>
-          <div class="profileSub" id="profileSub">S5 PROFILE HUB</div>
+      <div class="sub">Central account hub. Private vault, public dossier course, music access, and Forge runs are tied to this S5 session.</div>
 
+      <div class="grid2">
+        <div class="card">
+          <h3>Profile Data</h3>
           <div class="kvgrid">
             <div class="k">USERNAME</div><div class="v" id="aUser">—</div>
+            <div class="k">AGENT NUMBER</div><div class="v" id="aAgent">—</div>
             <div class="k">CLEARANCE</div><div class="v" id="aClear">—</div>
             <div class="k">Σ BALANCE</div><div class="v" id="aSigma">—</div>
             <div class="k">MONTHLY TIER</div><div class="v" id="aTier">—</div>
             <div class="k">DISCOUNT</div><div class="v" id="aDisc">—</div>
             <div class="k">EMBLEM RANK</div><div class="v" id="aEmblem">—</div>
+            <div class="k">PUBLIC COURSE</div><div class="v" id="aCourse">—</div>
           </div>
-
-          <div class="streamBox">
-            <input type="checkbox" id="rememberToggle" checked>
-            <div class="txt">
-              Keep me logged in on this browser.<br>
-              Raw S5 codes are never stored. Use LOG OUT before streaming or sharing this device.
-            </div>
-          </div>
-
         </div>
 
-        <div class="profileHero">
-          <h3>PROFILE ACTIONS</h3>
-          <div class="rowbtns">
-            <button class="btn amber" id="enterForgeBtn">▸ ENTER FORGE</button>
-            <button class="btn" id="queueBtn">▸ DOSSIER QUEUE</button>
-            <button class="btn" id="vaultBtn">▸ DOSSIER VAULT</button>
-            <button class="btn" id="buySigmaBtn">▸ BUY SIGMA</button>
-            <button class="btn" id="upgradeBtn">▸ UPGRADE CLEARANCE</button>
-            <a class="btn" href="music.html">▸ MUSIC LIBRARY</a>
-            <a class="btn cyan" href="https://hilbertmesh-site.vercel.app/">RETURN TO MAIN SITE</a>
-            <button class="btn danger" id="logoutBtn">LOG OUT</button>
-          </div>
+        <div class="card cyan">
+          <h3>Public Profile</h3>
+          <label>Public Name</label>
+          <input class="input" id="profilePublicName" placeholder="Visible public name">
 
-          <div class="smallnote">
-            Credential rotation, email changes, public chat gate, music library, and game vault are queued for later.
-            Current stable loop: Profile → Forge → Vault → Download → Sigma.
-          </div>
+          <label>Bio</label>
+          <textarea id="profileBio" placeholder="Short profile bio. Do not place private company secrets here." maxlength="500"></textarea>
+
+          <button class="btn cyan wide" id="saveProfileBtn">Save Public Profile</button>
+          <div class="success hidden" id="profileMsg"></div>
         </div>
       </div>
+
+      <div class="coursebar" id="courseStatusBox">
+        <h3>Public Dossier Course Gate</h3>
+        <div class="small" id="courseStatusText">
+          Public chat, private agent rooms, and company rooms unlock after a verified 9-page public dossier course submission.
+        </div>
+      </div>
+
+      <div class="modegrid">
+        <div class="modecard" data-jump="forge">
+          <div class="mtitle">LIVE FORGE</div>
+          <div class="mdesc">Full S5 dossier forge with theme, codename, iteration, modes, style, and presentation.</div>
+        </div>
+        <div class="modecard cyan" data-jump="public">
+          <div class="mtitle">PUBLIC DOSSIER COURSE</div>
+          <div class="mdesc">Ingest the 4-copy-paste formula output privately first, then verify and publish only when ready.</div>
+        </div>
+        <div class="modecard amber" data-jump="music">
+          <div class="mtitle">DJ BOOTH</div>
+          <div class="mdesc">Open the music library, paid songs, queues, and Hilbert release shelf.</div>
+        </div>
+        <div class="modecard" data-jump="vault">
+          <div class="mtitle">PRIVATE VAULT</div>
+          <div class="mdesc">View, download, delete, publish, or unpublish private Forge outputs.</div>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <button class="btn amber" id="refreshBtn">Refresh Profile</button>
+        <button class="btn" id="openMusicPageBtn">Open Music Page</button>
+        <button class="btn danger" id="logoutBtn">Log Out</button>
+      </div>
     </div>
+    <!-- LIVE FORGE -->
     <div id="tab-forge" class="tabbody hidden">
-      <div class="forgeFrame">
-        <div class="forgeHead">
-          <div>
-            <div class="forgeTitle">HILBERT DOSSIER FORGE</div>
-            <div class="sub" style="margin:4px 0 0">Live generation shell · backend-authenticated · vault-synced</div>
-          </div>
-          <div class="forgeMeta">
-            COST: 1Σ BASIC RUN<br>
-            BALANCE: <span id="forgeSigma">—</span>
-          </div>
+      <h2>LIVE DOSSIER FORGE</h2>
+      <div class="sub">
+        Full Hilbert Forge pipeline. Theme, codename, iteration, mode, and structure are all enforced.
+        This is not a seed-only generator — outputs are structured dossiers.
+      </div>
+
+      <!-- MODE SELECTION -->
+      <div class="modegrid" id="modeGrid">
+        <div class="modecard active" data-mode="hilbert">
+          <div class="mtitle">HILBERT MODE</div>
+          <div class="mdesc">Lore engine. Cinematic, structured, system-level dossiers tied to Hilbert Mesh logic.</div>
         </div>
 
-        <div class="forgeBody">
-          <div class="forgeRail">
-            <h2>RUN MODES</h2>
-            <div class="modeGrid">
-              <div class="modeCard active" data-mode="hilbert">
-                <div class="mtitle">HILBERT RUN</div>
-                <div class="mdesc">Lore/cosmology dossier mode. Best for Hilbert Mesh, S5, Frontier, CHRONOS, fiction-science artifacts.</div>
-                <div class="mkey">mode: hilbert</div>
-              </div>
+        <div class="modecard cyan" data-mode="intelligence">
+          <div class="mtitle">INTELLIGENCE MODE</div>
+          <div class="mdesc">Scientific and technical dossier generation. Real-world aligned, structured outputs.</div>
+        </div>
 
-              <div class="modeCard" data-mode="intelligence">
-                <div class="mtitle">INTELLIGENCE RUN</div>
-                <div class="mdesc">Clean high-density dossier mode for history, product, technical, science, and strategy topics.</div>
-                <div class="mkey">mode: intelligence</div>
-              </div>
+        <div class="modecard amber" data-mode="research">
+          <div class="mtitle">RESEARCH MODE</div>
+          <div class="mdesc">Exploratory analysis mode. Builds new connections, not summaries or fluff.</div>
+        </div>
 
-              <div class="modeCard" data-mode="research">
-                <div class="mtitle">RESEARCH RUN</div>
-                <div class="mdesc">Real-world exploration lane for mechanisms, constraints, connections, failure modes, and testable next steps.</div>
-                <div class="mkey">mode: research</div>
-              </div>
+        <div class="modecard" data-mode="critique">
+          <div class="mtitle">CRITIQUE MODE</div>
+          <div class="mdesc">Evaluates theories, detects weaknesses, stress-tests assumptions.</div>
+        </div>
 
-              <div class="modeCard" data-mode="lore">
-                <div class="mtitle">LORE PAGE</div>
-                <div class="mdesc">Fast atmospheric page construction. Use for page fragments, factions, facilities, and doctrine blocks.</div>
-                <div class="mkey">mode: lore</div>
-              </div>
+        <div class="modecard red" data-mode="argue">
+          <div class="mtitle">ARGUE MODE</div>
+          <div class="mdesc">Dual-agent system: believer vs skeptic. Generates new ideas through conflict.</div>
+        </div>
 
-              <div class="modeCard" data-mode="identity">
-                <div class="mtitle">IDENTITY FORGE</div>
-                <div class="mdesc">Brand, character, band, or project identity matrix. Good for Suno and visual pipelines.</div>
-                <div class="mkey">mode: identity</div>
-              </div>
-
-              <div class="modeCard" data-mode="song_audit">
-                <div class="mtitle">SONG AUDIT</div>
-                <div class="mdesc">Music prompt / lyric / production audit lane. Finds hooks, drift, style risks, and revision strategy.</div>
-                <div class="mkey">mode: song_audit</div>
-              </div>
-
-              <div class="modeCard" data-mode="intake">
-                <div class="mtitle">INTAKE / REFINERY</div>
-                <div class="mdesc">Turn rough notes into structured dossier seed material before final forge.</div>
-                <div class="mkey">mode: intake</div>
-              </div>
-
-              <div class="modeCard" data-mode="refinery">
-                <div class="mtitle">DENSITY REFINERY</div>
-                <div class="mdesc">Compress, reorder, and strengthen a draft dossier without changing its identity.</div>
-                <div class="mkey">mode: refinery</div>
-              </div>
-
-              <div class="modeCard" data-mode="critique">
-                <div class="mtitle">ARGUMENT / CRITIQUE</div>
-                <div class="mdesc">Two-agent theory stress test: inspired advocate vs. skeptical critic. Built for fringe ideas, failure modes, and unexpected connections.</div>
-                <div class="mkey">mode: critique</div>
-              </div>
-
-              <div class="modeCard" data-mode="explain_more">
-                <div class="mtitle">EXPLAIN MORE / PROVE IT</div>
-                <div class="mdesc">Pressure-expansion protocol: keep asking for clearer mechanism, stronger evidence, and deeper structure without derailing the theory.</div>
-                <div class="mkey">mode: explain_more</div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="forgeWork">
-            <h2>FORGE INPUT</h2>
-
-            <label>ACTIVE MODE</label>
-            <input class="input" id="fModeView" value="hilbert" readonly>
-            <input type="hidden" id="fMode" value="hilbert">
-
-            <div class="forgeControls" style="grid-template-columns:1fr">
-              <div>
-                <label>PAGES / INTENSITY</label>
-                <input class="input" id="fPages" type="number" min="1" max="25" value="1">
-              </div>
-            </div>
-
-            <label>SEED</label>
-            <textarea id="fSeed" maxlength="3000" placeholder="Paste seed text here."></textarea>
-
-            <div class="runbar">
-              <button class="btn amber" id="runBtn">▸ RUN FORGE</button>
-              <button class="btn" id="clearOut">CLEAR OUTPUT</button>
-            </div>
-
-            <div class="inlinebuy">
-              <div class="sub" style="margin:0">Need Sigma? 10Σ = 10 basic runs at current server cost.</div>
-              <button class="btn" id="quickSigmaBtn">▸ BUY SIGMA</button>
-            </div>
-
-            <div class="progress"><div class="fill" id="stepFill"></div></div>
-            <div class="pipeline">
-              <div class="pipeStep" id="st1">01 SESSION AUTH</div>
-              <div class="pipeStep" id="st2">02 SEED LOCK</div>
-              <div class="pipeStep" id="st3">03 MODE MAP</div>
-              <div class="pipeStep" id="st4">04 SIGMA CHECK</div>
-              <div class="pipeStep" id="st5">05 MODEL DISPATCH</div>
-              <div class="pipeStep" id="st6">06 PAGE DEPLOY</div>
-              <div class="pipeStep" id="st7">07 VAULT SYNC</div>
-              <div class="pipeStep" id="st8">08 OUTPUT SEALED</div>
-            </div>
-
-            <div class="scan hidden" id="forgeScan"></div>
-
-            <div class="dossierOutput">
-              <div class="dossierTitle">S5 FORGE ACTIVITY LOG</div>
-              <div class="terminal" id="forgeLog">FORGE READY.
-Awaiting seed lock and operator command.</div>
-
-              <div class="dossierTitle" style="margin-top:14px">DOSSIER OUTPUT</div>
-              <div class="dossierPage" id="forgeOut">NO DOSSIER DEPLOYED.</div>
-            </div>
-          </div>
+        <div class="modecard" data-mode="expand">
+          <div class="mtitle">EXPLAIN MORE MODE</div>
+          <div class="mdesc">Forces deeper expansion. System continuously demands stronger justification.</div>
         </div>
       </div>
+
+      <!-- CORE INPUTS -->
+      <div class="grid2">
+        <div>
+          <label>Codename</label>
+          <input class="input" id="fCodename" placeholder="PROJECT HELIOS">
+
+          <label>Iteration</label>
+          <input class="input" id="fIteration" placeholder="IT-1">
+
+          <label>Focus Theme</label>
+          <input class="input" id="fTheme" placeholder="Quantum gravity stabilization via lattice fields">
+        </div>
+
+        <div>
+          <label>Dossier Type</label>
+          <select id="fType">
+            <option value="analysis">Analysis</option>
+            <option value="engineering">Engineering</option>
+            <option value="lore">Lore</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+
+          <label>Requested Pages</label>
+          <input class="input" id="fPages" type="number" min="1" max="50" value="9">
+
+          <label>Dossier Style</label>
+          <select id="fStyle">
+            <option value="s5">S5 Terminal</option>
+            <option value="scientific">Scientific</option>
+            <option value="cinematic">Cinematic</option>
+          </select>
+
+          <label>Presentation Mode</label>
+          <select id="fPresentation">
+            <option value="standard">Standard</option>
+            <option value="compact">Compact</option>
+            <option value="expanded">Expanded</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SEED -->
+      <label>Seed Prompt</label>
+      <textarea id="fSeed" placeholder="Enter seed concept..."></textarea>
+
+      <!-- EXECUTION -->
+      <div class="execbox">
+        <div class="small">Forge Execution Pipeline</div>
+
+        <div class="execsteps" id="execSteps">
+          <div class="step" id="step-parse">PARSE INPUT</div>
+          <div class="step" id="step-build">BUILD STRUCTURE</div>
+          <div class="step" id="step-expand">EXPAND PAGES</div>
+          <div class="step" id="step-refine">REFINE OUTPUT</div>
+          <div class="step" id="step-compile">COMPILE DOSSIER</div>
+        </div>
+
+        <div class="scan hidden" id="scanLine"></div>
+      </div>
+
+      <div class="grid2">
+        <button class="btn amber wide" id="runForgeBtn">▸ Forge Now</button>
+        <button class="btn wide" id="queueForgeBtn">▸ Queue Job</button>
+      </div>
+
+      <div class="statusline hidden" id="forgeStatus"></div>
+
+      <div class="outbox hidden" id="forgeOutput"></div>
     </div>
-
-    <div id="tab-queue" class="tabbody hidden">
-      <h2>DOSSIER QUEUE</h2>
-      <div class="sub">Background run awareness and saved job tracking. Real server queue will be wired later; this panel currently tracks local session activity.</div>
-
-      <div class="queueGrid" id="queueList">
-        <div class="queueCard">
-          <div class="qtitle">QUEUE STANDING BY</div>
-          <div class="qmeta">Run a dossier to populate this session queue. Civilian baseline: 1 active run. Agent: 3 active sessions. Senior: 5 active sessions.</div>
-        </div>
-      </div>
-
-      <div class="panel amber" style="margin-top:12px">
-        <h2>QUEUE POLICY</h2>
-        <div class="kvgrid">
-          <div class="k">CIVILIAN</div><div class="v">1 active dossier session</div>
-          <div class="k">AGENT</div><div class="v">3 active sessions</div>
-          <div class="k">SENIOR</div><div class="v">5 active sessions</div>
-          <div class="k">MULTI-DOSSIER</div><div class="v">membership unlock target</div>
-        </div>
-      </div>
-    </div>
-
+    <!-- PRIVATE VAULT -->
     <div id="tab-vault" class="tabbody hidden">
-      <h2>DOSSIER VAULT</h2>
-      <div class="sub">Private by default. Publish only when ready. Latest saved dossiers appear here after Forge runs.</div>
-      <div class="rowbtns">
-        <button class="btn amber" id="loadVaultBtn">▸ LOAD VAULT</button>
-        <button class="btn" id="vaultRefreshBtn">REFRESH</button>
+      <h2>PRIVATE DOSSIER VAULT</h2>
+      <div class="sub">
+        All Forge outputs are stored here. Control visibility, download, or remove entries.
+        Public publishing routes through the course system separately.
       </div>
-      <pre id="vaultOut">VAULT STANDING BY.</pre>
-      <div id="vaultList"></div>
+
+      <div class="grid2">
+        <button class="btn amber" id="refreshVaultBtn">Refresh Vault</button>
+        <button class="btn" id="clearVaultViewBtn">Clear View</button>
+      </div>
+
+      <div class="itemlist" id="vaultList"></div>
     </div>
 
+    <!-- PUBLIC DOSSIERS -->
+    <div id="tab-public" class="tabbody hidden">
+      <h2>PUBLIC DOSSIER SYSTEM</h2>
+      <div class="sub">
+        Submit your 4-block dossier output privately. Once it reaches 9+ pages, verification unlocks publishing and chat systems.
+      </div>
+
+      <div class="grid2">
+        <div class="card amber">
+          <h3>Ingest Dossier</h3>
+
+          <label>Title</label>
+          <input class="input" id="pubTitle" placeholder="Dossier Title">
+
+          <label>Theme</label>
+          <input class="input" id="pubTheme" placeholder="Primary concept">
+
+          <label>Seed</label>
+          <textarea id="pubSeed" placeholder="Original seed used"></textarea>
+
+          <label>Dossier Output (4-block result)</label>
+          <textarea id="pubOutput" placeholder="Paste full output here"></textarea>
+
+          <button class="btn amber wide" id="pubIngestBtn">▸ Ingest Private</button>
+
+          <div class="small">Private first. Review before publishing.</div>
+        </div>
+
+        <div class="card cyan">
+          <h3>Your Course Submissions</h3>
+          <button class="btn cyan wide" id="refreshCourseBtn">Refresh</button>
+          <div class="itemlist" id="courseList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Published Dossiers</h3>
+        <button class="btn wide" id="refreshPublicBtn">Refresh Public</button>
+        <div class="itemlist" id="publicList"></div>
+      </div>
+    </div>
+
+    <!-- CHAT SYSTEM -->
+    <div id="tab-chats" class="tabbody hidden">
+      <h2>AGENT CHAT NETWORK</h2>
+      <div class="sub">
+        Public rooms, private agent channels, and company rooms.
+        Access requires completed dossier course verification.
+      </div>
+
+      <div class="coursebar" id="chatGateBox">
+        <div class="small" id="chatGateText">
+          Course verification required to access chat systems.
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>Create Room</h3>
+
+          <label>Title</label>
+          <input class="input" id="chatTitle" placeholder="Room name">
+
+          <label>Type</label>
+          <select id="chatType">
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+            <option value="company">Company</option>
+          </select>
+
+          <button class="btn amber wide" id="createChatBtn">Create Room</button>
+        </div>
+
+        <div class="card cyan">
+          <h3>Rooms</h3>
+          <button class="btn cyan wide" id="refreshChatsBtn">Refresh</button>
+          <div class="itemlist" id="chatRooms"></div>
+        </div>
+      </div>
+
+      <div class="card hidden" id="chatRoomBox">
+        <h3 id="chatRoomTitle">Room</h3>
+
+        <div class="outbox" id="chatMessages"></div>
+
+        <textarea id="chatInput" placeholder="Message"></textarea>
+        <button class="btn wide" id="sendChatBtn">Send</button>
+      </div>
+    </div>
+    <!-- DJ BOOTH / MUSIC -->
+    <div id="tab-music" class="tabbody hidden">
+      <h2>DJ BOOTH // MUSIC LIBRARY</h2>
+      <div class="sub">
+        Curated Hilbert Mesh releases. Tracks can be free, tier-gated, or purchased. 
+        Queue system is local; entitlements come from your account.
+      </div>
+
+      <div class="grid2">
+        <button class="btn amber" id="refreshMusicBtn">Refresh Library</button>
+        <button class="btn" id="clearQueueBtn">Clear Queue</button>
+      </div>
+
+      <div class="itemlist" id="musicList"></div>
+
+      <div class="card cyan">
+        <h3>Now Playing Queue</h3>
+        <div class="itemlist" id="musicQueue"></div>
+      </div>
+
+      <div class="card hidden amber" id="djUploadBox">
+        <h3>DJ CONTROL (DEV)</h3>
+
+        <label>Title</label>
+        <input class="input" id="djTitle">
+
+        <label>Artist</label>
+        <input class="input" id="djArtist">
+
+        <label>URL</label>
+        <input class="input" id="djUrl">
+
+        <label>Price (cents)</label>
+        <input class="input" id="djPrice" type="number" value="0">
+
+        <button class="btn amber wide" id="uploadTrackBtn">Upload Track</button>
+      </div>
+    </div>
+
+    <!-- SIGMA STORE -->
     <div id="tab-charge" class="tabbody hidden">
-      <h2>SIGMA CHARGE</h2>
-      <div class="sub">Sigma powers forge runs. Current server cost: 1Σ per basic run.</div>
+      <h2>Σ ACQUISITION</h2>
+      <div class="sub">Sigma fuels dossier runs and system usage.</div>
+
       <div class="packs">
         <div class="pack">
-          <div class="nm">SMALL</div>
-          <div class="am">10 Σ</div>
-          <div class="pr">$3.99</div>
-          <div class="disc">10 basic runs</div>
-          <button class="btn amber" data-pack="small" style="width:100%;margin-top:8px">BUY 10 Σ</button>
+          <div class="nm">BASIC</div>
+          <div class="am">Σ30</div>
+          <div class="pr">$3</div>
+          <button class="btn amber wide" data-sigma="30">Buy</button>
         </div>
+
         <div class="pack">
-          <div class="nm">MEDIUM</div>
-          <div class="am">25 Σ</div>
-          <div class="pr">$7.99</div>
-          <div class="disc">25 basic runs</div>
-          <button class="btn amber" data-pack="medium" style="width:100%;margin-top:8px">BUY 25 Σ</button>
+          <div class="nm">STANDARD</div>
+          <div class="am">Σ100</div>
+          <div class="pr">$8</div>
+          <button class="btn amber wide" data-sigma="100">Buy</button>
         </div>
+
         <div class="pack">
-          <div class="nm">LARGE</div>
-          <div class="am">50 Σ</div>
-          <div class="pr">$14.99</div>
-          <div class="disc">50 basic runs</div>
-          <button class="btn amber" data-pack="large" style="width:100%;margin-top:8px">BUY 50 Σ</button>
+          <div class="nm">HEAVY</div>
+          <div class="am">Σ300</div>
+          <div class="pr">$20</div>
+          <button class="btn amber wide" data-sigma="300">Buy</button>
         </div>
       </div>
     </div>
 
+    <!-- MEMBERSHIP -->
     <div id="tab-upgrade" class="tabbody hidden">
-      <h2>CLEARANCE UPGRADE</h2>
+      <h2>MEMBERSHIP TIERS</h2>
+      <div class="sub">
+        Expands queue size, sigma discounts, and system access limits.
+      </div>
+
       <div class="packs">
         <div class="pack">
-          <div class="nm">AGENT RELAY</div>
-          <div class="am">30 Σ / month</div>
-          <div class="pr">$20.00 / month</div>
-          <div class="disc">Target unlocks: larger queue, more saved workflows, agent identity tools.</div>
-          <button class="btn amber" id="upAgent" style="width:100%;margin-top:8px">▸ BECOME AGENT</button>
+          <div class="nm">AGENT</div>
+          <div class="am">$5</div>
+          <div class="disc">+33% Sigma efficiency</div>
+          <button class="btn amber wide" data-tier="AGENT">Upgrade</button>
         </div>
+
         <div class="pack">
-          <div class="nm">SENIOR AGENT RELAY</div>
-          <div class="am">90 Σ / month</div>
-          <div class="pr">$50.00 / month</div>
-          <div class="disc">Target unlocks: higher queue volume, multi-dossier synthesis, larger media/player limits.</div>
-          <button class="btn amber" id="upSenior" style="width:100%;margin-top:8px">▸ BECOME SENIOR AGENT</button>
+          <div class="nm">SENIOR AGENT</div>
+          <div class="am">$15</div>
+          <div class="disc">+50% Sigma efficiency</div>
+          <button class="btn amber wide" data-tier="SENIOR_AGENT">Upgrade</button>
         </div>
       </div>
     </div>
 
+    <!-- DEV -->
     <div id="tab-dev" class="tabbody hidden">
       <h2>DEV CONSOLE</h2>
-      <div class="sub">Visible only to authorized operator clearance. Hidden by stream-safe mode.</div>
-      <div class="kvgrid">
-        <div class="k">LAST JOB</div><div class="v" id="dJob">—</div>
-        <div class="k">LAST DOSSIER</div><div class="v" id="dDossier">—</div>
-        <div class="k">LAST COST</div><div class="v" id="dCost">—</div>
-        <div class="k">LAST ERROR</div><div class="v" id="dErr">—</div>
-      </div>
-      <h2 style="margin-top:14px">RAW RESPONSE</h2>
-      <pre id="devRaw">NO RESPONSE CAPTURED.</pre>
-      <h2 style="margin-top:14px">API LOG</h2>
-      <pre id="devLog">NO API CALLS CAPTURED.</pre>
+      <div class="sub">Diagnostics, raw API logs, and test hooks.</div>
+
+      <button class="btn cyan" id="dumpStateBtn">Dump State</button>
+
+      <pre id="devOutput"></pre>
     </div>
+
   </div>
 
   <div class="foot">
-    HILBERT MESH // S5 OPERATOR TERMINAL // Σ-AMBER ENFORCED<br>
-    Recovery channel: support@hilbertmesh.com<br>
-    Final reminder: take dummy money mode off after testing all payment buttons with fake money.
+    HILBERT MESH // S5 TERMINAL INTERFACE  
+    REALITY MANUFACTURING LAYER ACTIVE  
+    ALL SYSTEMS TRACEABLE // NO UNLOGGED OPERATIONS
   </div>
 </div>
-
-<div class="main-return">
-  <a class="btn cyan" href="https://hilbertmesh-site.vercel.app/">MAIN SITE</a>
-</div>
-
-<script>
+    <script>
 const API_BASE = "https://hilbert-backend.vercel.app";
-const $ = (id) => document.getElementById(id);
+const SITE_BASE = "https://hilbertmesh-site.vercel.app";
+
 const LS_SESSION = "hmf_s5_session";
-const LS_REMEMBER = "hmf_remember_session";
+const LS_REMEMBER = "hmf_s5_remember";
 const RAW_CODE_KEYS = ["hmf_s5_code", "hmf_s5_code_DEPRECATED"];
 
+const $ = (id) => document.getElementById(id);
+
 let state = {
-  authenticated:false,
-  s5SessionId:"",
-  user:null,
-  lastRaw:null,
-  apiLog:[],
-  selectedMode:"hilbert",
-  queue:[],
-  remember:true
+  sessionId: "",
+  user: null,
+  courseAccess: false,
+  selectedTab: "account",
+  selectedMode: "hilbert",
+  apiLog: [],
+  vault: [],
+  courseDossiers: [],
+  publicDossiers: [],
+  chats: [],
+  activeRoomId: "",
+  music: [],
+  musicQueue: [],
+  lastForge: null
 };
-let running = false;
 
-function apiUrl(path){ return path.startsWith("http") ? path : API_BASE + path; }
-function clean(v,fb,n){ if(typeof v !== "string") return fb; return v.slice(0,n).replace(/[<>]/g,"").trim(); }
-function escapeHtml(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
-function purgeRawCodes(){ try { RAW_CODE_KEYS.forEach(k => localStorage.removeItem(k)); } catch {} }
+function purgeRawCodes(){
+  try{ RAW_CODE_KEYS.forEach(k => localStorage.removeItem(k)); }catch{}
+}
 
-function isDevUser(user = state.user){
-  const c = String(user?.clearance || "").toUpperCase();
-  return Boolean(user?.isDev || user?.sigmaDisplay === "INFINITY" || c === "DEV OVERRIDE" || c === "THE GUY");
+function clean(v, max = 2000){
+  return String(v || "").replace(/[<>]/g, "").trim().slice(0, max);
+}
+
+function escapeHtml(v){
+  return String(v == null ? "" : v).replace(/[&<>"]/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;"
+  }[c]));
+}
+
+function apiUrl(path){
+  return path.startsWith("http") ? path : API_BASE + path;
 }
 
 function rememberApi(entry){
   state.apiLog.unshift({ at:new Date().toISOString(), ...entry });
-  state.apiLog = state.apiLog.slice(0,30);
+  state.apiLog = state.apiLog.slice(0,40);
   renderDev();
 }
 
-async function readJsonResponse(r){
-  const text = await r.text();
-  try { return text ? JSON.parse(text) : {}; }
-  catch { return { ok:false, error:"invalid_json_response", httpStatus:r.status, responseText:text.slice(0,1000) }; }
+async function readJsonResponse(res){
+  const text = await res.text();
+  try{ return text ? JSON.parse(text) : {}; }
+  catch{
+    return {
+      ok:false,
+      error:"invalid_json_response",
+      httpStatus:res.status,
+      responseText:text.slice(0,1000)
+    };
+  }
 }
 
-async function postJson(path,payload){
+async function postJson(path, payload = {}){
   const url = apiUrl(path);
   try{
-    const r = await fetch(url,{
+    const res = await fetch(url,{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
+      cache:"no-store",
       credentials:"omit",
-      body:JSON.stringify(payload||{})
+      body:JSON.stringify(payload)
     });
-    const d = await readJsonResponse(r);
-    if(!r.ok){ d.ok=false; d.httpStatus=r.status; }
-    d.postedTo = url;
-    rememberApi({ method:"POST", url, ok:!!d.ok, status:r.status, error:d.error||"" });
-    return d;
-  }catch(e){
-    const d={ ok:false, error:"network_error", postedTo:url, detail:e?.message||"" };
-    rememberApi({ method:"POST", url, ok:false, status:0, error:d.detail||d.error });
-    return d;
+    const data = await readJsonResponse(res);
+    if(!res.ok){
+      data.ok = false;
+      data.httpStatus = res.status;
+    }
+    rememberApi({ method:"POST", path, status:res.status, ok:!!data.ok, error:data.error||"" });
+    return data;
+  }catch(err){
+    const data = { ok:false, error:"network_error", detail:err?.message || String(err) };
+    rememberApi({ method:"POST", path, status:0, ok:false, error:data.detail });
+    return data;
   }
 }
 
 async function getJson(path){
   const url = apiUrl(path);
   try{
-    const r = await fetch(url,{ method:"GET", credentials:"omit", cache:"no-store" });
-    const d = await readJsonResponse(r);
-    if(!r.ok){ d.ok=false; d.httpStatus=r.status; }
-    rememberApi({ method:"GET", url, ok:!!d.ok, status:r.status, error:d.error||"" });
-    return d;
-  }catch(e){
-    const d={ ok:false, error:"network_error", detail:e?.message||"" };
-    rememberApi({ method:"GET", url, ok:false, status:0, error:d.detail||d.error });
-    return d;
+    const res = await fetch(url,{ method:"GET", cache:"no-store", credentials:"omit" });
+    const data = await readJsonResponse(res);
+    if(!res.ok){
+      data.ok = false;
+      data.httpStatus = res.status;
+    }
+    rememberApi({ method:"GET", path, status:res.status, ok:!!data.ok, error:data.error||"" });
+    return data;
+  }catch(err){
+    const data = { ok:false, error:"network_error", detail:err?.message || String(err) };
+    rememberApi({ method:"GET", path, status:0, ok:false, error:data.detail });
+    return data;
   }
 }
 
 function fmtErr(r){
   let msg = String(r?.error || "unknown_error").toUpperCase().replace(/_/g," ");
-  if(r?.required != null) msg += "\n\nREQUIRED Σ:\n" + r.required;
-  if(r?.postedTo) msg += "\n\nPOSTED TO:\n" + r.postedTo;
-  if(r?.httpStatus) msg += "\n\nHTTP STATUS:\n" + r.httpStatus;
-  if(r?.detail) msg += "\n\nDETAIL:\n" + r.detail;
-  if(r?.responseText) msg += "\n\nFIRST RESPONSE:\n" + r.responseText;
+  if(r?.detail) msg += "\n\n" + r.detail;
+  if(r?.httpStatus) msg += "\nHTTP: " + r.httpStatus;
+  if(r?.responseText) msg += "\n\n" + r.responseText;
   return msg;
 }
 
-function saveSession(sessionId){
-  try {
-    purgeRawCodes();
-    if(state.remember && sessionId) localStorage.setItem(LS_SESSION,sessionId);
-    else localStorage.removeItem(LS_SESSION);
-  } catch {}
+function isDevUser(user = state.user){
+  const c = String(user?.clearance || "").toUpperCase();
+  return !!(user?.isDev || user?.sigmaDisplay === "INFINITY" || c === "THE GUY" || c === "DEV OVERRIDE");
 }
 
-function clearLocal(){
-  try {
-    purgeRawCodes();
-    localStorage.removeItem(LS_SESSION);
-  } catch {}
-}
-
-function loadLocal(){
-  try {
-    purgeRawCodes();
-    state.remember = localStorage.getItem(LS_REMEMBER) !== "0";
-    return { sessionId: state.remember ? (localStorage.getItem(LS_SESSION)||"") : "" };
-  } catch {
-    return { sessionId:"" };
-  }
-}
-
-function sigmaText(user){
+function sigmaText(user = state.user){
   if(!user) return "Σ 0";
   if(isDevUser(user)) return "Σ ∞";
   return "Σ " + Number(user.sigma || 0);
 }
 
-function statusLineFor(user){
-  if(!user) return { label:"STATUS: CIVILIAN", cls:"" };
-  if(isDevUser(user)) return { label:"STATUS: THE GUY", cls:"dev" };
-  const c = String(user.clearance || "CIVILIAN").toUpperCase();
-  if(c === "SENIOR AGENT") return { label:"STATUS: SENIOR AGENT", cls:"amber" };
-  if(c === "AGENT") return { label:"STATUS: AGENT", cls:"amber" };
-  return { label:"STATUS: CIVILIAN", cls:"" };
+function saveSession(sessionId){
+  purgeRawCodes();
+  const remember = $("rememberSession") ? $("rememberSession").checked : true;
+  try{
+    localStorage.setItem(LS_REMEMBER, remember ? "1" : "0");
+    if(remember && sessionId) localStorage.setItem(LS_SESSION, sessionId);
+    else localStorage.removeItem(LS_SESSION);
+  }catch{}
 }
-  function renderUser(){
-  const u = state.user || {};
-  const s = statusLineFor(u);
-  const dr = Number(u.discountRate || 0);
-  const sl = $("statusLine");
 
-  sl.textContent = s.label;
-  sl.classList.remove("amber","dev");
-  if(s.cls) sl.classList.add(s.cls);
+function loadSession(){
+  purgeRawCodes();
+  try{
+    const remember = localStorage.getItem(LS_REMEMBER);
+    if(remember === "0") return "";
+    return localStorage.getItem(LS_SESSION) || "";
+  }catch{
+    return "";
+  }
+}
+
+function clearSession(){
+  purgeRawCodes();
+  try{
+    localStorage.removeItem(LS_SESSION);
+  }catch{}
+}
+
+function requestedTab(){
+  try{
+    const p = new URLSearchParams(location.search);
+    return clean(p.get("tab") || "", 40) || "account";
+  }catch{
+    return "account";
+  }
+}
+
+function statusLabel(){
+  if(!state.user) return { text:"STATUS: GUEST", cls:"" };
+  if(isDevUser()) return { text:"STATUS: THE GUY", cls:"dev" };
+  const c = String(state.user.clearance || "CIVILIAN").toUpperCase();
+  if(c.includes("SENIOR")) return { text:"STATUS: SENIOR AGENT", cls:"amber" };
+  if(c.includes("AGENT")) return { text:"STATUS: AGENT", cls:"amber" };
+  return { text:"STATUS: CIVILIAN", cls:"" };
+}
+
+function renderUser(){
+  const u = state.user || {};
+  const s = statusLabel();
+
+  $("statusLine").textContent = s.text;
+  $("statusLine").classList.remove("amber","dev","red");
+  if(s.cls) $("statusLine").classList.add(s.cls);
+
+  const disc = Number(u.discountRate || 0);
+  const courseText = state.courseAccess ? "VERIFIED" : "LOCKED";
 
   $("kUser").textContent = u.username || "OPERATOR";
+  $("kAgent").textContent = u.agentNumber || "—";
   $("kSigma").textContent = sigmaText(u);
   $("kClear").textContent = u.clearance || "CIVILIAN";
-  $("kDisc").textContent = dr > 0 ? Math.round(dr * 100) + "%" : "—";
-
-  $("profileName").textContent = u.username || "OPERATOR";
-  $("profileSub").textContent = (u.agentNumber || "S5 PROFILE HUB") + " // " + (u.clearance || "CIVILIAN");
+  $("kCourse").textContent = courseText;
+  $("kDisc").textContent = disc > 0 ? Math.round(disc * 100) + "%" : "—";
 
   $("aUser").textContent = u.username || "OPERATOR";
+  $("aAgent").textContent = u.agentNumber || "—";
   $("aClear").textContent = u.clearance || "CIVILIAN";
   $("aSigma").textContent = sigmaText(u);
   $("aTier").textContent = u.monthlyTier || "—";
-  $("aDisc").textContent = dr > 0 ? Math.round(dr * 100) + "% off Σ packs" : "—";
+  $("aDisc").textContent = disc > 0 ? Math.round(disc * 100) + "%" : "—";
   $("aEmblem").textContent = String(u.emblemRank || 0);
-  $("forgeSigma").textContent = sigmaText(u);
+  $("aCourse").textContent = courseText;
 
-  const devVisible = isDevUser(u);
-  $("devTabBtn").classList.toggle("hidden", !devVisible);
-  if(!devVisible && !$("tab-dev").classList.contains("hidden")) selectTab("account");
+  $("profilePublicName").value = u.publicName || "";
+  $("profileBio").value = u.profileBio || "";
 
-  $("rememberToggle").checked = !!state.remember;
+  $("devTabBtn").classList.toggle("hidden", !isDevUser());
+  $("djUploadBox").classList.toggle("hidden", !isDevUser());
 
-  renderDev();
-}
+  $("courseStatusBox").classList.toggle("ok", !!state.courseAccess);
+  $("courseStatusText").textContent = state.courseAccess
+    ? "Course verified. Public chat and private/company room access unlocked."
+    : "Course locked. Submit a private 9+ page public dossier course file to unlock publishing and chat.";
 
-function renderDev(){
-  if(!$("devRaw")) return;
-
-  $("dJob").textContent = state.lastRaw?.jobId || state.lastRaw?.dossier?.jobId || "—";
-  $("dDossier").textContent = state.lastRaw?.dossierId || state.lastRaw?.dossier?.dossierId || state.lastRaw?.dossier?.id || "—";
-  $("dCost").textContent = state.lastRaw?.runCost != null ? String(state.lastRaw.runCost) : "—";
-  $("dErr").textContent = state.lastRaw?.error || "—";
-  $("devRaw").textContent = state.lastRaw ? JSON.stringify(state.lastRaw,null,2) : "NO RESPONSE CAPTURED.";
-  $("devLog").textContent = state.apiLog.length ? JSON.stringify(state.apiLog,null,2) : "NO API CALLS CAPTURED.";
-}
-
-function showTerminal(defaultTab="account"){
-  $("loginPanel").classList.add("hidden");
-  $("termPanel").classList.remove("hidden");
-  renderUser();
-  selectTab(defaultTab);
+  $("chatGateBox").classList.toggle("ok", !!state.courseAccess);
+  $("chatGateText").textContent = state.courseAccess
+    ? "Course verified. Chat systems unlocked."
+    : "Course verification required to access public, private, and company chat rooms.";
 }
 
 function showLogin(){
-  $("termPanel").classList.add("hidden");
   $("loginPanel").classList.remove("hidden");
-  $("codeInput").value = "";
+  $("termPanel").classList.add("hidden");
 }
 
-function selectTab(name){
-  if(name === "dev" && !isDevUser()) name = "account";
+function showTerminal(tab = "account"){
+  $("loginPanel").classList.add("hidden");
+  $("termPanel").classList.remove("hidden");
+  renderUser();
+  selectTab(tab);
+}
+
+function selectTab(tab){
+  if(tab === "dev" && !isDevUser()) tab = "account";
+
+  state.selectedTab = tab;
 
   document.querySelectorAll(".tabbody").forEach(el => el.classList.add("hidden"));
-  const panel = $("tab-" + name);
+  const panel = $("tab-" + tab);
   if(panel) panel.classList.remove("hidden");
 
-  document.querySelectorAll(".tabs .btn").forEach(b => {
-    b.classList.toggle("amber", b.dataset.tab === name && name !== "dev");
-    b.classList.toggle("cyan", b.dataset.tab === "dev" && name === "dev");
+  document.querySelectorAll(".tabs .btn").forEach(btn=>{
+    const active = btn.dataset.tab === tab;
+    btn.classList.toggle("amber", active && tab !== "dev");
+    btn.classList.toggle("cyan", active && tab === "dev");
   });
 
-  if(name === "vault") loadVault().catch(()=>{});
-  if(name === "queue") renderQueue();
+  try{
+    const url = new URL(location.href);
+    url.searchParams.set("tab", tab);
+    history.replaceState(null,"",url.pathname + "?" + url.searchParams.toString());
+  }catch{}
+
+  if(tab === "vault") loadVault();
+  if(tab === "public") loadPublicDossierState();
+  if(tab === "chats") loadChats();
+  if(tab === "music") loadMusic();
 }
 
-function showCreate(){
-  $("loginBox").classList.add("hidden");
-  $("createBox").classList.remove("hidden");
-  $("loginErr").classList.add("hidden");
+async function verifySession(sessionId, tab = requestedTab()){
+  if(!sessionId) return false;
+
+  const r = await getJson("/api/verify-session?sessionId=" + encodeURIComponent(sessionId));
+
+  if(!r.ok || !r.user){
+    clearSession();
+    return false;
+  }
+
+  state.sessionId = sessionId;
+  state.user = r.user;
+
+  await loadProfileState(false);
+  showTerminal(tab);
+
+  return true;
 }
 
-function showLoginBox(){
-  $("createBox").classList.add("hidden");
-  $("loginBox").classList.remove("hidden");
-  $("loginErr").classList.add("hidden");
+async function loadProfileState(render = true){
+  if(!state.sessionId) return false;
+
+  const r = await postJson("/api/profile", {
+    action:"me",
+    s5SessionId:state.sessionId
+  });
+
+  if(r.ok){
+    state.user = r.user || state.user;
+    state.courseAccess = !!r.courseAccess;
+    state.vault = Array.isArray(r.vault) ? r.vault : state.vault;
+    state.courseDossiers = Array.isArray(r.publicDossiers) ? r.publicDossiers : state.courseDossiers;
+    if(render) renderUser();
+    return true;
+  }
+
+  return false;
 }
 
 async function authenticate(rawCode){
   $("loginErr").classList.add("hidden");
   $("loginErr").textContent = "";
 
-  const r = await postJson("/api/verify-s5-code",{ code:rawCode });
+  const r = await postJson("/api/verify-s5-code", { code:rawCode });
 
   if(!r.ok){
     $("loginErr").textContent = fmtErr(r);
@@ -802,703 +1340,711 @@ async function authenticate(rawCode){
     return false;
   }
 
-  state.authenticated = true;
-  state.s5SessionId = r.sessionId || "";
+  state.sessionId = r.sessionId || "";
   state.user = r.user || null;
+  saveSession(state.sessionId);
 
-  saveSession(state.s5SessionId);
-  $("codeInput").value = "";
-  showTerminal("account");
+  await loadProfileState(false);
+  showTerminal(requestedTab());
+
   return true;
 }
 
-async function createCivilianAccount(){
-  $("loginErr").classList.add("hidden");
-  $("loginErr").textContent = "";
-
-  const email = clean($("newEmail").value,"",254);
-  const username = clean($("newUsername").value || "OPERATOR","OPERATOR",32);
-  const phone = clean($("newPhone").value,"",32);
-
-  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    $("loginErr").textContent = "VALID RECOVERY EMAIL REQUIRED";
-    $("loginErr").classList.remove("hidden");
-    return;
-  }
-
-  $("createBtn").disabled = true;
-  const r = await postJson("/api/create-s5-code",{ email, username, phone });
-  $("createBtn").disabled = false;
-
-  if(!r.ok){
-    $("loginErr").textContent = fmtErr(r);
-    $("loginErr").classList.remove("hidden");
-    return;
-  }
-
-  state.authenticated = true;
-  state.s5SessionId = r.sessionId || "";
-  state.user = {
-    username,
-    clearance:r.clearance || "CIVILIAN",
-    sigma:Number(r.sigma || 0),
-    sigmaDisplay:String(Number(r.sigma || 0)),
-    monthlyTier:"",
-    discountRate:0,
-    emblemRank:0,
-    agentNumber:r.agentNumber || ""
-  };
-
-  saveSession(state.s5SessionId);
-
-  $("issuedCode").textContent = r.code || "";
-  $("issuedBox").classList.remove("hidden");
-  $("createBox").classList.add("hidden");
-  $("loginBox").classList.add("hidden");
+function authBody(extra = {}){
+  return Object.assign({}, extra, { s5SessionId:state.sessionId });
 }
 
-async function verifySession(defaultTab="account"){
-  if(!state.s5SessionId) return false;
-  const r = await getJson("/api/verify-session?sessionId=" + encodeURIComponent(state.s5SessionId));
-
-  if(r.ok && r.user){
-    state.authenticated = true;
-    state.user = r.user;
-    showTerminal(defaultTab || "account");
-    return true;
-  }
-
-  return false;
-}
-
-async function refreshUser(){
-  const ok = await verifySession();
-  if(ok) return;
-
-  clearLocal();
-  state.authenticated = false;
-  state.s5SessionId = "";
-  state.user = null;
-  showLogin();
-}
-
-function authBody(extra){
-  return Object.assign({}, extra || {}, { s5SessionId:state.s5SessionId || undefined });
-}
-
-function setSelectedMode(mode){
-  state.selectedMode = mode;
-  $("fMode").value = mode;
-  $("fModeView").value = mode;
-
-  document.querySelectorAll(".modeCard").forEach(card => {
-    card.classList.toggle("active", card.dataset.mode === mode);
+function buildForgePayload(queueOnly = false){
+  return authBody({
+    mode:state.selectedMode,
+    _runMode:state.selectedMode,
+    queueOnly,
+    iteration:clean($("fIteration").value,80),
+    codename:clean($("fCodename").value,120),
+    theme:clean($("fTheme").value,240),
+    dossierType:clean($("fType").value,80),
+    requestedPages:Math.max(1,Math.min(50,Number($("fPages").value)||1)),
+    pages:Math.max(1,Math.min(50,Number($("fPages").value)||1)),
+    style:clean($("fStyle").value,80),
+    presentation:clean($("fPresentation").value,80),
+    seed:clean($("fSeed").value,6000)
   });
-
-  forgeLog([
-    "MODE SELECTED // " + mode.toUpperCase(),
-    "",
-    modeDescription(mode)
-  ]);
 }
 
-function modeDescription(mode){
-  const map = {
-    hilbert:"Hilbert Run: lore/cosmology dossier mode.",
-    intelligence:"Intelligence Run: clean analytical dossier mode.",
-    research:"Research Run: real-world mechanism and connection exploration.",
-    lore:"Lore Page: compact atmospheric artifact page.",
-    identity:"Identity Forge: brand/character/project matrix.",
-    song_audit:"Song Audit: production and prompt critique lane.",
-    intake:"Intake: rough notes to structured seed material.",
-    refinery:"Density Refinery: strengthen an existing draft.",
-    critique:"Argument / Critique: inspired advocate vs. skeptical challenger.",
-    explain_more:"Explain More / Prove It: pressure-expansion protocol for deeper evidence and mechanism."
-  };
-  return map[mode] || "Custom mode.";
+function validateForgePayload(payload){
+  if(!payload.codename) return "CODENAME REQUIRED";
+  if(!payload.iteration) return "ITERATION REQUIRED";
+  if(!payload.theme) return "FOCUS THEME REQUIRED";
+  if(!payload.seed || payload.seed.length < 3) return "SEED REQUIRED";
+  return "";
 }
 
-function resetSteps(){
-  for(let i=1;i<=8;i++) $("st"+i).className = "pipeStep";
-  $("stepFill").style.width = "0%";
-}
-
-function setStep(n,stateName){
-  const el = $("st"+n);
-  if(!el) return;
-  el.className = "pipeStep " + stateName;
-  $("stepFill").style.width = Math.min(100, Math.round((n/8)*100)) + "%";
-}
-
-function forgeLog(lines){
-  $("forgeLog").textContent = Array.isArray(lines) ? lines.join("\n") : String(lines || "");
-}
-
-function appendForgeLog(line){
-  $("forgeLog").textContent += "\n" + line;
-  $("forgeLog").scrollTop = $("forgeLog").scrollHeight;
-}
-
-function setForgeOutput(text){
-  $("forgeOut").textContent = String(text || "");
-  $("forgeOut").scrollTop = 0;
-}
-
-function addQueueEntry(entry){
-  state.queue.unshift({
-    id: entry.id || ("local_" + Date.now()),
-    at: new Date().toISOString(),
-    mode: entry.mode || state.selectedMode,
-    title: entry.title || "Dossier Run",
-    status: entry.status || "complete",
-    dossierId: entry.dossierId || "",
-    jobId: entry.jobId || ""
+function setSteps(activeIndex = -1, doneUntil = -1){
+  const ids = ["parse","build","expand","refine","compile"];
+  ids.forEach((id,i)=>{
+    const el = $("step-" + id);
+    if(!el) return;
+    el.classList.remove("hot","ok");
+    if(i <= doneUntil) el.classList.add("ok");
+    if(i === activeIndex) el.classList.add("hot");
   });
-  state.queue = state.queue.slice(0,20);
-  renderQueue();
 }
 
-function renderQueue(){
-  const box = $("queueList");
-  if(!box) return;
-
-  if(!state.queue.length){
-    box.innerHTML = `
-      <div class="queueCard">
-        <div class="qtitle">QUEUE STANDING BY</div>
-        <div class="qmeta">Run a dossier to populate this session queue. Civilian baseline: 1 active run. Agent: 3 active sessions. Senior: 5 active sessions.</div>
-      </div>
-    `;
-    return;
-  }
-
-  box.innerHTML = state.queue.map(q => `
-    <div class="queueCard">
-      <div class="qtitle">${escapeHtml(q.title)} <span class="queueBadge">${escapeHtml(q.status)}</span></div>
-      <div class="qmeta">
-        MODE: ${escapeHtml(q.mode)}<br>
-        JOB: ${escapeHtml(q.jobId || "—")}<br>
-        DOSSIER: ${escapeHtml(q.dossierId || "—")}<br>
-        TIME: ${escapeHtml(new Date(q.at).toLocaleString())}
-      </div>
-    </div>
-  `).join("");
-}
-
-async function loadVault(){
-  if(!state.s5SessionId){
-    $("vaultOut").textContent = "SESSION REQUIRED.";
-    showLogin();
-    return;
-  }
-
-  $("vaultOut").textContent = "LOADING VAULT...";
-  $("vaultList").innerHTML = "";
-
-  const r = await postJson("/api/vault", authBody({ limit:25, offset:0 }));
-  state.lastRaw = r;
-  renderDev();
-
-  if(!r.ok){
-    $("vaultOut").textContent = "VAULT ERROR:\n\n" + fmtErr(r) + "\n\nRAW:\n" + JSON.stringify(r,null,2);
-    return;
-  }
-
-  const items = Array.isArray(r.items) ? r.items : [];
-  $("vaultOut").textContent =
-    "VAULT LOADED\n\nDOSSIERS: " + items.length +
-    "\nNEXT OFFSET: " + (r.nextOffset ?? "—");
-
-  if(!items.length){
-    $("vaultList").innerHTML = `<pre>NO DOSSIERS SAVED YET.</pre>`;
-    return;
-  }
-
-  $("vaultList").innerHTML = items.map(d => `
-    <div class="vaultCard">
-      <div class="title">${escapeHtml(d.title || "Untitled Dossier")}</div>
-      <div class="meta">
-        ID: ${escapeHtml(d.dossierId)}<br>
-        MODE: ${escapeHtml(d.mode || "—")} · PAGES: ${escapeHtml(d.pages || "—")} · VISIBILITY: ${escapeHtml(d.visibility || "private")}<br>
-        CREATED: ${d.createdAt ? new Date(Number(d.createdAt)).toLocaleString() : "—"}
-      </div>
-      <pre style="max-height:120px">${escapeHtml(d.preview || "")}</pre>
-      <button class="btn amber" data-open-dossier="${escapeHtml(d.dossierId)}">OPEN</button>
-      <button class="btn" data-download-dossier="${escapeHtml(d.dossierId)}">DOWNLOAD TXT</button>
-      <button class="btn" data-toggle-public="${escapeHtml(d.dossierId)}" data-current-vis="${escapeHtml(d.visibility || "private")}">
-        ${d.visibility === "public" ? "RETURN TO PRIVATE" : "PUBLISH"}
-      </button>
-    </div>
-  `).join("");
-
-  document.querySelectorAll("[data-open-dossier]").forEach(b => b.onclick = () => openDossier(b.dataset.openDossier));
-  document.querySelectorAll("[data-download-dossier]").forEach(b => b.onclick = () => downloadDossier(b.dataset.downloadDossier));
-  document.querySelectorAll("[data-toggle-public]").forEach(b => b.onclick = () => toggleDossierVisibility(b.dataset.togglePublic, b.dataset.currentVis));
-}
-
-async function openDossier(dossierId){
-  $("vaultOut").textContent = "OPENING DOSSIER...";
-  const r = await postJson("/api/dossier", authBody({ dossierId, action:"get" }));
-  state.lastRaw = r;
-  renderDev();
-
-  if(!r.ok){
-    $("vaultOut").textContent = "DOSSIER ERROR:\n\n" + fmtErr(r);
-    return;
-  }
-
-  const d = r.dossier || {};
-  $("vaultOut").textContent =
-    "DOSSIER OPEN\n\n" +
-    "TITLE: " + (d.title || "Untitled") + "\n" +
-    "ID: " + (d.dossierId || dossierId) + "\n" +
-    "VISIBILITY: " + (d.visibility || "private") + "\n\n" +
-    String(d.output || "");
-}
-
-async function downloadDossier(dossierId){
-  const r = await postJson("/api/dossier", authBody({ dossierId, action:"get" }));
-  state.lastRaw = r;
-  renderDev();
-
-  if(!r.ok){
-    $("vaultOut").textContent = "DOWNLOAD ERROR:\n\n" + fmtErr(r);
-    return;
-  }
-
-  const d = r.dossier || {};
-  const title = String(d.title || dossierId || "dossier").replace(/[^\w\-]+/g,"_").slice(0,80);
-  const text =
-    "TITLE: " + (d.title || "Untitled") + "\n" +
-    "DOSSIER ID: " + (d.dossierId || dossierId) + "\n" +
-    "VISIBILITY: " + (d.visibility || "private") + "\n" +
-    "MODE: " + (d.mode || "") + "\n" +
-    "PAGES: " + (d.pages || "") + "\n\n" +
-    String(d.output || "");
-
-  const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = title + ".txt";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-
-  $("vaultOut").textContent = "DOSSIER DOWNLOAD STARTED:\n" + title + ".txt";
-}
-
-async function toggleDossierVisibility(dossierId, currentVis){
-  const next = currentVis === "public" ? "private" : "public";
-
-  if(next === "public"){
-    const ok = confirm("Publish this dossier to the public channel?\n\nOnly publish finished, clean dossiers.");
-    if(!ok) return;
-  }
-
-  const r = await postJson("/api/dossier", authBody({
-    dossierId,
-    action:"update_visibility",
-    visibility:next
-  }));
-
-  state.lastRaw = r;
-  renderDev();
-
-  if(!r.ok){
-    $("vaultOut").textContent = "VISIBILITY ERROR:\n\n" + fmtErr(r);
-    return;
-  }
-
-  $("vaultOut").textContent = "VISIBILITY UPDATED: " + next.toUpperCase();
-  await loadVault();
-}
-
-function extractForgeBody(r){
+function extractForgeOutput(r){
   return typeof r?.data?.output === "string" ? r.data.output :
-    typeof r?.data === "string" ? r.data :
     typeof r?.output === "string" ? r.output :
     typeof r?.dossier?.output === "string" ? r.dossier.output :
+    typeof r?.data === "string" ? r.data :
     JSON.stringify(r,null,2);
 }
 
-function extractDossierId(r){
-  return r?.dossierId || r?.dossier?.dossierId || r?.dossier?.id || "";
+function renderForgeResult(r){
+  state.lastForge = r;
+
+  const out = extractForgeOutput(r);
+  const meta = [
+    "FORGE COMPLETE",
+    "MODE: " + state.selectedMode,
+    "CODENAME: " + clean($("fCodename").value,120),
+    "ITERATION: " + clean($("fIteration").value,80),
+    "THEME: " + clean($("fTheme").value,240),
+    "TYPE: " + clean($("fType").value,80),
+    "PAGES: " + String(Math.max(1,Math.min(50,Number($("fPages").value)||1))),
+    ""
+  ].join("\n");
+
+  $("forgeOutput").textContent = meta + out;
+  $("forgeOutput").classList.remove("hidden");
+  $("forgeStatus").textContent = "FORGE COMPLETE // OUTPUT SEALED";
+  $("forgeStatus").classList.remove("hidden","red");
+  $("forgeStatus").classList.add("amber");
+
+  loadProfileState(true);
 }
 
-function updateSigmaFromForge(r){
-  if(!state.user) state.user = {};
+async function runForge(queueOnly = false){
+  const payload = buildForgePayload(queueOnly);
+  const bad = validateForgePayload(payload);
 
-  if(r?.sigmaDisplay === "INFINITY" || r?.sigma === null || isDevUser()){
-    state.user = Object.assign({}, state.user, { sigma:null, sigmaDisplay:"INFINITY", isDev:true });
-    renderUser();
+  $("forgeStatus").classList.remove("hidden","red","amber","dev");
+  $("forgeOutput").classList.add("hidden");
+
+  if(bad){
+    $("forgeStatus").textContent = bad;
+    $("forgeStatus").classList.add("red");
     return;
   }
 
-  if(r?.sigma != null){
-    state.user = Object.assign({}, state.user, { sigma:Number(r.sigma), sigmaDisplay:String(Number(r.sigma)) });
-    renderUser();
+  $("scanLine").classList.remove("hidden");
+  $("forgeStatus").textContent = queueOnly ? "QUEUE JOB REQUESTED..." : "FORGE RUNNING...";
+  $("forgeStatus").classList.add("amber");
+  setSteps(0,-1);
+
+  try{
+    await new Promise(r=>setTimeout(r,120));
+    setSteps(1,0);
+    await new Promise(r=>setTimeout(r,120));
+    setSteps(2,1);
+    await new Promise(r=>setTimeout(r,120));
+    setSteps(3,2);
+    await new Promise(r=>setTimeout(r,120));
+    setSteps(4,3);
+
+    const r = await postJson("/api/forge", payload);
+
+    if(!r.ok){
+      $("forgeStatus").textContent = "FORGE ERROR // " + fmtErr(r);
+      $("forgeStatus").classList.add("red");
+      $("forgeOutput").textContent = JSON.stringify(r,null,2);
+      $("forgeOutput").classList.remove("hidden");
+      setSteps(-1,-1);
+      return;
+    }
+
+    setSteps(-1,4);
+    renderForgeResult(r);
+  }catch(err){
+    $("forgeStatus").textContent = "FRONTEND ERROR // " + (err?.message || String(err));
+    $("forgeStatus").classList.add("red");
+  }finally{
+    $("scanLine").classList.add("hidden");
+  }
+}
+      <script>
+/* continuation intentionally not opened twice when appending:
+   If your Part 6 already ends inside <script>, paste only the code below,
+   then keep the closing </script></body></html> at the bottom.
+*/
+</script>
+<script>
+function renderDev(){
+  const box = $("devOutput");
+  if(!box) return;
+  box.textContent = JSON.stringify({
+    sessionPresent: !!state.sessionId,
+    selectedTab: state.selectedTab,
+    selectedMode: state.selectedMode,
+    user: state.user,
+    courseAccess: state.courseAccess,
+    lastForge: state.lastForge,
+    apiLog: state.apiLog
+  }, null, 2);
+}
+
+function renderVault(){
+  const wrap = $("vaultList");
+  if(!wrap) return;
+
+  if(!state.vault.length){
+    wrap.innerHTML = `<div class="item"><div class="meta">No private vault dossiers found.</div></div>`;
     return;
   }
 
-  refreshUser();
+  wrap.innerHTML = state.vault.map(d => `
+    <div class="item">
+      <div class="title">${escapeHtml(d.title || "Untitled Dossier")}</div>
+      <div class="meta">
+        ID: ${escapeHtml(d.id)}<br>
+        MODE: ${escapeHtml(d.mode || "—")} · PAGES: ${escapeHtml(d.pages || "—")} · VISIBILITY: ${escapeHtml(d.visibility || "private")}
+      </div>
+      <div class="actions">
+        <button class="btn smallbtn amber" data-vault-download="${escapeHtml(d.id)}">Download</button>
+        <button class="btn smallbtn" data-vault-publish="${escapeHtml(d.id)}">Publish</button>
+        <button class="btn smallbtn" data-vault-unpublish="${escapeHtml(d.id)}">Unpublish</button>
+        <button class="btn smallbtn danger" data-vault-delete="${escapeHtml(d.id)}">Delete</button>
+      </div>
+    </div>
+  `).join("");
+
+  wrap.querySelectorAll("[data-vault-download]").forEach(b => b.onclick = () => downloadVaultDossier(b.dataset.vaultDownload));
+  wrap.querySelectorAll("[data-vault-publish]").forEach(b => b.onclick = () => setVaultVisibility(b.dataset.vaultPublish, "public"));
+  wrap.querySelectorAll("[data-vault-unpublish]").forEach(b => b.onclick = () => setVaultVisibility(b.dataset.vaultUnpublish, "private"));
+  wrap.querySelectorAll("[data-vault-delete]").forEach(b => b.onclick = () => deleteVaultDossier(b.dataset.vaultDelete));
 }
 
-function renderForgeSuccess(r){
-  const body = extractForgeBody(r);
-  const dossierId = extractDossierId(r);
+async function loadVault(){
+  if(!state.sessionId) return;
+  const r = await postJson("/api/dossier", authBody({ action:"list" }));
 
-  const header = [
-    "FORGE AUTHORIZED // OUTPUT RECEIVED",
-    "PATH: " + (r.path || "s5"),
-    r.jobId ? "JOB ID: " + r.jobId : "",
-    dossierId ? "DOSSIER ID: " + dossierId : "",
-    r.runCost != null ? "RUN COST: " + r.runCost + "Σ" : "",
-    (r.sigmaDisplay === "INFINITY" || r.sigma === null || isDevUser()) ? "Σ AFTER: ∞" : (r.sigma != null ? "Σ AFTER: " + r.sigma : "")
-  ].filter(Boolean).join("\n");
+  if(r.ok){
+    state.vault = Array.isArray(r.items) ? r.items : [];
+    renderVault();
+    return;
+  }
 
-  forgeLog([
-    "S5 RUN COMPLETE.",
-    "MODEL RESPONSE RECEIVED.",
-    "DOSSIER MATERIALIZED.",
-    dossierId ? "VAULT RECORD: " + dossierId : "VAULT RECORD: pending",
-    "",
-    "OUTPUT SEALED."
-  ]);
+  $("vaultList").innerHTML = `<div class="item red"><div class="meta">${escapeHtml(fmtErr(r))}</div></div>`;
+}
 
-  setForgeOutput(header + "\n\n" + body);
+async function downloadVaultDossier(id){
+  const r = await postJson("/api/dossier", authBody({ action:"download", id }));
+  if(!r.ok){ alert("DOWNLOAD FAILED:\n" + fmtErr(r)); return; }
 
-  setStep(6,"done");
-  setStep(7,"active");
+  const blob = new Blob([r.output || ""], { type:"text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = r.filename || `${id}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
-  addQueueEntry({
-    title: "Forge Run // " + state.selectedMode,
-    status: "complete",
-    mode: state.selectedMode,
-    dossierId,
-    jobId: r.jobId || ""
+async function setVaultVisibility(id, visibility){
+  const r = await postJson("/api/dossier", authBody({ action:"visibility", id, visibility }));
+  if(!r.ok){ alert("VISIBILITY FAILED:\n" + fmtErr(r)); return; }
+  await loadVault();
+}
+
+async function deleteVaultDossier(id){
+  if(!confirm("Delete this private vault dossier?")) return;
+  const r = await postJson("/api/dossier", authBody({ action:"delete", id }));
+  if(!r.ok){ alert("DELETE FAILED:\n" + fmtErr(r)); return; }
+  await loadVault();
+}
+
+function renderCourseDossiers(){
+  const wrap = $("courseList");
+  if(!wrap) return;
+
+  if(!state.courseDossiers.length){
+    wrap.innerHTML = `<div class="item"><div class="meta">No course dossier submissions yet.</div></div>`;
+    return;
+  }
+
+  wrap.innerHTML = state.courseDossiers.map(d => `
+    <div class="item">
+      <div class="title">${escapeHtml(d.title || "Untitled Course Dossier")}</div>
+      <div class="meta">
+        THEME: ${escapeHtml(d.theme || "—")}<br>
+        PAGES: ${escapeHtml(d.pages || "—")} · VERIFIED: ${d.verified ? "YES" : "NO"} · VISIBILITY: ${escapeHtml(d.visibility || "private")}
+      </div>
+      <div class="actions">
+        <button class="btn smallbtn amber" data-course-download="${escapeHtml(d.id)}">Download</button>
+        <button class="btn smallbtn" data-course-publish="${escapeHtml(d.id)}">Publish</button>
+        <button class="btn smallbtn" data-course-unpublish="${escapeHtml(d.id)}">Unpublish</button>
+        <button class="btn smallbtn danger" data-course-delete="${escapeHtml(d.id)}">Delete</button>
+      </div>
+    </div>
+  `).join("");
+
+  wrap.querySelectorAll("[data-course-download]").forEach(b => b.onclick = () => downloadCourseDossier(b.dataset.courseDownload));
+  wrap.querySelectorAll("[data-course-publish]").forEach(b => b.onclick = () => publishCourseDossierUI(b.dataset.coursePublish));
+  wrap.querySelectorAll("[data-course-unpublish]").forEach(b => b.onclick = () => unpublishCourseDossierUI(b.dataset.courseUnpublish));
+  wrap.querySelectorAll("[data-course-delete]").forEach(b => b.onclick = () => deleteCourseDossierUI(b.dataset.courseDelete));
+}
+
+function renderPublicDossiers(){
+  const wrap = $("publicList");
+  if(!wrap) return;
+
+  if(!state.publicDossiers.length){
+    wrap.innerHTML = `<div class="item"><div class="meta">No published public dossiers found.</div></div>`;
+    return;
+  }
+
+  wrap.innerHTML = state.publicDossiers.map(d => `
+    <div class="item">
+      <div class="title">${escapeHtml(d.title || "Published Dossier")}</div>
+      <div class="meta">
+        THEME: ${escapeHtml(d.theme || "—")}<br>
+        PAGES: ${escapeHtml(d.pages || "—")} · AGENT: ${escapeHtml(d.owner?.agentNumber || "—")}
+      </div>
+      <div class="actions">
+        <button class="btn smallbtn amber" data-public-download="${escapeHtml(d.id)}">Download</button>
+      </div>
+    </div>
+  `).join("");
+
+  wrap.querySelectorAll("[data-public-download]").forEach(b => b.onclick = () => downloadCourseDossier(b.dataset.publicDownload));
+}
+
+async function loadPublicDossierState(){
+  if(!state.sessionId) return;
+
+  const privateR = await postJson("/api/public-dossiers", authBody({ action:"list_private" }));
+  if(privateR.ok){
+    state.courseDossiers = Array.isArray(privateR.items) ? privateR.items : [];
+    state.courseAccess = !!privateR.courseAccess;
+    renderUser();
+    renderCourseDossiers();
+  } else {
+    $("courseList").innerHTML = `<div class="item"><div class="meta">${escapeHtml(fmtErr(privateR))}</div></div>`;
+  }
+
+  const publicR = await postJson("/api/public-dossiers", authBody({ action:"list_public" }));
+  if(publicR.ok){
+    state.publicDossiers = Array.isArray(publicR.items) ? publicR.items : [];
+    renderPublicDossiers();
+  } else {
+    $("publicList").innerHTML = `<div class="item"><div class="meta">${escapeHtml(fmtErr(publicR))}</div></div>`;
+  }
+}
+
+async function ingestPublicDossier(){
+  const payload = authBody({
+    action:"ingest",
+    title:clean($("pubTitle").value,160),
+    theme:clean($("pubTheme").value,120),
+    seed:clean($("pubSeed").value,1000),
+    output:String($("pubOutput").value || "")
   });
 
-  setTimeout(() => {
-    loadVault()
-      .then(()=>{ setStep(7,"done"); setStep(8,"done"); })
-      .catch(()=>{ setStep(7,"fail"); });
-  }, 500);
+  const r = await postJson("/api/public-dossiers", payload);
+  if(!r.ok){ alert("INGEST FAILED:\n" + fmtErr(r)); return; }
+
+  $("pubOutput").value = "";
+  $("pubSeed").value = "";
+  await loadPublicDossierState();
+  await loadProfileState(true);
+  selectTab("public");
 }
 
-document.querySelectorAll(".tabs .btn").forEach(b => {
-  b.onclick = () => selectTab(b.dataset.tab);
-});
+async function downloadCourseDossier(id){
+  const r = await postJson("/api/public-dossiers", authBody({ action:"download", id }));
+  if(!r.ok){ alert("DOWNLOAD FAILED:\n" + fmtErr(r)); return; }
 
-document.querySelectorAll(".modeCard").forEach(card => {
-  card.onclick = () => setSelectedMode(card.dataset.mode);
-});
+  const blob = new Blob([r.output || ""], { type:"text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = r.filename || `${id}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
-$("showCreateBtn").onclick = showCreate;
-$("showLoginBtn").onclick = showLoginBox;
-$("createBtn").onclick = createCivilianAccount;
+async function publishCourseDossierUI(id){
+  const r = await postJson("/api/public-dossiers", authBody({ action:"publish", id }));
+  if(!r.ok){ alert("PUBLISH FAILED:\n" + fmtErr(r)); return; }
+  await loadPublicDossierState();
+  await loadProfileState(true);
+}
 
-$("copyIssuedBtn").onclick = async () => {
-  try {
-    await navigator.clipboard.writeText($("issuedCode").textContent);
-    $("copyIssuedBtn").textContent = "COPIED ✓";
-  } catch {
-    $("copyIssuedBtn").textContent = "COPY FAILED";
+async function unpublishCourseDossierUI(id){
+  const r = await postJson("/api/public-dossiers", authBody({ action:"unpublish", id }));
+  if(!r.ok){ alert("UNPUBLISH FAILED:\n" + fmtErr(r)); return; }
+  await loadPublicDossierState();
+}
+
+async function deleteCourseDossierUI(id){
+  if(!confirm("Delete this public-course dossier submission?")) return;
+  const r = await postJson("/api/public-dossiers", authBody({ action:"delete", id }));
+  if(!r.ok){ alert("DELETE FAILED:\n" + fmtErr(r)); return; }
+  await loadPublicDossierState();
+  await loadProfileState(true);
+}
+
+function renderChats(){
+  const wrap = $("chatRooms");
+  if(!wrap) return;
+
+  if(!state.courseAccess){
+    wrap.innerHTML = `<div class="item"><div class="meta">Course verification required.</div></div>`;
+    return;
   }
-};
 
-$("enterIssuedBtn").onclick = () => showTerminal("account");
-
-$("rememberToggle").onchange = () => {
-  state.remember = $("rememberToggle").checked;
-  try { localStorage.setItem(LS_REMEMBER, state.remember ? "1" : "0"); } catch {}
-  if(state.remember) saveSession(state.s5SessionId);
-  else { try { localStorage.removeItem(LS_SESSION); } catch {} }
-};
-
-$("enterForgeBtn").onclick = () => selectTab("forge");
-$("queueBtn").onclick = () => selectTab("queue");
-$("vaultBtn").onclick = () => { selectTab("vault"); loadVault(); };
-$("loadVaultBtn").onclick = () => loadVault();
-$("vaultRefreshBtn").onclick = () => loadVault();
-$("buySigmaBtn").onclick = () => selectTab("charge");
-$("upgradeBtn").onclick = () => selectTab("upgrade");
-$("quickSigmaBtn").onclick = () => selectTab("charge");
-
-$("clearOut").onclick = () => {
-  setForgeOutput("NO DOSSIER DEPLOYED.");
-  forgeLog("FORGE READY.\nAwaiting seed lock and operator command.");
-  resetSteps();
-};
-
-$("runBtn").onclick = async () => {
-  if(running) return;
-
-  running = true;
-  resetSteps();
-  $("runBtn").disabled = true;
-  $("forgeScan").classList.remove("hidden");
-
-  try{
-    const mode = clean($("fMode").value || state.selectedMode || "hilbert","hilbert",64);
-    const pages = Math.max(1,Math.min(25,Number($("fPages").value)||1));
-    const seed = clean($("fSeed").value,"",3000);
-    const queueIntent = "run_now";
-
-    setStep(1,"active");
-    forgeLog([
-      "S5 RUN REQUEST RECEIVED.",
-      "",
-      "01 SESSION AUTHENTICATION",
-      "Checking session token...",
-      "",
-      "Run mode: immediate server-side forge"    ]);
-    setForgeOutput("DOSSIER MATERIALIZATION PENDING...\n\nSession check in progress.");
-
-    if(!state.s5SessionId){
-      setStep(1,"fail");
-      forgeLog(["SESSION REQUIRED.","Authenticate again to run the forge."]);
-      setForgeOutput("SESSION REQUIRED.\n\nAuthenticate again to run the forge.");
-      showLogin();
-      return;
-    }
-
-    setStep(1,"done");
-    setStep(2,"active");
-    forgeLog([
-      "SESSION AUTHORIZED.",
-      "",
-      "02 SEED LOCK",
-      "Reading operator seed..."
-    ]);
-
-    if(!seed || seed.length < 3){
-      setStep(2,"fail");
-      forgeLog(["SEED LOCK FAILED.","Seed required."]);
-      setForgeOutput("SEED REQUIRED.");
-      return;
-    }
-
-    setStep(2,"done");
-    setStep(3,"active");
-    forgeLog([
-      "SESSION AUTHORIZED.",
-      "SEED LOCKED: " + seed.length + " CHARS",
-      "",
-      "03 MODE MAP",
-      "Mode selected: " + mode,
-      "Pages requested: " + pages,
-      "",
-      modeDescription(mode)
-    ]);
-
-    await new Promise(r => setTimeout(r, 160));
-
-    setStep(3,"done");
-    setStep(4,"active");
-    forgeLog([
-      "MODE MAP CONFIRMED.",
-      "",
-      "04 SIGMA CHECK",
-      "Server will verify balance and debit atomically."
-    ]);
-
-    await new Promise(r => setTimeout(r, 160));
-
-    setStep(4,"done");
-    setStep(5,"active");
-    forgeLog([
-      "SIGMA CHECK DISPATCHED.",
-      "",
-      "05 MODEL DISPATCH",
-      "Sending request to backend generation layer...",
-      "Do not close this page. Output will return here when complete."
-    ]);
-
-    setForgeOutput(
-      "RUNNING DOSSIER PIPELINE...\n\n" +
-      "MODE: " + mode + "\n" +
-      "PAGES: " + pages + "\n" +
-      "SEED CHARS: " + seed.length + "\n\n" +
-      "SERVER DISPATCH ACTIVE."
-    );
-
-    const r = await postJson("/api/forge", authBody({ mode,pages,seed }));
-    state.lastRaw = r;
-    renderDev();
-
-    if(r.ok){
-      setStep(5,"done");
-      setStep(6,"active");
-      forgeLog([
-        "MODEL RESPONSE RECEIVED.",
-        "",
-        "06 PAGE DEPLOY",
-        "Materializing dossier output..."
-      ]);
-
-      await new Promise(x => setTimeout(x, 250));
-
-      renderForgeSuccess(r);
-      updateSigmaFromForge(r);
-      return;
-    }
-
-    if(r.error === "insufficient_sigma"){
-      setStep(4,"fail");
-      forgeLog(["INSUFFICIENT SIGMA.","Redirecting to Sigma charge panel."]);
-      setForgeOutput("INSUFFICIENT Σ.\n\nAdd Σ via BUY SIGMA.");
-      selectTab("charge");
-      return;
-    }
-
-    setStep(5,"fail");
-    forgeLog(["FORGE ERROR.", fmtErr(r)]);
-    setForgeOutput("FORGE ERROR:\n\n" + fmtErr(r) + "\n\nRAW:\n" + JSON.stringify(r,null,2));
-  }catch(err){
-    setStep(5,"fail");
-    const errorPayload = { ok:false, error:"frontend_render_error", detail:err?.message || String(err) };
-    state.lastRaw = errorPayload;
-    renderDev();
-    forgeLog(["FORGE FRONTEND ERROR.", fmtErr(errorPayload)]);
-    setForgeOutput("FORGE FRONTEND ERROR:\n\n" + fmtErr(errorPayload));
-  }finally{
-    $("runBtn").disabled = false;
-    running = false;
-    $("forgeScan").classList.add("hidden");
+  if(!state.chats.length){
+    wrap.innerHTML = `<div class="item"><div class="meta">No chat rooms found.</div></div>`;
+    return;
   }
-};
 
-document.querySelectorAll("[data-pack]").forEach(b => {
-  b.onclick = async () => {
-    b.disabled = true;
-    const r = await postJson("/api/create-checkout-session",authBody({ productType:"sigma_pack", pack:b.dataset.pack }));
-    b.disabled = false;
+  wrap.innerHTML = state.chats.map(room => `
+    <div class="item">
+      <div class="title">${escapeHtml(room.title || "Room")}</div>
+      <div class="meta">TYPE: ${escapeHtml(room.kind || "public")} · ID: ${escapeHtml(room.id)}</div>
+      <div class="actions">
+        <button class="btn smallbtn cyan" data-open-room="${escapeHtml(room.id)}">Open</button>
+      </div>
+    </div>
+  `).join("");
 
-    if(r.ok && r.url){
-      location.href = r.url;
+  wrap.querySelectorAll("[data-open-room]").forEach(b => b.onclick = () => openChatRoom(b.dataset.openRoom));
+}
+
+async function loadChats(){
+  if(!state.sessionId) return;
+  const r = await postJson("/api/chats", authBody({ action:"list_rooms" }));
+
+  if(r.ok){
+    state.chats = Array.isArray(r.rooms) ? r.rooms : [];
+    renderChats();
+    return;
+  }
+
+  $("chatRooms").innerHTML = `<div class="item"><div class="meta">${escapeHtml(fmtErr(r))}</div></div>`;
+}
+
+async function createChatRoom(){
+  const r = await postJson("/api/chats", authBody({
+    action:"create_room",
+    title:clean($("chatTitle").value,120),
+    kind:clean($("chatType").value,40)
+  }));
+
+  if(!r.ok){ alert("CREATE ROOM FAILED:\n" + fmtErr(r)); return; }
+  $("chatTitle").value = "";
+  await loadChats();
+}
+
+async function openChatRoom(id){
+  state.activeRoomId = id;
+  const room = state.chats.find(r => r.id === id);
+  $("chatRoomTitle").textContent = room?.title || "Room";
+  $("chatRoomBox").classList.remove("hidden");
+
+  const r = await postJson("/api/chats", authBody({ action:"list_messages", roomId:id }));
+  if(!r.ok){
+    $("chatMessages").textContent = fmtErr(r);
+    return;
+  }
+
+  const msgs = Array.isArray(r.messages) ? r.messages : [];
+  $("chatMessages").textContent = msgs.map(m => `[${m.username || m.agentNumber || "AGENT"}] ${m.body}`).join("\n") || "No messages.";
+}
+
+async function sendChatMessage(){
+  if(!state.activeRoomId) return;
+
+  const body = clean($("chatInput").value,2000);
+  if(!body) return;
+
+  const r = await postJson("/api/chats", authBody({
+    action:"post_message",
+    roomId:state.activeRoomId,
+    body
+  }));
+
+  if(!r.ok){ alert("SEND FAILED:\n" + fmtErr(r)); return; }
+  $("chatInput").value = "";
+  await openChatRoom(state.activeRoomId);
+}
+
+function renderMusic(){
+  const wrap = $("musicList");
+  if(!wrap) return;
+
+  if(!state.music.length){
+    wrap.innerHTML = `<div class="item"><div class="meta">No tracks loaded.</div></div>`;
+    return;
+  }
+
+  wrap.innerHTML = state.music.map(t => `
+    <div class="item">
+      <div class="title">${escapeHtml(t.title || "Untitled Track")}</div>
+      <div class="meta">
+        ARTIST: ${escapeHtml(t.artist || "Hilbert Mesh")}<br>
+        TIER: ${escapeHtml(t.tier || "free")} · PRICE: ${Number(t.priceCents || 0) ? "$" + (Number(t.priceCents)/100).toFixed(2) : "FREE"}
+      </div>
+      <div class="actions">
+        <button class="btn smallbtn amber" data-add-track="${escapeHtml(t.id)}">Add Queue</button>
+        ${isDevUser() ? `<button class="btn smallbtn danger" data-del-track="${escapeHtml(t.id)}">Delete</button>` : ""}
+      </div>
+    </div>
+  `).join("");
+
+  wrap.querySelectorAll("[data-add-track]").forEach(b => b.onclick = () => addTrackToQueue(b.dataset.addTrack));
+  wrap.querySelectorAll("[data-del-track]").forEach(b => b.onclick = () => deleteTrack(b.dataset.delTrack));
+}
+
+function renderMusicQueue(){
+  const wrap = $("musicQueue");
+  if(!wrap) return;
+
+  if(!state.musicQueue.length){
+    wrap.innerHTML = `<div class="item"><div class="meta">Queue empty.</div></div>`;
+    return;
+  }
+
+  wrap.innerHTML = state.musicQueue.map((t,i) => `
+    <div class="item">
+      <div class="title">${i+1}. ${escapeHtml(t.title)}</div>
+      <div class="meta">${escapeHtml(t.artist || "Hilbert Mesh")}</div>
+      ${t.url ? `<audio controls src="${escapeHtml(t.url)}" style="width:100%;margin-top:8px;"></audio>` : ""}
+    </div>
+  `).join("");
+}
+
+async function loadMusic(){
+  const r = await postJson("/api/music", authBody({ action:"list" }));
+
+  if(r.ok){
+    state.music = Array.isArray(r.tracks) ? r.tracks : [];
+    renderMusic();
+    renderMusicQueue();
+    return;
+  }
+
+  $("musicList").innerHTML = `<div class="item"><div class="meta">${escapeHtml(fmtErr(r))}</div></div>`;
+}
+
+function addTrackToQueue(id){
+  const limit = isDevUser() ? 100 : String(state.user?.monthlyTier || "").includes("SENIOR") ? 30 : String(state.user?.monthlyTier || "").includes("AGENT") ? 20 : 10;
+  if(state.musicQueue.length >= limit){
+    alert("Queue limit reached for this tier.");
+    return;
+  }
+
+  const t = state.music.find(x => x.id === id);
+  if(!t) return;
+
+  state.musicQueue.push(t);
+  renderMusicQueue();
+}
+
+async function deleteTrack(id){
+  if(!confirm("Delete this track from library?")) return;
+  const r = await postJson("/api/music", authBody({ action:"delete", id }));
+  if(!r.ok){ alert("DELETE TRACK FAILED:\n" + fmtErr(r)); return; }
+  await loadMusic();
+}
+
+async function uploadTrack(){
+  const r = await postJson("/api/music", authBody({
+    action:"save",
+    title:clean($("djTitle").value,160),
+    artist:clean($("djArtist").value,120),
+    url:clean($("djUrl").value,1000),
+    priceCents:Math.max(0,Number($("djPrice").value)||0)
+  }));
+
+  if(!r.ok){ alert("UPLOAD FAILED:\n" + fmtErr(r)); return; }
+
+  $("djTitle").value = "";
+  $("djArtist").value = "";
+  $("djUrl").value = "";
+  $("djPrice").value = "0";
+  await loadMusic();
+}
+
+async function saveProfile(){
+  const r = await postJson("/api/profile", authBody({
+    action:"update",
+    publicName:clean($("profilePublicName").value,48),
+    profileBio:clean($("profileBio").value,500)
+  }));
+
+  if(!r.ok){
+    $("profileMsg").textContent = fmtErr(r);
+    $("profileMsg").classList.remove("hidden");
+    return;
+  }
+
+  state.user = r.user || state.user;
+  renderUser();
+  $("profileMsg").textContent = "PROFILE SAVED.";
+  $("profileMsg").classList.remove("hidden");
+}
+
+async function checkoutSigma(amount){
+  const r = await postJson("/api/create-checkout-session", authBody({
+    productType:"sigma_pack",
+    sigma:Number(amount)
+  }));
+
+  if(r.ok && r.url){ location.href = r.url; return; }
+  alert("CHECKOUT FAILED:\n" + fmtErr(r));
+}
+
+async function checkoutTier(tier){
+  const productType = tier === "SENIOR_AGENT" ? "membership_senior_agent" : "membership_agent";
+  const r = await postJson("/api/create-checkout-session", authBody({ productType, tier }));
+
+  if(r.ok && r.url){ location.href = r.url; return; }
+  alert("CHECKOUT FAILED:\n" + fmtErr(r));
+}
+
+function bindEvents(){
+  document.querySelectorAll(".tabs .btn").forEach(btn => {
+    btn.onclick = () => selectTab(btn.dataset.tab);
+  });
+
+  document.querySelectorAll("[data-jump]").forEach(card => {
+    card.onclick = () => selectTab(card.dataset.jump);
+  });
+
+  document.querySelectorAll("#modeGrid .modecard").forEach(card => {
+    card.onclick = () => {
+      document.querySelectorAll("#modeGrid .modecard").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      state.selectedMode = card.dataset.mode || "hilbert";
+    };
+  });
+
+  $("loginBtn").onclick = async () => {
+    const raw = clean($("codeInput").value,160);
+    if(!raw){
+      $("loginErr").textContent = "ENTER OPERATOR CODE.";
+      $("loginErr").classList.remove("hidden");
       return;
     }
-
-    alert("CHECKOUT FAILED:\n" + fmtErr(r));
+    $("loginBtn").disabled = true;
+    await authenticate(raw);
+    $("loginBtn").disabled = false;
   };
-});
 
-$("upAgent").onclick = async () => {
-  $("upAgent").disabled = true;
-  const r = await postJson("/api/create-checkout-session",authBody({ productType:"membership_agent" }));
-  $("upAgent").disabled = false;
+  $("codeInput").addEventListener("keydown", e => {
+    if(e.key === "Enter") $("loginBtn").click();
+  });
 
-  if(r.ok && r.url){
-    location.href = r.url;
-    return;
-  }
+  $("createCivilianBtn").onclick = async () => {
+    $("createErr").classList.add("hidden");
+    const r = await postJson("/api/create-s5-code", {
+      email:clean($("newEmail").value,254),
+      username:clean($("newUsername").value,32),
+      phone:clean($("newPhone").value,32)
+    });
 
-  alert("CHECKOUT FAILED:\n" + fmtErr(r));
-};
-
-$("upSenior").onclick = async () => {
-  $("upSenior").disabled = true;
-  const r = await postJson("/api/create-checkout-session",authBody({ productType:"membership_senior_agent" }));
-  $("upSenior").disabled = false;
-
-  if(r.ok && r.url){
-    location.href = r.url;
-    return;
-  }
-
-  alert("CHECKOUT FAILED:\n" + fmtErr(r));
-};
-
-$("logoutBtn").onclick = async () => {
-  const sessionId = state.s5SessionId;
-
-  try {
-    if(sessionId) await postJson("/api/logout-s5-code",{ sessionId });
-  } catch {}
-
-  clearLocal();
-  state.authenticated = false;
-  state.s5SessionId = "";
-  state.user = null;
-  state.queue = [];
-
-  $("vaultOut").textContent = "VAULT STANDING BY.";
-  $("vaultList").innerHTML = "";
-  renderQueue();
-  resetSteps();
-  forgeLog("FORGE READY.\nAwaiting seed lock and operator command.");
-  setForgeOutput("NO DOSSIER DEPLOYED.");
-
-  showLogin();
-};
-
-$("loginBtn").onclick = async () => {
-  const raw = clean($("codeInput").value,"",128);
-
-  if(!raw){
-    $("loginErr").textContent = "ENTER YOUR S5 OPERATOR CREDENTIAL";
-    $("loginErr").classList.remove("hidden");
-    return;
-  }
-
-  $("loginBtn").disabled = true;
-  await authenticate(raw);
-  $("loginBtn").disabled = false;
-};
-
-$("codeInput").addEventListener("keydown", e => {
-  if(e.key === "Enter") $("loginBtn").click();
-});
-
-(function ingestSessionFromUrl(){
-  try{
-    const params = new URLSearchParams(location.search);
-    const incoming = params.get("s5SessionId") || params.get("sessionId") || "";
-
-    if(incoming && incoming.startsWith("ss_")){
-      purgeRawCodes();
-      state.s5SessionId = incoming;
-      if(state.remember) localStorage.setItem(LS_SESSION,incoming);
-      params.delete("s5SessionId");
-      params.delete("sessionId");
+    if(!r.ok){
+      $("createErr").textContent = fmtErr(r);
+      $("createErr").classList.remove("hidden");
+      return;
     }
 
-    const tab = params.get("tab") || "";
-    if(tab){
-      sessionStorage.setItem("hmf_pending_tab", tab);
-      params.delete("tab");
-    }
+    $("issuedCodeDisplay").textContent = r.code || "";
+    $("issuedCodeBox").classList.remove("hidden");
 
-    const cleanUrl = location.pathname + (params.toString() ? "?" + params.toString() : "") + location.hash;
-    history.replaceState(null,"",cleanUrl);
-  }catch{}
-})();
+    if(r.sessionId){
+      state.sessionId = r.sessionId;
+      state.user = {
+        username:$("newUsername").value || "OPERATOR",
+        clearance:r.clearance || "CIVILIAN",
+        sigma:r.sigma || 0,
+        agentNumber:r.agentNumber || ""
+      };
+      saveSession(r.sessionId);
+    }
+  };
+
+  $("copyIssuedCode").onclick = async () => {
+    try{ await navigator.clipboard.writeText($("issuedCodeDisplay").textContent || ""); }catch{}
+  };
+
+  $("enterIssuedProfile").onclick = async () => {
+    if(state.sessionId){
+      await loadProfileState(false);
+      showTerminal("account");
+      return;
+    }
+    $("codeInput").value = $("issuedCodeDisplay").textContent || "";
+    await authenticate($("codeInput").value);
+  };
+
+  $("refreshBtn").onclick = async () => {
+    await loadProfileState(true);
+    renderVault();
+    renderCourseDossiers();
+  };
+
+  $("saveProfileBtn").onclick = saveProfile;
+  $("logoutBtn").onclick = () => {
+    clearSession();
+    state.sessionId = "";
+    state.user = null;
+    location.href = "./s5.html";
+  };
+
+  $("openMusicPageBtn").onclick = () => {
+    location.href = "./music.html";
+  };
+
+  $("runForgeBtn").onclick = () => runForge(false);
+  $("queueForgeBtn").onclick = () => runForge(true);
+
+  $("refreshVaultBtn").onclick = loadVault;
+  $("clearVaultViewBtn").onclick = () => { $("vaultList").innerHTML = ""; };
+
+  $("pubIngestBtn").onclick = ingestPublicDossier;
+  $("refreshCourseBtn").onclick = loadPublicDossierState;
+  $("refreshPublicBtn").onclick = loadPublicDossierState;
+
+  $("createChatBtn").onclick = createChatRoom;
+  $("refreshChatsBtn").onclick = loadChats;
+  $("sendChatBtn").onclick = sendChatMessage;
+
+  $("refreshMusicBtn").onclick = loadMusic;
+  $("clearQueueBtn").onclick = () => { state.musicQueue = []; renderMusicQueue(); };
+  $("uploadTrackBtn").onclick = uploadTrack;
+
+  document.querySelectorAll("[data-sigma]").forEach(btn => {
+    btn.onclick = () => checkoutSigma(btn.dataset.sigma);
+  });
+
+  document.querySelectorAll("[data-tier]").forEach(btn => {
+    btn.onclick = () => checkoutTier(btn.dataset.tier);
+  });
+
+  $("dumpStateBtn").onclick = renderDev;
+}
 
 (async function init(){
   purgeRawCodes();
-  loadLocal();
+  bindEvents();
 
-  $("rememberToggle").checked = !!state.remember;
+  const tab = requestedTab();
+  const saved = loadSession();
 
-  resetSteps();
-  setSelectedMode("hilbert");
-  renderQueue();
-
-  const local = loadLocal();
-  state.s5SessionId = state.s5SessionId || local.sessionId || "";
-
-  const pendingTab = sessionStorage.getItem("hmf_pending_tab") || "account";
-  sessionStorage.removeItem("hmf_pending_tab");
-
-  const ok = await verifySession(pendingTab);
-
-  if(ok){
-    if(pendingTab === "vault") loadVault().catch(()=>{});
-  } else {
-    showLogin();
+  if(saved){
+    const ok = await verifySession(saved, tab);
+    if(ok) return;
   }
+
+  showLogin();
 })();
 </script>
 </body>
