@@ -1,571 +1,181 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<title>HILBERT // S5 OPERATOR TERMINAL</title>
-<style>
-:root{--bg:#020802;--fg:#00ff41;--fg2:#9dffad;--dim:#4f8f5a;--bd:#00aa33;--amber:#ffaa00;--amber2:#ffd58f;--err:#ff5555;--cyan:#00cccc;--panel:rgba(0,18,4,.92)}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{min-height:100vh;background:var(--bg);color:var(--fg);font-family:'Share Tech Mono',ui-monospace,monospace;overflow-x:hidden;-webkit-text-size-adjust:100%}
-body:before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,255,65,.035) 3px),radial-gradient(circle at center,rgba(0,255,65,.12),transparent 55%);pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:14px}
-.bar{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:2px;color:var(--amber);padding:6px 0;border-bottom:1px solid var(--bd);margin-bottom:14px}
-.bar .r{color:var(--dim);font-size:10px}
-.panel{border:1px solid var(--bd);background:var(--panel);box-shadow:0 0 22px rgba(0,255,65,.08);padding:16px;margin-bottom:14px}
-h1{font-size:clamp(18px,4.5vw,24px);letter-spacing:3px;margin:0 0 6px;text-shadow:0 0 12px rgba(0,255,65,.45)}
-h2{font-size:13px;letter-spacing:2px;color:var(--amber);margin:0 0 10px}
-.sub{color:var(--dim);font-size:11px;letter-spacing:1px;margin-bottom:10px;line-height:1.5}
-.input,textarea,select{width:100%;padding:12px;background:#001500;border:1px solid var(--bd);color:var(--fg);font-family:inherit;font-size:14px;letter-spacing:1px;margin:6px 0;line-height:1.5}
-textarea{min-height:140px;resize:vertical}
-.input:focus,textarea:focus,select:focus{outline:1px solid var(--amber)}
-label{display:block;font-size:11px;letter-spacing:2px;color:var(--amber);margin-top:8px}
-.btn{display:inline-block;margin:6px 6px 0 0;color:var(--fg);background:#001500;border:1px solid var(--bd);padding:12px 16px;text-decoration:none;letter-spacing:2px;font-family:inherit;cursor:pointer;font-size:13px;min-height:44px}
-.btn:hover{background:rgba(0,255,65,.08)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.amber{color:var(--amber);border-color:var(--amber)}
-.btn.cyan{color:var(--cyan);border-color:var(--cyan)}
-.btn.danger{color:#ff8a8a;border-color:#7a1d1d}
-.statusline{font-size:14px;letter-spacing:3px;padding:10px 12px;border:1px solid var(--bd);background:rgba(0,0,0,.35);margin:6px 0}
-.statusline.amber{border-color:var(--amber);color:var(--amber)}
-.statusline.dev{border-color:var(--cyan);color:var(--cyan)}
-.kvgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-top:8px}
-.kvgrid .k{color:var(--amber);letter-spacing:2px}
-.kvgrid .v{color:var(--fg2)}
-pre{white-space:pre-wrap;color:var(--fg2);border:1px solid rgba(0,170,51,.45);padding:12px;background:rgba(0,0,0,.4);max-height:50vh;overflow:auto;font-size:12px;word-break:break-word;margin:8px 0}
-.warn{color:var(--amber);font-size:12px;line-height:1.6;margin-top:8px}
-.err{color:var(--err);font-size:12px;line-height:1.6;margin-top:8px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.tabs .btn{flex:1;min-width:120px;text-align:center}
-.hidden{display:none!important}
-.packs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:6px}
-.pack{border:1px solid var(--bd);padding:12px;background:rgba(0,0,0,.3)}
-.pack .nm{color:var(--amber);letter-spacing:2px;font-size:12px}
-.pack .am{font-size:18px;color:var(--fg);margin:6px 0}
-.pack .pr{color:var(--fg2);font-size:13px}
-.pack .disc{color:var(--amber2);font-size:11px;margin-top:4px;line-height:1.5}
-.scan{height:4px;background:linear-gradient(90deg,transparent,var(--fg),transparent);animation:scan 2.4s infinite;margin:10px 0;overflow:hidden}
-@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.foot{color:var(--dim);font-size:10px;letter-spacing:1px;margin-top:18px;text-align:center;line-height:1.7}
-.rowbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.rowbtns .btn{flex:1;min-width:160px;text-align:center}
-.inlinebuy{border:1px solid rgba(255,170,0,.45);padding:10px;margin-top:12px;background:rgba(255,170,0,.04)}
-.codebox{border:1px solid var(--amber);background:rgba(255,170,0,.06);padding:12px;margin-top:10px}
-.codebox .code{font-size:16px;color:#fff;letter-spacing:2px;word-break:break-all;user-select:all;background:rgba(0,0,0,.45);padding:12px;border:1px dashed var(--amber)}
-@media(max-width:520px){.kvgrid{grid-template-columns:1fr}.packs{grid-template-columns:1fr}.tabs .btn,.rowbtns .btn{min-width:100%}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="bar">
-    <div class="l">CI-Ω7 // S5 OPERATOR TERMINAL</div>
-    <div class="r" id="netStatus">EGRESS: S5 ONLINE</div>
+<!-- Use your current working s5.html as base. Apply these exact additions/replacements. -->
+
+<!-- 1. In the tabs block, add this button after PROFILE: -->
+<button class="btn" data-tab="vault">▸ VAULT</button>
+
+<!-- 2. In the PROFILE button row, remove REFRESH RECORD and replace with: -->
+<button class="btn" id="vaultBtn">▸ DOSSIER VAULT</button>
+
+<!-- 3. Add this full tab section after tab-account and before tab-forge: -->
+<div id="tab-vault" class="tabbody hidden">
+  <h2>DOSSIER VAULT</h2>
+  <div class="sub">
+    Private by default. Publish only when ready. Latest saved dossiers appear here after Forge runs.
   </div>
-
-  <div class="panel" id="loginPanel">
-    <h1>S5 ACCESS</h1>
-    <div class="sub">LOG IN OR ISSUE A CIVILIAN OPERATOR ACCOUNT</div>
-
-    <div id="loginBox">
-      <label>S5 OPERATOR CREDENTIAL</label>
-      <input class="input" id="codeInput" maxlength="128" placeholder="S5 OPERATOR CODE" autocomplete="off" spellcheck="false" autocapitalize="off">
-      <button class="btn amber" id="loginBtn">▸ AUTHENTICATE</button>
-      <button class="btn" id="showCreateBtn">▸ CREATE CIVILIAN ACCOUNT</button>
-      <a class="btn" href="/">RETURN TO NODE</a>
-    </div>
-
-    <div id="createBox" class="hidden">
-      <h2>CIVILIAN ACCOUNT CREATION</h2>
-      <div class="sub">Creates your Hilbert Mesh S5 operator account.</div>
-      <label>RECOVERY EMAIL</label>
-      <input class="input" id="newEmail" type="email" maxlength="254" placeholder="operator@example.com" autocomplete="email" spellcheck="false">
-
-      <label>OPERATOR HANDLE</label>
-      <input class="input" id="newUsername" maxlength="32" placeholder="OPERATOR" autocomplete="off" spellcheck="false">
-
-      <label>RECOVERY PHONE OPTIONAL</label>
-      <input class="input" id="newPhone" type="tel" maxlength="32" placeholder="+1 555 555 0123" autocomplete="tel" spellcheck="false">
-
-      <button class="btn amber" id="createBtn">▸ ISSUE CIVILIAN S5 CODE</button>
-      <button class="btn" id="showLoginBtn">▸ I ALREADY HAVE A CODE</button>
-    </div>
-
-    <div class="warn">
-      Raw S5 codes are never stored in this browser.<br>
-      Session access is stored locally. Recovery: <span style="color:var(--amber2)">support@hilbertmesh.com</span>
-    </div>
-
-    <div id="issuedBox" class="codebox hidden">
-      <div class="warn">SAVE THIS CODE NOW. It will not be shown again.</div>
-      <div class="code" id="issuedCode"></div>
-      <button class="btn amber" id="copyIssuedBtn">COPY CODE</button>
-      <button class="btn" id="enterIssuedBtn">ENTER PROFILE</button>
-    </div>
-
-    <div class="err hidden" id="loginErr"></div>
+  <div class="rowbtns">
+    <button class="btn amber" id="loadVaultBtn">▸ LOAD VAULT</button>
+    <button class="btn" id="vaultRefreshBtn">REFRESH</button>
   </div>
-
-  <div class="panel hidden" id="termPanel">
-    <div class="statusline" id="statusLine">STATUS: CIVILIAN</div>
-    <div class="kvgrid">
-      <div class="k">OPERATOR</div><div class="v" id="kUser">—</div>
-      <div class="k">Σ BALANCE</div><div class="v" id="kSigma">—</div>
-      <div class="k">CLEARANCE</div><div class="v" id="kClear">—</div>
-      <div class="k">DISCOUNT</div><div class="v" id="kDisc">—</div>
-    </div>
-
-    <div class="tabs" style="margin-top:14px">
-      <button class="btn amber" data-tab="account">▸ PROFILE</button>
-      <button class="btn" data-tab="forge">▸ FORGE</button>
-      <button class="btn" data-tab="charge">▸ BUY SIGMA</button>
-      <button class="btn" data-tab="upgrade">▸ UPGRADE</button>
-      <button class="btn cyan hidden" id="devTabBtn" data-tab="dev">▸ DEV</button>
-    </div>
-
-    <div id="tab-account" class="tabbody">
-      <h2>OPERATOR PROFILE</h2>
-      <div class="sub">Central account hub. Forge access is tied to your active S5 session.</div>
-      <div class="kvgrid">
-        <div class="k">USERNAME</div><div class="v" id="aUser">—</div>
-        <div class="k">CLEARANCE</div><div class="v" id="aClear">—</div>
-        <div class="k">Σ BALANCE</div><div class="v" id="aSigma">—</div>
-        <div class="k">MONTHLY TIER</div><div class="v" id="aTier">—</div>
-        <div class="k">DISCOUNT</div><div class="v" id="aDisc">—</div>
-        <div class="k">EMBLEM RANK</div><div class="v" id="aEmblem">—</div>
-      </div>
-      <div class="rowbtns">
-        <button class="btn amber" id="enterForgeBtn">▸ ENTER FORGE</button>
-        <button class="btn" id="buySigmaBtn">▸ BUY SIGMA</button>
-        <button class="btn" id="upgradeBtn">▸ UPGRADE CLEARANCE</button>
-        <button class="btn" id="refreshBtn">▸ REFRESH RECORD</button>
-        <button class="btn danger" id="logoutBtn">LOG OUT</button>
-      </div>
-    </div>
-
-    <div id="tab-forge" class="tabbody hidden">
-      <h2>DOSSIER FORGE</h2>
-      <div class="sub">1 Σ per basic run · server-side execution · active balance: <span id="forgeSigma">—</span></div>
-      <label>MODE</label>
-      <select class="input" id="fMode">
-        <option value="paid_test">paid_test</option>
-        <option value="hilbert">hilbert</option>
-        <option value="intelligence">intelligence</option>
-        <option value="intel-clean">intel-clean</option>
-      </select>
-      <label>PAGES (1–25)</label>
-      <input class="input" id="fPages" type="number" min="1" max="25" value="1">
-      <label>SEED</label>
-      <textarea id="fSeed" maxlength="3000" placeholder="Paste seed text here."></textarea>
-      <button class="btn amber" id="runBtn">▸ RUN FORGE</button>
-      <button class="btn" id="clearOut">CLEAR OUTPUT</button>
-      <div class="inlinebuy">
-        <div class="sub" style="margin:0">Need Sigma? 10Σ = 10 basic runs at current server cost.</div>
-        <button class="btn" id="quickSigmaBtn">▸ BUY SIGMA</button>
-      </div>
-      <div class="scan hidden" id="forgeScan"></div>
-      <pre id="forgeOut">FORGE STANDING BY.</pre>
-    </div>
-
-    <div id="tab-charge" class="tabbody hidden">
-      <h2>SIGMA CHARGE</h2>
-      <div class="sub">Sigma powers forge runs. Current server cost: 1Σ per basic run.</div>
-      <div class="packs">
-        <div class="pack"><div class="nm">SMALL</div><div class="am">10 Σ</div><div class="pr">$3.99</div><div class="disc">10 basic runs</div><button class="btn amber" data-pack="small" style="width:100%;margin-top:8px">BUY 10 Σ</button></div>
-        <div class="pack"><div class="nm">MEDIUM</div><div class="am">25 Σ</div><div class="pr">$7.99</div><div class="disc">25 basic runs</div><button class="btn amber" data-pack="medium" style="width:100%;margin-top:8px">BUY 25 Σ</button></div>
-        <div class="pack"><div class="nm">LARGE</div><div class="am">50 Σ</div><div class="pr">$14.99</div><div class="disc">50 basic runs</div><button class="btn amber" data-pack="large" style="width:100%;margin-top:8px">BUY 50 Σ</button></div>
-      </div>
-    </div>
-
-    <div id="tab-upgrade" class="tabbody hidden">
-      <h2>CLEARANCE UPGRADE</h2>
-      <div class="packs">
-        <div class="pack"><div class="nm">AGENT RELAY</div><div class="am">30 Σ / month</div><div class="pr">$20.00 / month</div><button class="btn amber" id="upAgent" style="width:100%;margin-top:8px">▸ BECOME AGENT</button></div>
-        <div class="pack"><div class="nm">SENIOR AGENT RELAY</div><div class="am">90 Σ / month</div><div class="pr">$50.00 / month</div><button class="btn amber" id="upSenior" style="width:100%;margin-top:8px">▸ BECOME SENIOR AGENT</button></div>
-      </div>
-    </div>
-
-    <div id="tab-dev" class="tabbody hidden">
-      <h2>DEV CONSOLE</h2>
-      <div class="sub">Visible only to DEV OVERRIDE / master clearance users.</div>
-      <div class="kvgrid">
-        <div class="k">LAST JOB</div><div class="v" id="dJob">—</div>
-        <div class="k">LAST DOSSIER</div><div class="v" id="dDossier">—</div>
-        <div class="k">LAST COST</div><div class="v" id="dCost">—</div>
-        <div class="k">LAST ERROR</div><div class="v" id="dErr">—</div>
-      </div>
-      <h2 style="margin-top:14px">RAW RESPONSE</h2>
-      <pre id="devRaw">NO RESPONSE CAPTURED.</pre>
-      <h2 style="margin-top:14px">API LOG</h2>
-      <pre id="devLog">NO API CALLS CAPTURED.</pre>
-    </div>
-  </div>
-
-  <div class="foot">HILBERT MESH // S5 OPERATOR TERMINAL // Σ-AMBER ENFORCED<br>Recovery channel: support@hilbertmesh.com</div>
+  <pre id="vaultOut">VAULT STANDING BY.</pre>
+  <div id="vaultList"></div>
 </div>
 
-<script>
-const API_BASE = "https://hilbert-backend.vercel.app";
-const $ = (id) => document.getElementById(id);
-const LS_SESSION = "hmf_s5_session";
-const RAW_CODE_KEYS = ["hmf_s5_code", "hmf_s5_code_DEPRECATED"];
-let state = { authenticated:false, s5SessionId:"", user:null, lastRaw:null, apiLog:[] };
-let running = false;
+<!-- 4. In script, add these helpers after authBody(extra): -->
+function escapeHtml(s){
+  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;"
+  }[c]));
+}
 
-function apiUrl(path){ return path.startsWith("http") ? path : API_BASE + path; }
-function clean(v,fb,n){ if(typeof v !== "string") return fb; return v.slice(0,n).replace(/[<>]/g,"").trim(); }
-function purgeRawCodes(){ try { RAW_CODE_KEYS.forEach(k => localStorage.removeItem(k)); } catch {} }
-function isDevUser(user = state.user){
-  const c = String(user?.clearance || "").toUpperCase();
-  return Boolean(user?.isDev || user?.sigmaDisplay === "INFINITY" || c === "DEV OVERRIDE" || c === "THE GUY");
-}
-function rememberApi(entry){
-  state.apiLog.unshift({ at:new Date().toISOString(), ...entry });
-  state.apiLog = state.apiLog.slice(0,20);
-  renderDev();
-}
-async function readJsonResponse(r){
-  const text = await r.text();
-  try { return text ? JSON.parse(text) : {}; }
-  catch { return { ok:false, error:"invalid_json_response", httpStatus:r.status, responseText:text.slice(0,1000) }; }
-}
-async function postJson(path,payload){
-  const url = apiUrl(path);
-  try{
-    const r = await fetch(url,{ method:"POST", headers:{ "Content-Type":"application/json" }, credentials:"omit", body:JSON.stringify(payload||{}) });
-    const d = await readJsonResponse(r);
-    if(!r.ok){ d.ok=false; d.httpStatus=r.status; }
-    d.postedTo = url;
-    rememberApi({ method:"POST", url, ok:!!d.ok, status:r.status, error:d.error||"" });
-    return d;
-  }catch(e){
-    const d={ ok:false, error:"network_error", postedTo:url, detail:e?.message||"" };
-    rememberApi({ method:"POST", url, ok:false, status:0, error:d.detail||d.error });
-    return d;
+async function loadVault(){
+  if(!state.s5SessionId){
+    $("vaultOut").textContent = "SESSION REQUIRED.";
+    showLogin();
+    return;
   }
-}
-async function getJson(path){
-  const url = apiUrl(path);
-  try{
-    const r = await fetch(url,{ method:"GET", credentials:"omit", cache:"no-store" });
-    const d = await readJsonResponse(r);
-    if(!r.ok){ d.ok=false; d.httpStatus=r.status; }
-    rememberApi({ method:"GET", url, ok:!!d.ok, status:r.status, error:d.error||"" });
-    return d;
-  }catch(e){
-    const d={ ok:false, error:"network_error", detail:e?.message||"" };
-    rememberApi({ method:"GET", url, ok:false, status:0, error:d.detail||d.error });
-    return d;
-  }
-}
-function fmtErr(r){
-  let msg = String(r?.error || "unknown_error").toUpperCase().replace(/_/g," ");
-  if(r?.required != null) msg += "\n\nREQUIRED Σ:\n" + r.required;
-  if(r?.postedTo) msg += "\n\nPOSTED TO:\n" + r.postedTo;
-  if(r?.httpStatus) msg += "\n\nHTTP STATUS:\n" + r.httpStatus;
-  if(r?.detail) msg += "\n\nDETAIL:\n" + r.detail;
-  if(r?.responseText) msg += "\n\nFIRST RESPONSE:\n" + r.responseText;
-  return msg;
-}
-function saveSession(sessionId){ try { purgeRawCodes(); if(sessionId) localStorage.setItem(LS_SESSION,sessionId); } catch {} }
-function clearLocal(){ try { purgeRawCodes(); localStorage.removeItem(LS_SESSION); } catch {} }
-function loadLocal(){ try { purgeRawCodes(); return { sessionId:localStorage.getItem(LS_SESSION)||"" }; } catch { return { sessionId:"" }; } }
-function sigmaText(user){ if(!user) return "Σ 0"; if(isDevUser(user)) return "Σ ∞"; return "Σ " + Number(user.sigma || 0); }
-function statusLineFor(user){
-  if(!user) return { label:"STATUS: CIVILIAN", cls:"" };
-  if(isDevUser(user)) return { label:"STATUS: THE GUY", cls:"dev" };
-  const c = String(user.clearance || "CIVILIAN").toUpperCase();
-  if(c === "SENIOR AGENT") return { label:"STATUS: SENIOR AGENT", cls:"amber" };
-  if(c === "AGENT") return { label:"STATUS: AGENT", cls:"amber" };
-  return { label:"STATUS: CIVILIAN", cls:"" };
-}
-function renderUser(){
-  const u = state.user || {};
-  const s = statusLineFor(u);
-  const dr = Number(u.discountRate || 0);
-  const sl = $("statusLine");
-  sl.textContent = s.label;
-  sl.classList.remove("amber","dev");
-  if(s.cls) sl.classList.add(s.cls);
-  $("kUser").textContent = u.username || "OPERATOR";
-  $("kSigma").textContent = sigmaText(u);
-  $("kClear").textContent = u.clearance || "CIVILIAN";
-  $("kDisc").textContent = dr > 0 ? Math.round(dr * 100) + "%" : "—";
-  $("aUser").textContent = u.username || "OPERATOR";
-  $("aClear").textContent = u.clearance || "CIVILIAN";
-  $("aSigma").textContent = sigmaText(u);
-  $("aTier").textContent = u.monthlyTier || "—";
-  $("aDisc").textContent = dr > 0 ? Math.round(dr * 100) + "% off Σ packs" : "—";
-  $("aEmblem").textContent = String(u.emblemRank || 0);
-  $("forgeSigma").textContent = sigmaText(u);
-  const dev = isDevUser(u);
-  $("devTabBtn").classList.toggle("hidden", !dev);
-  if(!dev && !$("tab-dev").classList.contains("hidden")) selectTab("account");
+
+  $("vaultOut").textContent = "LOADING VAULT...";
+  $("vaultList").innerHTML = "";
+
+  const r = await postJson("/api/vault", authBody({ limit:25, offset:0 }));
+  state.lastRaw = r;
   renderDev();
-}
-function renderDev(){
-  if(!$("devRaw")) return;
-  $("dJob").textContent = state.lastRaw?.jobId || state.lastRaw?.dossier?.jobId || "—";
-  $("dDossier").textContent = state.lastRaw?.dossierId || state.lastRaw?.dossier?.dossierId || state.lastRaw?.dossier?.id || "—";
-  $("dCost").textContent = state.lastRaw?.runCost != null ? String(state.lastRaw.runCost) : "—";
-  $("dErr").textContent = state.lastRaw?.error || "—";
-  $("devRaw").textContent = state.lastRaw ? JSON.stringify(state.lastRaw,null,2) : "NO RESPONSE CAPTURED.";
-  $("devLog").textContent = state.apiLog.length ? JSON.stringify(state.apiLog,null,2) : "NO API CALLS CAPTURED.";
-}
-function showTerminal(defaultTab="account"){ $("loginPanel").classList.add("hidden"); $("termPanel").classList.remove("hidden"); renderUser(); selectTab(defaultTab); }
-function showLogin(){ $("termPanel").classList.add("hidden"); $("loginPanel").classList.remove("hidden"); $("codeInput").value = ""; }
-function selectTab(name){
-  if(name === "dev" && !isDevUser()) name = "account";
-  document.querySelectorAll(".tabbody").forEach(el => el.classList.add("hidden"));
-  const panel = $("tab-" + name);
-  if(panel) panel.classList.remove("hidden");
-  document.querySelectorAll(".tabs .btn").forEach(b => {
-    b.classList.toggle("amber", b.dataset.tab === name && name !== "dev");
-    b.classList.toggle("cyan", b.dataset.tab === "dev" && name === "dev");
+
+  if(!r.ok){
+    $("vaultOut").textContent = "VAULT ERROR:\n\n" + fmtErr(r) + "\n\nRAW:\n" + JSON.stringify(r,null,2);
+    return;
+  }
+
+  const items = Array.isArray(r.items) ? r.items : [];
+  $("vaultOut").textContent =
+    "VAULT LOADED\n\nDOSSIERS: " + items.length +
+    "\nNEXT OFFSET: " + (r.nextOffset ?? "—");
+
+  if(!items.length){
+    $("vaultList").innerHTML = `<pre>NO DOSSIERS SAVED YET.</pre>`;
+    return;
+  }
+
+  $("vaultList").innerHTML = items.map(d => `
+    <div class="pack" style="margin-top:10px">
+      <div class="nm">${escapeHtml(d.title || "Untitled Dossier")}</div>
+      <div class="disc">
+        ID: ${escapeHtml(d.dossierId)}<br>
+        MODE: ${escapeHtml(d.mode || "—")} · PAGES: ${escapeHtml(d.pages || "—")} · VISIBILITY: ${escapeHtml(d.visibility || "private")}<br>
+        CREATED: ${d.createdAt ? new Date(Number(d.createdAt)).toLocaleString() : "—"}
+      </div>
+      <pre style="max-height:120px">${escapeHtml(d.preview || "")}</pre>
+      <button class="btn amber" data-open-dossier="${escapeHtml(d.dossierId)}">OPEN</button>
+      <button class="btn" data-download-dossier="${escapeHtml(d.dossierId)}">DOWNLOAD TXT</button>
+      <button class="btn" data-toggle-public="${escapeHtml(d.dossierId)}" data-current-vis="${escapeHtml(d.visibility || "private")}">
+        ${d.visibility === "public" ? "RETURN TO PRIVATE" : "PUBLISH"}
+      </button>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-open-dossier]").forEach(b => {
+    b.onclick = () => openDossier(b.dataset.openDossier);
+  });
+
+  document.querySelectorAll("[data-download-dossier]").forEach(b => {
+    b.onclick = () => downloadDossier(b.dataset.downloadDossier);
+  });
+
+  document.querySelectorAll("[data-toggle-public]").forEach(b => {
+    b.onclick = () => toggleDossierVisibility(b.dataset.togglePublic, b.dataset.currentVis);
   });
 }
-function showCreate(){
-  $("loginBox").classList.add("hidden");
-  $("createBox").classList.remove("hidden");
-  $("loginErr").classList.add("hidden");
-}
-function showLoginBox(){
-  $("createBox").classList.add("hidden");
-  $("loginBox").classList.remove("hidden");
-  $("loginErr").classList.add("hidden");
-}
-async function authenticate(rawCode){
-  $("loginErr").classList.add("hidden");
-  $("loginErr").textContent = "";
-  const r = await postJson("/api/verify-s5-code",{ code:rawCode });
-  if(!r.ok){
-    $("loginErr").textContent = fmtErr(r);
-    $("loginErr").classList.remove("hidden");
-    return false;
-  }
-  state.authenticated = true;
-  state.s5SessionId = r.sessionId || "";
-  state.user = r.user || null;
-  saveSession(state.s5SessionId);
-  $("codeInput").value = "";
-  showTerminal("account");
-  return true;
-}
-async function createCivilianAccount(){
-  $("loginErr").classList.add("hidden");
-  $("loginErr").textContent = "";
 
-  const email = clean($("newEmail").value,"",254);
-  const username = clean($("newUsername").value || "OPERATOR","OPERATOR",32);
-  const phone = clean($("newPhone").value,"",32);
-
-  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    $("loginErr").textContent = "VALID RECOVERY EMAIL REQUIRED";
-    $("loginErr").classList.remove("hidden");
-    return;
-  }
-
-  $("createBtn").disabled = true;
-  const r = await postJson("/api/create-s5-code",{ email, username, phone });
-  $("createBtn").disabled = false;
+async function openDossier(dossierId){
+  $("vaultOut").textContent = "OPENING DOSSIER...";
+  const r = await postJson("/api/dossier", authBody({ dossierId, action:"get" }));
+  state.lastRaw = r;
+  renderDev();
 
   if(!r.ok){
-    $("loginErr").textContent = fmtErr(r);
-    $("loginErr").classList.remove("hidden");
+    $("vaultOut").textContent = "DOSSIER ERROR:\n\n" + fmtErr(r);
     return;
   }
 
-  state.authenticated = true;
-  state.s5SessionId = r.sessionId || "";
-  state.user = {
-    username,
-    clearance:r.clearance || "CIVILIAN",
-    sigma:Number(r.sigma || 0),
-    sigmaDisplay:String(Number(r.sigma || 0)),
-    monthlyTier:"",
-    discountRate:0,
-    emblemRank:0,
-    agentNumber:r.agentNumber || ""
-  };
+  const d = r.dossier || {};
+  $("vaultOut").textContent =
+    "DOSSIER OPEN\n\n" +
+    "TITLE: " + (d.title || "Untitled") + "\n" +
+    "ID: " + (d.dossierId || dossierId) + "\n" +
+    "VISIBILITY: " + (d.visibility || "private") + "\n\n" +
+    String(d.output || "");
+}
 
-  saveSession(state.s5SessionId);
+async function downloadDossier(dossierId){
+  const r = await postJson("/api/dossier", authBody({ dossierId, action:"get" }));
+  state.lastRaw = r;
+  renderDev();
 
-  $("issuedCode").textContent = r.code || "";
-  $("issuedBox").classList.remove("hidden");
-  $("createBox").classList.add("hidden");
-  $("loginBox").classList.add("hidden");
-}
-async function verifySession(){
-  if(!state.s5SessionId) return false;
-  const r = await getJson("/api/verify-session?sessionId=" + encodeURIComponent(state.s5SessionId));
-  if(r.ok && r.user){
-    state.authenticated = true;
-    state.user = r.user;
-    showTerminal("account");
-    return true;
-  }
-  return false;
-}
-async function refreshUser(){
-  const ok = await verifySession();
-  if(ok) return;
-  clearLocal();
-  state.authenticated = false;
-  state.s5SessionId = "";
-  state.user = null;
-  showLogin();
-}
-function authBody(extra){ return Object.assign({}, extra || {}, { s5SessionId:state.s5SessionId || undefined }); }
-function extractForgeBody(r){
-  return typeof r?.data?.output === "string" ? r.data.output :
-    typeof r?.data === "string" ? r.data :
-    typeof r?.output === "string" ? r.output :
-    typeof r?.dossier?.output === "string" ? r.dossier.output :
-    JSON.stringify(r,null,2);
-}
-function extractDossierId(r){ return r?.dossierId || r?.dossier?.dossierId || r?.dossier?.id || ""; }
-function updateSigmaFromForge(r){
-  if(!state.user) state.user = {};
-  if(r?.sigmaDisplay === "INFINITY" || r?.sigma === null || isDevUser()){
-    state.user = Object.assign({}, state.user, { sigma:null, sigmaDisplay:"INFINITY", isDev:true });
-    renderUser();
+  if(!r.ok){
+    $("vaultOut").textContent = "DOWNLOAD ERROR:\n\n" + fmtErr(r);
     return;
   }
-  if(r?.sigma != null){
-    state.user = Object.assign({}, state.user, { sigma:Number(r.sigma), sigmaDisplay:String(Number(r.sigma)) });
-    renderUser();
+
+  const d = r.dossier || {};
+  const title = String(d.title || dossierId || "dossier").replace(/[^\w\-]+/g,"_").slice(0,80);
+  const text =
+    "TITLE: " + (d.title || "Untitled") + "\n" +
+    "DOSSIER ID: " + (d.dossierId || dossierId) + "\n" +
+    "VISIBILITY: " + (d.visibility || "private") + "\n" +
+    "MODE: " + (d.mode || "") + "\n" +
+    "PAGES: " + (d.pages || "") + "\n\n" +
+    String(d.output || "");
+
+  const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = title + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  $("vaultOut").textContent = "DOSSIER DOWNLOAD STARTED:\n" + title + ".txt";
+}
+
+async function toggleDossierVisibility(dossierId, currentVis){
+  const next = currentVis === "public" ? "private" : "public";
+
+  if(next === "public"){
+    const ok = confirm("Publish this dossier to the public channel?\n\nOnly publish finished, clean dossiers.");
+    if(!ok) return;
+  }
+
+  const r = await postJson("/api/dossier", authBody({
+    dossierId,
+    action:"update_visibility",
+    visibility:next
+  }));
+
+  state.lastRaw = r;
+  renderDev();
+
+  if(!r.ok){
+    $("vaultOut").textContent = "VISIBILITY ERROR:\n\n" + fmtErr(r);
     return;
   }
-  refreshUser();
-}
-function renderForgeSuccess(r){
-  const body = extractForgeBody(r);
-  const lines = ["FORGE AUTHORIZED // OUTPUT RECEIVED","PATH: " + (r.path || "s5")];
-  if(r.jobId) lines.push("JOB ID: " + r.jobId);
-  const dossierId = extractDossierId(r);
-  if(dossierId) lines.push("DOSSIER ID: " + dossierId);
-  if(r.runCost != null) lines.push("RUN COST: " + r.runCost + "Σ");
-  if(r.sigmaDisplay === "INFINITY" || r.sigma === null || isDevUser()) lines.push("Σ AFTER: ∞");
-  else if(r.sigma != null) lines.push("Σ AFTER: " + r.sigma);
-  $("forgeOut").textContent = lines.join("\n") + "\n\n" + body;
+
+  $("vaultOut").textContent = "VISIBILITY UPDATED: " + next.toUpperCase();
+  await loadVault();
 }
 
-document.querySelectorAll(".tabs .btn").forEach(b => { b.onclick = () => selectTab(b.dataset.tab); });
-$("showCreateBtn").onclick = showCreate;
-$("showLoginBtn").onclick = showLoginBox;
-$("createBtn").onclick = createCivilianAccount;
-$("copyIssuedBtn").onclick = async () => { try { await navigator.clipboard.writeText($("issuedCode").textContent); $("copyIssuedBtn").textContent = "COPIED ✓"; } catch { $("copyIssuedBtn").textContent = "COPY FAILED"; } };
-$("enterIssuedBtn").onclick = () => showTerminal("account");
-$("enterForgeBtn").onclick = () => selectTab("forge");
-$("buySigmaBtn").onclick = () => selectTab("charge");
-$("upgradeBtn").onclick = () => selectTab("upgrade");
-$("quickSigmaBtn").onclick = () => selectTab("charge");
-$("clearOut").onclick = () => { $("forgeOut").textContent = "FORGE STANDING BY."; };
-$("refreshBtn").onclick = () => refreshUser();
+<!-- 5. In renderForgeSuccess(r), after setting forgeOut, add: -->
+setTimeout(() => { loadVault().catch(()=>{}); }, 600);
 
-$("runBtn").onclick = async () => {
-  if(running) return;
-  running = true;
-  $("runBtn").disabled = true;
-  $("forgeScan").classList.remove("hidden");
-  $("forgeOut").textContent = "BUFFERING...\nRUNNING S5 EXECUTION LAYER...";
-  try{
-    const mode = clean($("fMode").value || "paid_test","paid_test",64);
-    const pages = Math.max(1,Math.min(25,Number($("fPages").value)||1));
-    const seed = clean($("fSeed").value,"",3000);
-    if(!seed || seed.length < 3){ $("forgeOut").textContent = "SEED REQUIRED."; return; }
-    if(!state.s5SessionId){ $("forgeOut").textContent = "SESSION REQUIRED.\n\nAuthenticate again to run the forge."; showLogin(); return; }
-    const r = await postJson("/api/forge",authBody({ mode,pages,seed }));
-    state.lastRaw = r;
-    renderDev();
-    if(r.ok){ renderForgeSuccess(r); updateSigmaFromForge(r); return; }
-    if(r.error === "insufficient_sigma"){ $("forgeOut").textContent = "INSUFFICIENT Σ.\n\nAdd Σ via BUY SIGMA."; selectTab("charge"); return; }
-    $("forgeOut").textContent = "FORGE ERROR:\n\n" + fmtErr(r) + "\n\nRAW:\n" + JSON.stringify(r,null,2);
-  }catch(err){
-    const errorPayload = { ok:false, error:"frontend_render_error", detail:err?.message || String(err) };
-    state.lastRaw = errorPayload;
-    renderDev();
-    $("forgeOut").textContent = "FORGE FRONTEND ERROR:\n\n" + fmtErr(errorPayload);
-  }finally{
-    $("runBtn").disabled = false;
-    running = false;
-    $("forgeScan").classList.add("hidden");
-  }
-};
+<!-- 6. Add these button bindings near other onclick bindings: -->
+$("vaultBtn").onclick = () => { selectTab("vault"); loadVault(); };
+$("loadVaultBtn").onclick = () => loadVault();
+$("vaultRefreshBtn").onclick = () => loadVault();
 
-document.querySelectorAll("[data-pack]").forEach(b => {
-  b.onclick = async () => {
-    b.disabled = true;
-    const r = await postJson("/api/create-checkout-session",authBody({ productType:"sigma_pack", pack:b.dataset.pack }));
-    b.disabled = false;
-    if(r.ok && r.url){ location.href = r.url; return; }
-    alert("CHECKOUT FAILED:\n" + fmtErr(r));
-  };
-});
-
-$("upAgent").onclick = async () => {
-  $("upAgent").disabled = true;
-  const r = await postJson("/api/create-checkout-session",authBody({ productType:"membership_agent" }));
-  $("upAgent").disabled = false;
-  if(r.ok && r.url){ location.href = r.url; return; }
-  alert("CHECKOUT FAILED:\n" + fmtErr(r));
-};
-
-$("upSenior").onclick = async () => {
-  $("upSenior").disabled = true;
-  const r = await postJson("/api/create-checkout-session",authBody({ productType:"membership_senior_agent" }));
-  $("upSenior").disabled = false;
-  if(r.ok && r.url){ location.href = r.url; return; }
-  alert("CHECKOUT FAILED:\n" + fmtErr(r));
-};
-
-$("logoutBtn").onclick = async () => {
-  const sessionId = state.s5SessionId;
-  try { if(sessionId) await postJson("/api/logout-s5-code",{ sessionId }); } catch {}
-  clearLocal();
-  state.authenticated = false;
-  state.s5SessionId = "";
-  state.user = null;
-  showLogin();
-};
-
-$("loginBtn").onclick = async () => {
-  const raw = clean($("codeInput").value,"",128);
-  if(!raw){
-    $("loginErr").textContent = "ENTER YOUR S5 OPERATOR CREDENTIAL";
-    $("loginErr").classList.remove("hidden");
-    return;
-  }
-  $("loginBtn").disabled = true;
-  await authenticate(raw);
-  $("loginBtn").disabled = false;
-};
-
-$("codeInput").addEventListener("keydown", e => { if(e.key === "Enter") $("loginBtn").click(); });
-
-(function ingestSessionFromUrl(){
-  try{
-    const params = new URLSearchParams(location.search);
-    const incoming = params.get("s5SessionId") || params.get("sessionId") || "";
-    if(incoming && incoming.startsWith("ss_")){
-      purgeRawCodes();
-      state.s5SessionId = incoming;
-      localStorage.setItem(LS_SESSION,incoming);
-      params.delete("s5SessionId");
-      params.delete("sessionId");
-      const cleanUrl = location.pathname + (params.toString() ? "?" + params.toString() : "") + location.hash;
-      history.replaceState(null,"",cleanUrl);
-    }
-  }catch{}
-})();
-
-(async function init(){
-  purgeRawCodes();
-  const local = loadLocal();
-  state.s5SessionId = state.s5SessionId || local.sessionId || "";
-  const ok = await verifySession();
-  if(!ok) showLogin();
-})();
-</script>
-</body>
-</html>
+<!-- 7. In logout handler, add these before showLogin(): -->
+$("vaultOut").textContent = "VAULT STANDING BY.";
+$("vaultList").innerHTML = "";
