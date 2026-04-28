@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<meta name="theme-color" content="#020502">
+<meta name="theme-color" content="#030803">
 <title>HILBERT MESH // S5 SYSTEM NODE // ONLINE</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;600;700;900&display=swap');
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --g:#00ff41;--g2:#5fff7a;--gd:#00cc36;--gk:#006d18;--gdim:#00310c;
+  --g:#00e536;--g2:#00ff41;--gd:#00b82c;--gk:#005c14;--gdim:#002d0a;
   --a:#ffaa00;--ad:#cc7700;--red:#ff2222;--cy:#00cccc;
-  --bg:#020502;--bg2:#060e06;--bg3:#040c04;--black:#000400;
-  --bd:#102010;--bd2:#1a2c1a;--bd3:#233724;
-  --fg:#aed3ae;--fg2:#d4ecd4;--fgd:#6a8a6a;--fgk:#37553a;--dim:#456245;
+  --bg:#030803;--bg2:#060e06;--bg3:#040c04;--black:#000500;
+  --bd:#0e1c0e;--bd2:#162416;--bd3:#1e301e;
+  --fg:#9dbf9d;--fg2:#c8e6c8;--fgd:#5a7a5a;--fgk:#2d4a2d;--dim:#3a5a3a;
 }
 html,body{
   width:100%;
@@ -28,14 +28,14 @@ html,body{
   -webkit-text-size-adjust:100%;
 }
 body.dossier-open{overflow:hidden}
-#atm-scan{position:fixed;inset:0;pointer-events:none;z-index:900;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.024) 2px,rgba(0,0,0,.024) 3px)}
-#atm-vig{position:fixed;inset:0;pointer-events:none;z-index:899;background:radial-gradient(ellipse at 50% 50%,transparent 42%,rgba(0,0,0,.74) 100%)}
-#atm-bloom{position:fixed;inset:0;pointer-events:none;z-index:898;background:radial-gradient(ellipse at 48% 18%,rgba(0,255,65,.04) 0%,transparent 55%);animation:bloom 12s ease-in-out infinite}
-#atm-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(0,255,65,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,.01) 1px,transparent 1px);background-size:48px 48px;animation:gdrift 70s linear infinite}
+#atm-scan{position:fixed;inset:0;pointer-events:none;z-index:900;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.022) 2px,rgba(0,0,0,.022) 3px)}
+#atm-vig{position:fixed;inset:0;pointer-events:none;z-index:899;background:radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,.68) 100%)}
+#atm-bloom{position:fixed;inset:0;pointer-events:none;z-index:898;background:radial-gradient(ellipse at 48% 18%,rgba(0,229,54,.035) 0%,transparent 55%);animation:bloom 12s ease-in-out infinite}
+#atm-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(0,229,54,.008) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,54,.008) 1px,transparent 1px);background-size:48px 48px;animation:gdrift 70s linear infinite}
 @keyframes bloom{0%,100%{opacity:.42}50%{opacity:1}}
 @keyframes gdrift{0%{background-position:0 0}100%{background-position:48px 48px}}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
-@keyframes pdot{0%,100%{opacity:1;box-shadow:0 0 7px var(--g)}50%{opacity:.2;box-shadow:none}}
+@keyframes pdot{0%,100%{opacity:1;box-shadow:0 0 6px var(--g)}50%{opacity:.2;box-shadow:none}}
 @keyframes pamber{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes fedin{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
@@ -45,38 +45,28 @@ body.dossier-open{overflow:hidden}
 @keyframes scanDown{0%{transform:translateY(-100%)}100%{transform:translateY(110vh)}}
 @keyframes matIn{from{opacity:0;transform:translateY(-6px);border-color:var(--g)}to{opacity:1;transform:translateY(0)}}
 @keyframes fragAppend{0%{border-color:var(--cy);box-shadow:0 0 12px rgba(0,204,204,.18)}100%{border-color:var(--bd2);box-shadow:none}}
-@keyframes tabPulse{0%,100%{opacity:.3}50%{opacity:1}}
-@keyframes tabSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-@keyframes btnFlash{0%{box-shadow:0 0 0 0 rgba(0,255,65,.5)}100%{box-shadow:0 0 0 8px rgba(0,255,65,0)}}
 
 a{color:inherit;text-decoration:none}
 button,input,textarea,select{font-family:inherit}
 #relay{
   position:sticky;top:0;left:0;right:0;z-index:200;height:22px;
-  background:rgba(2,5,2,.985);border-bottom:1px solid var(--bd2);
+  background:rgba(3,8,3,.98);border-bottom:1px solid var(--bd2);
   display:flex;align-items:center;padding:0 10px;gap:0;overflow:hidden;
-  box-shadow:0 1px 0 rgba(0,255,65,.04);
 }
 .rseg{display:flex;align-items:center;gap:5px;padding:0 8px;border-right:1px solid var(--bd);height:100%}
 .rseg:first-child{padding-left:0}
-.rdot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 7px var(--g);animation:pdot 2.4s ease-in-out infinite}
+.rdot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:pdot 2.4s ease-in-out infinite}
 .rdot.a{background:var(--a);box-shadow:0 0 6px var(--a);animation:pamber 1.8s ease-in-out infinite}
 .rdot.r{background:var(--red);box-shadow:0 0 6px var(--red);animation:pamber .9s ease-in-out infinite}
-.rl{font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:2px;color:var(--g);white-space:nowrap;text-shadow:0 0 6px rgba(0,255,65,.25)}
-.rl.a{color:var(--a);text-shadow:0 0 6px rgba(255,170,0,.25)}.rl.r{color:var(--red);text-shadow:0 0 6px rgba(255,34,34,.25)}
+.rl{font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:2px;color:var(--g);white-space:nowrap}
+.rl.a{color:var(--a)}.rl.r{color:var(--red)}
 .rs{font-size:7px;letter-spacing:1px;color:var(--fgk);white-space:nowrap}
 .rright{margin-left:auto;display:flex;align-items:center;gap:7px;flex-shrink:0}
 .rm{font-size:7px;color:var(--fgd);letter-spacing:1px;white-space:nowrap}
 .rm span{color:var(--g)}
 #rclock{font-family:'Orbitron',sans-serif;font-size:7px;color:var(--gd);letter-spacing:1px}
-#mbtn{
-  font-size:9px;color:var(--fgk);cursor:pointer;padding:1px 5px;border:1px solid var(--bd);
-  background:rgba(0,0,0,.3);transition:color .2s,border-color .2s,background .2s,box-shadow .2s,transform .1s;
-  line-height:1;flex-shrink:0;letter-spacing:.5px;
-}
-#mbtn:hover{color:var(--gd);border-color:var(--gk)}
-#mbtn:active{transform:translateY(1px)}
-#mbtn.on{color:var(--g);border-color:var(--gd);background:rgba(0,255,65,.06);box-shadow:0 0 9px -3px rgba(0,255,65,.55),inset 0 0 6px -3px rgba(0,255,65,.5)}
+#mbtn{font-size:9px;color:var(--fgk);cursor:pointer;padding:1px 4px;border:1px solid var(--bd);background:none;transition:color .2s;line-height:1;flex-shrink:0}
+#mbtn:hover{color:var(--gd)}
 #tkwrap{
   position:sticky;top:22px;left:0;right:0;z-index:199;height:17px;
   background:var(--bg2);border-bottom:1px solid var(--bd);overflow:hidden;display:flex;align-items:center;
@@ -86,24 +76,22 @@ button,input,textarea,select{font-family:inherit}
   letter-spacing:1.5px;animation:ticker 72s linear infinite;
 }
 #main{position:relative;z-index:10;padding:8px;display:flex;flex-direction:column;gap:6px;max-width:1280px;margin:0 auto}
-.pnl{border:1px solid var(--bd2);background:rgba(0,6,0,.66)}
+.pnl{border:1px solid var(--bd2);background:rgba(0,6,0,.62)}
 .ph{
-  padding:5px 10px;border-bottom:1px solid var(--bd);background:rgba(0,255,65,.025);
+  padding:5px 10px;border-bottom:1px solid var(--bd);background:rgba(0,229,54,.022);
   font-family:'Orbitron',sans-serif;font-size:clamp(6.5px,1.6vw,8px);letter-spacing:2px;
   color:var(--gd);display:flex;align-items:center;gap:5px;
-  text-shadow:0 0 6px rgba(0,255,65,.12);
 }
 .ph::before{content:'//';color:var(--gk);margin-right:2px}
 .pb{padding:8px 10px}
 #hdr{
-  border:1px solid var(--bd2);background:rgba(0,8,0,.74);padding:10px 12px;
+  border:1px solid var(--bd2);background:rgba(0,8,0,.7);padding:10px 12px;
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  box-shadow:inset 0 0 60px -30px rgba(0,255,65,.08);
 }
 #hdr-l{flex:1;min-width:0}
 #htitle{
   font-family:'Orbitron',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:900;
-  color:var(--g);letter-spacing:3px;text-shadow:0 0 26px rgba(0,255,65,.36),0 0 64px rgba(0,255,65,.1);line-height:1;
+  color:var(--g);letter-spacing:3px;text-shadow:0 0 24px rgba(0,229,54,.3),0 0 60px rgba(0,229,54,.08);line-height:1;
 }
 #hsub{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.8vw,9px);color:var(--fgd);letter-spacing:2px;margin-top:4px}
 #hsub2{font-size:clamp(7px,1.6vw,8px);color:var(--dim);letter-spacing:1px;margin-top:2px}
@@ -113,7 +101,7 @@ button,input,textarea,select{font-family:inherit}
 #hr{text-align:right;flex-shrink:0}
 #cls{
   font-family:'Orbitron',sans-serif;font-size:clamp(12px,3.5vw,20px);font-weight:700;
-  color:var(--a);letter-spacing:1px;text-shadow:0 0 18px rgba(255,170,0,.28);
+  color:var(--a);letter-spacing:1px;text-shadow:0 0 16px rgba(255,170,0,.25);
 }
 .cm{font-size:clamp(6.5px,1.5vw,8px);color:var(--ad);letter-spacing:.5px;margin-top:3px;line-height:1.7}
 .cb{color:var(--red);font-size:clamp(6px,1.4vw,7.5px);letter-spacing:.5px;margin-top:2px}
@@ -122,51 +110,34 @@ button,input,textarea,select{font-family:inherit}
   font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,9px);
   letter-spacing:2px;color:var(--a);border:1px solid rgba(255,170,0,.3);
   background:rgba(255,170,0,.03);padding:5px 12px;cursor:pointer;text-decoration:none;
-  transition:color .25s,border-color .25s,background .25s,box-shadow .25s,transform .1s;
-  white-space:nowrap;
+  transition:all .25s;white-space:nowrap;
 }
-.store-btn:hover,.node-btn:hover{color:var(--g);border-color:var(--gd);background:rgba(0,255,65,.05);box-shadow:0 0 12px -4px rgba(0,255,65,.4)}
-.store-btn:active,.node-btn:active{transform:translateY(1px)}
-.node-btn.green{color:var(--gd);border-color:rgba(0,255,65,.32)}
-.node-btn.green:hover{color:var(--g);border-color:var(--g);box-shadow:0 0 12px -4px rgba(0,255,65,.45)}
-.node-btn.cyan{color:var(--cy);border-color:rgba(0,204,204,.38)}
-.node-btn.cyan:hover{color:var(--cy);border-color:var(--cy);background:rgba(0,204,204,.05);box-shadow:0 0 12px -4px rgba(0,204,204,.4)}
-.node-btn.red{color:var(--red);border-color:rgba(255,34,34,.38)}
-#tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none;padding-bottom:0;position:relative}
+.store-btn:hover,.node-btn:hover{color:var(--g);border-color:var(--gd);background:rgba(0,229,54,.04)}
+.node-btn.green{color:var(--gd);border-color:rgba(0,229,54,.28)}
+.node-btn.cyan{color:var(--cy);border-color:rgba(0,204,204,.35)}
+.node-btn.red{color:var(--red);border-color:rgba(255,34,34,.35)}
+#tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}
 #tabs::-webkit-scrollbar{display:none}
 .tab{
   font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.5vw,8px);letter-spacing:1px;
-  color:var(--fgk);padding:5px 10px;cursor:pointer;border:1px solid transparent;border-bottom:none;
-  background:transparent;
-  transition:color .18s,border-color .18s,background .18s,box-shadow .22s,transform .1s;
-  white-space:nowrap;flex-shrink:0;position:relative;overflow:hidden;
+  color:var(--fgk);padding:5px 8px;cursor:pointer;border:1px solid transparent;border-bottom:none;
+  background:transparent;transition:all .2s;white-space:nowrap;flex-shrink:0;
 }
-.tab:hover{color:var(--gd);border-color:var(--bd2);background:rgba(0,255,65,.025)}
-.tab:active{transform:translateY(1px)}
-.tab.active{
-  color:var(--g);border-color:var(--bd3);background:rgba(0,255,65,.06);
-  border-bottom:1px solid var(--bg);margin-bottom:-1px;
-  box-shadow:inset 0 -1px 0 rgba(0,255,65,.28),0 0 14px -6px rgba(0,255,65,.4);
-  text-shadow:0 0 8px rgba(0,255,65,.3);
-}
+.tab:hover{color:var(--gd);border-color:var(--bd)}
+.tab.active{color:var(--g);border-color:var(--bd2);background:rgba(0,229,54,.04);border-bottom:1px solid var(--bg);margin-bottom:-1px}
 .tab.active::before{content:'> '}
-.tab.active::after{
-  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
-  width:28px;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);
-  animation:tabPulse 2.4s ease-in-out infinite;
-}
 .pane{display:none}
 .pane.active{display:block}
 .twoCol{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .threeCol{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .ovtxt{font-size:clamp(8px,1.8vw,10px);color:var(--fg);line-height:1.65;margin-bottom:8px}
 .mt{width:100%;border-collapse:collapse}
-.mt tr{border-bottom:1px solid rgba(16,32,16,.6)}
+.mt tr{border-bottom:1px solid rgba(14,28,14,.6)}
 .mt td{padding:2.5px 3px;font-size:clamp(7px,1.6vw,8.5px);line-height:1.4;vertical-align:middle}
 .mtk{color:var(--fgd)}.mtv{text-align:right;color:var(--fg)}.mts{text-align:right;padding-left:4px}
 .ok{color:var(--g)}.warn{color:var(--a)}.fail{color:var(--red)}.lk{color:var(--cy)}
 .stb{
-  margin-top:6px;padding:5px 8px;border:1px solid var(--bd);background:rgba(0,0,0,.32);
+  margin-top:6px;padding:5px 8px;border:1px solid var(--bd);background:rgba(0,0,0,.3);
   font-size:clamp(7px,1.5vw,8px);color:var(--fgd);line-height:1.6;
 }
 .stb .st{color:var(--g);float:right;margin-left:8px}
@@ -182,7 +153,7 @@ button,input,textarea,select{font-family:inherit}
 .ds{font-size:clamp(7px,1.6vw,9px);color:var(--fgd);line-height:1.7}
 .dlv{font-family:'Orbitron',sans-serif;font-size:clamp(8px,2vw,10px);color:var(--a);letter-spacing:1px;margin-top:4px}
 .dy{font-size:clamp(6.5px,1.5vw,8px);color:var(--red);margin-top:2px}
-.clb{margin-top:8px;border:1px solid var(--bd2);padding:6px 8px;background:rgba(0,0,0,.32)}
+.clb{margin-top:8px;border:1px solid var(--bd2);padding:6px 8px;background:rgba(0,0,0,.3)}
 .cll{font-size:clamp(6px,1.4vw,7px);color:var(--fgk);letter-spacing:1.5px;margin-bottom:4px}
 .clr{display:flex;gap:4px}
 .cli{
@@ -191,18 +162,15 @@ button,input,textarea,select{font-family:inherit}
   padding:4px 6px;outline:none;min-width:0;
 }
 .cli::placeholder{color:var(--fgk)}
-.cli:focus{border-color:var(--gk);box-shadow:0 0 8px -3px rgba(0,255,65,.4)}
+.cli:focus{border-color:var(--gk)}
 .clbt{
   background:var(--bd);border:1px solid var(--bd2);color:var(--gd);font-family:'Orbitron',sans-serif;
-  font-size:9px;padding:0 8px;cursor:pointer;
-  transition:background .2s,color .2s,border-color .2s,box-shadow .2s,transform .1s;flex-shrink:0;
+  font-size:9px;padding:0 8px;cursor:pointer;transition:all .2s;flex-shrink:0;
 }
-.clbt:hover{background:var(--bd2);color:var(--g);border-color:var(--gk);box-shadow:0 0 8px -3px rgba(0,255,65,.4)}
-.clbt:active{transform:translateY(1px)}
+.clbt:hover{background:var(--bd2);color:var(--g)}
 .bior{display:flex;align-items:center;gap:6px;margin-top:5px}
 .biod{flex:1;color:var(--fgk);letter-spacing:3px;font-size:8px}
-.bioi{font-size:16px;color:var(--fgk);cursor:pointer;transition:color .2s}
-.bioi:hover{color:var(--gd)}
+.bioi{font-size:16px;color:var(--fgk);cursor:pointer}
 .warnpnl{border-color:rgba(255,34,34,.3);background:rgba(12,0,0,.6);display:flex;align-items:center}
 .wico{flex-shrink:0;width:32px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,34,34,.2);background:rgba(255,34,34,.05);align-self:stretch;padding:6px}
 .wsk{font-size:14px;animation:pamber 1.2s ease-in-out infinite}
@@ -217,29 +185,23 @@ button,input,textarea,select{font-family:inherit}
 .ld{font-size:clamp(6.5px,1.5vw,8px);color:var(--fgk);line-height:1.4;margin-top:1px}
 .llk{flex-shrink:0;font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.3vw,7px);color:var(--a);letter-spacing:.5px;text-align:right;line-height:1.5}
 .dob{
-  margin-top:8px;width:100%;background:rgba(0,255,65,.035);border:1px solid var(--gk);
+  margin-top:8px;width:100%;background:rgba(0,229,54,.03);border:1px solid var(--gk);
   color:var(--gd);font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);
-  letter-spacing:2px;padding:7px;cursor:pointer;
-  transition:background .25s,color .25s,border-color .25s,box-shadow .25s,transform .1s;
-  text-align:center;display:block;position:relative;
+  letter-spacing:2px;padding:7px;cursor:pointer;transition:all .3s;text-align:center;
 }
-.dob:hover{background:rgba(0,255,65,.08);color:var(--g);border-color:var(--gd);box-shadow:0 0 14px -4px rgba(0,255,65,.4),inset 0 0 14px -10px rgba(0,255,65,.55)}
-.dob:active{transform:translateY(1px);box-shadow:0 0 8px -4px rgba(0,255,65,.3)}
-.dob.amber{border-color:rgba(255,170,0,.36);color:var(--a);background:rgba(255,170,0,.038)}
-.dob.amber:hover{background:rgba(255,170,0,.07);color:var(--a);border-color:var(--a);box-shadow:0 0 14px -4px rgba(255,170,0,.4),inset 0 0 14px -10px rgba(255,170,0,.5)}
-.dob.cyan{border-color:rgba(0,204,204,.36);color:var(--cy);background:rgba(0,204,204,.028)}
-.dob.cyan:hover{background:rgba(0,204,204,.06);color:var(--cy);border-color:var(--cy);box-shadow:0 0 14px -4px rgba(0,204,204,.42),inset 0 0 14px -10px rgba(0,204,204,.45)}
-.lrb{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;border-bottom:1px solid var(--bd);background:rgba(0,255,65,.018)}
+.dob:hover{background:rgba(0,229,54,.06);color:var(--g);border-color:var(--gd)}
+.dob.amber{border-color:rgba(255,170,0,.35);color:var(--a);background:rgba(255,170,0,.035)}
+.dob.cyan{border-color:rgba(0,204,204,.35);color:var(--cy);background:rgba(0,204,204,.025)}
+.lrb{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;border-bottom:1px solid var(--bd);background:rgba(0,229,54,.015)}
 .lrt{font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.4vw,7.5px);color:var(--fgd);letter-spacing:1.5px}
-  .lrc{font-size:clamp(5.5px,1.3vw,7px);color:var(--fgk);letter-spacing:1px}
-.lbtn{font-family:'Orbitron',sans-serif;font-size:8px;color:var(--gd);background:var(--bd);border:1px solid var(--bd2);padding:3px 7px;cursor:pointer;transition:background .2s,color .2s,border-color .2s,box-shadow .2s,transform .1s}
-.lbtn:hover{background:var(--bd2);color:var(--g);border-color:var(--gk);box-shadow:0 0 8px -3px rgba(0,255,65,.4)}
-.lbtn:active{transform:translateY(1px)}
+.lrc{font-size:clamp(5.5px,1.3vw,7px);color:var(--fgk);letter-spacing:1px}
+.lbtn{font-family:'Orbitron',sans-serif;font-size:8px;color:var(--gd);background:var(--bd);border:1px solid var(--bd2);padding:3px 7px;cursor:pointer;transition:all .2s}
+.lbtn:hover{background:var(--bd2);color:var(--g)}
 .lfrag{padding:10px 12px;font-family:'Courier Prime','Courier New',serif;font-style:italic;font-size:clamp(9px,2vw,11px);color:var(--fgd);line-height:1.75;transition:opacity .3s}
 .lattr{padding:2px 12px 8px;font-size:clamp(6px,1.4vw,7.5px);color:var(--fgk);letter-spacing:1px}
 #feedlist,#feedliste{max-height:180px;overflow-y:auto;padding:4px 10px;scrollbar-width:none}
 #feedlist::-webkit-scrollbar,#feedliste::-webkit-scrollbar{display:none}
-.fe{display:flex;gap:6px;padding:2px 0;border-bottom:1px solid rgba(16,32,16,.4);animation:fedin .3s ease-out;font-size:clamp(6.5px,1.5vw,8px)}
+.fe{display:flex;gap:6px;padding:2px 0;border-bottom:1px solid rgba(14,28,14,.4);animation:fedin .3s ease-out;font-size:clamp(6.5px,1.5vw,8px)}
 .ft{color:var(--fgk);flex-shrink:0;letter-spacing:.3px}
 .fm{color:var(--fg)}
 .fm.ok{color:var(--gd)}.fm.warn{color:var(--a)}.fm.alert{color:var(--red)}
@@ -252,7 +214,7 @@ button,input,textarea,select{font-family:inherit}
 .fpr2{font-size:clamp(5.5px,1.3vw,7px);color:var(--fgk);line-height:1.9}
 .fpr2 span{color:var(--fgd)}
 .sigrow{display:flex;align-items:flex-start;flex-wrap:wrap;gap:10px;justify-content:space-between}
-.sigtag{font-family:'Orbitron',sans-serif;font-size:clamp(9px,2.5vw,13px);font-weight:700;color:var(--g);letter-spacing:2px;text-shadow:0 0 16px rgba(0,255,65,.25)}
+.sigtag{font-family:'Orbitron',sans-serif;font-size:clamp(9px,2.5vw,13px);font-weight:700;color:var(--g);letter-spacing:2px;text-shadow:0 0 14px rgba(0,229,54,.2)}
 .sigsub{font-size:clamp(6px,1.4vw,7.5px);color:var(--fgk);letter-spacing:1px}
 .sigq{font-family:'Courier Prime',serif;font-style:italic;font-size:clamp(6.5px,1.5vw,8px);color:var(--fgk);line-height:1.6;text-align:center;flex:1;min-width:130px}
 .sigq em{color:var(--fgd);font-style:normal}
@@ -268,21 +230,20 @@ button,input,textarea,select{font-family:inherit}
 #dov.open{display:flex}
 #din{display:flex;flex-direction:column;height:100%;border:1px solid var(--bd3);background:rgba(2,6,2,.99);position:relative;overflow:hidden}
 #din.ain{animation:dossin .32s ease-out forwards}
-#dhdr{display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(0,255,65,.03);border-bottom:1px solid var(--bd2);flex-shrink:0}
+#dhdr{display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(0,229,54,.025);border-bottom:1px solid var(--bd2);flex-shrink:0}
 #dtitle{font-family:'Orbitron',sans-serif;font-size:clamp(6.5px,1.7vw,9px);color:var(--gd);letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dmeta{font-size:clamp(5.5px,1.3vw,7px);color:var(--fgk);letter-spacing:1px;white-space:nowrap;flex-shrink:0}
 #dclose{font-family:'Orbitron',sans-serif;font-size:8px;color:var(--red);background:rgba(255,34,34,.08);border:1px solid rgba(255,34,34,.3);padding:3px 8px;cursor:pointer;letter-spacing:1px;transition:all .2s;flex-shrink:0}
-#dclose:hover{background:rgba(255,34,34,.18);box-shadow:0 0 10px -3px rgba(255,34,34,.4)}
-#dclose:active{transform:translateY(1px)}
+#dclose:hover{background:rgba(255,34,34,.18)}
 #dnav{display:flex;align-items:center;gap:3px;padding:4px 10px;border-bottom:1px solid var(--bd);background:var(--bg3);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
 #dnav::-webkit-scrollbar{display:none}
 .dnl{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--fgk);letter-spacing:2px;margin-right:4px;flex-shrink:0}
 .dtab{font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.3vw,7px);letter-spacing:.5px;color:var(--fgk);padding:3px 6px;cursor:pointer;border:1px solid transparent;background:transparent;transition:all .2s;white-space:nowrap;flex-shrink:0}
 .dtab:hover{color:var(--gd);border-color:var(--bd2)}
-.dtab.active{color:var(--g);border-color:var(--gk);background:rgba(0,255,65,.045);box-shadow:0 0 8px -3px rgba(0,255,65,.4)}
+.dtab.active{color:var(--g);border-color:var(--gk);background:rgba(0,229,54,.035)}
 .dtab.active::before{content:'▸ '}
 #dprg{height:2px;background:var(--bd);flex-shrink:0}
-#dpf{height:100%;background:linear-gradient(90deg,var(--gk),var(--gd),var(--cy));transition:width .4s ease;width:0%;box-shadow:0 0 8px rgba(0,255,65,.25)}
+#dpf{height:100%;background:linear-gradient(90deg,var(--gk),var(--gd),var(--cy));transition:width .4s ease;width:0%}
 #dbody{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent}
 #dbody::-webkit-scrollbar{width:3px}
 #dbody::-webkit-scrollbar-thumb{background:var(--bd2)}
@@ -290,7 +251,7 @@ button,input,textarea,select{font-family:inherit}
 .dpg.active{display:block}
 .dph{border-bottom:1px solid var(--bd3);padding-bottom:8px;margin-bottom:12px}
 .dps{font-family:'Orbitron',sans-serif;font-size:clamp(5px,1.2vw,6.5px);color:var(--fgk);letter-spacing:2px;margin-bottom:4px}
-.dpt{font-family:'Orbitron',sans-serif;font-size:clamp(10px,2.5vw,14px);font-weight:700;color:var(--g);letter-spacing:2px;line-height:1.2;text-shadow:0 0 14px rgba(0,255,65,.3)}
+.dpt{font-family:'Orbitron',sans-serif;font-size:clamp(10px,2.5vw,14px);font-weight:700;color:var(--g);letter-spacing:2px;line-height:1.2}
 .dpsu{font-size:clamp(7px,1.6vw,9px);color:var(--fgd);letter-spacing:1px;margin-top:3px}
 .dbtx{font-family:'Courier Prime','Courier New',serif;font-size:clamp(9px,2.1vw,11.5px);color:var(--fg);line-height:1.78;margin-bottom:12px}
 .dbtx em{color:var(--g);font-style:normal}
@@ -298,9 +259,9 @@ button,input,textarea,select{font-family:inherit}
 .dsec{font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.4vw,8px);color:var(--gd);letter-spacing:2px;margin:12px 0 6px;padding-top:8px;border-top:1px solid var(--bd)}
 .dsec::before{content:'// '}
 .dtbl{width:100%;border-collapse:collapse;margin:6px 0;font-family:'Share Tech Mono',monospace}
-.dtbl th{border:1px solid var(--bd2);padding:4px 7px;color:var(--a);font-size:clamp(5.5px,1.3vw,7px);letter-spacing:1.5px;background:rgba(0,255,65,.028);font-weight:normal;text-transform:uppercase}
-.dtbl td{border:1px solid rgba(16,32,16,.4);padding:3px 7px;font-size:clamp(6.5px,1.5vw,8.5px);vertical-align:top;line-height:1.5}
-.dtbl tr:nth-child(even) td{background:rgba(0,255,65,.012)}
+.dtbl th{border:1px solid var(--bd2);padding:4px 7px;color:var(--a);font-size:clamp(5.5px,1.3vw,7px);letter-spacing:1.5px;background:rgba(0,229,54,.025);font-weight:normal;text-transform:uppercase}
+.dtbl td{border:1px solid rgba(14,28,14,.4);padding:3px 7px;font-size:clamp(6.5px,1.5vw,8.5px);vertical-align:top;line-height:1.5}
+.dtbl tr:nth-child(even) td{background:rgba(0,229,54,.01)}
 .deq{font-family:'Share Tech Mono',monospace;font-size:clamp(7.5px,1.7vw,10px);color:var(--cy);background:rgba(0,0,0,.4);border:1px solid var(--bd2);border-left:2px solid var(--gk);padding:7px 10px;margin:8px 0;line-height:1.65;letter-spacing:.3px}
 .dflg{border:1px solid rgba(255,170,0,.25);background:rgba(12,6,0,.5);padding:6px 10px;margin:6px 0;font-size:clamp(7.5px,1.7vw,9px);color:var(--a);line-height:1.6}
 .dflg::before{content:'⚑ ';color:var(--ad)}
@@ -310,36 +271,32 @@ button,input,textarea,select{font-family:inherit}
 .dsal-t{font-family:'Courier Prime',serif;font-style:italic;font-size:clamp(8px,2vw,11px);color:var(--fgd);line-height:1.7;margin-bottom:6px}
 .dsal-h{font-size:clamp(5.5px,1.3vw,7px);color:var(--fgk);letter-spacing:1.5px}
 #dfoot{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-top:1px solid var(--bd);background:var(--bg3);flex-shrink:0}
-.dpnav{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);letter-spacing:1px;color:var(--fgd);background:var(--bd);border:1px solid var(--bd2);padding:4px 10px;cursor:pointer;transition:color .2s,border-color .2s,box-shadow .2s,transform .1s}
-.dpnav:hover{color:var(--g);border-color:var(--gk);box-shadow:0 0 10px -3px rgba(0,255,65,.4)}
-.dpnav:active{transform:translateY(1px)}
+.dpnav{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);letter-spacing:1px;color:var(--fgd);background:var(--bd);border:1px solid var(--bd2);padding:4px 10px;cursor:pointer;transition:all .2s}
+.dpnav:hover{color:var(--g);border-color:var(--gk)}
 .dpnav:disabled{opacity:.3;cursor:default}
 #dpind{font-family:'Orbitron',sans-serif;font-size:7px;color:var(--fgk);letter-spacing:1px}
 
 /* Forge / public action panels */
 .action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;margin-top:8px}
-.action-card{border:1px solid var(--bd2);background:rgba(0,0,0,.32);padding:8px 10px;transition:border-color .25s,background .25s,box-shadow .25s}
-.action-card:hover{border-color:var(--gk);background:rgba(0,255,65,.018);box-shadow:inset 0 0 24px -16px rgba(0,255,65,.4)}
+.action-card{border:1px solid var(--bd2);background:rgba(0,0,0,.3);padding:8px 10px}
 .action-card h3{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);letter-spacing:1.5px;color:var(--gd);margin-bottom:4px}
 .action-card p{font-size:clamp(6.5px,1.4vw,8px);color:var(--fgk);line-height:1.55;margin-bottom:6px}
-.forge-shell{border:1px solid var(--bd2);background:rgba(0,0,0,.4);padding:8px 10px}
+.forge-shell{border:1px solid var(--bd2);background:rgba(0,0,0,.38);padding:8px 10px}
 .forge-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:4px;margin:6px 0}
-.fstep{border:1px solid var(--bd);padding:4px 6px;color:var(--fgk);font-size:clamp(5.5px,1.2vw,7px);letter-spacing:.8px;background:rgba(0,255,65,.014)}
-.fstep.hot{border-color:rgba(255,170,0,.38);color:var(--a);background:rgba(255,170,0,.03);box-shadow:inset 0 0 12px -8px rgba(255,170,0,.5)}
-.fstep.ok{border-color:rgba(0,255,65,.36);color:var(--gd)}
-.public-note{font-size:clamp(7px,1.6vw,8.5px);line-height:1.7;color:var(--fgd);border:1px solid var(--bd);background:rgba(0,0,0,.32);padding:8px 10px;margin-top:6px}
+.fstep{border:1px solid var(--bd);padding:4px 6px;color:var(--fgk);font-size:clamp(5.5px,1.2vw,7px);letter-spacing:.8px;background:rgba(0,229,54,.012)}
+.fstep.hot{border-color:rgba(255,170,0,.35);color:var(--a);background:rgba(255,170,0,.025)}
+.fstep.ok{border-color:rgba(0,229,54,.35);color:var(--gd)}
+.public-note{font-size:clamp(7px,1.6vw,8.5px);line-height:1.7;color:var(--fgd);border:1px solid var(--bd);background:rgba(0,0,0,.3);padding:8px 10px;margin-top:6px}
 
 /* Dossier registry */
 #dreg-list{padding:8px 10px;display:flex;flex-direction:column;gap:5px}
-.dreg-card{border:1px solid var(--bd2);background:rgba(0,255,65,.012);padding:8px 10px;cursor:pointer;transition:border-color .22s,background .22s,box-shadow .22s,transform .1s;position:relative;overflow:hidden}
-.dreg-card:hover{border-color:var(--gd);background:rgba(0,255,65,.04);box-shadow:0 0 16px -6px rgba(0,255,65,.32),inset 0 0 28px -18px rgba(0,255,65,.45)}
-.dreg-card:active{transform:translateY(1px)}
+.dreg-card{border:1px solid var(--bd2);background:rgba(0,229,54,.01);padding:8px 10px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.dreg-card:hover{border-color:var(--gk);background:rgba(0,229,54,.03)}
 .dreg-card.new-mat{animation:matIn .6s ease-out}
-.dreg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gd),transparent);opacity:.45}
+.dreg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gk),transparent);opacity:.4}
 .drc-top{display:flex;align-items:flex-start;gap:8px}
 .drc-id{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--fgk);letter-spacing:1px;flex-shrink:0;padding-top:1px;white-space:nowrap}
 .drc-title{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.7vw,9px);color:var(--gd);letter-spacing:.5px;flex:1;line-height:1.3}
-.dreg-card:hover .drc-title{color:var(--g)}
 .drc-open{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--g);letter-spacing:1px;flex-shrink:0}
 .drc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
 .drc-tag{font-size:clamp(5px,1.1vw,6.5px);color:var(--fgk);letter-spacing:.5px;padding:1px 4px;border:1px solid var(--bd)}
@@ -352,8 +309,8 @@ button,input,textarea,select{font-family:inherit}
 .drc-fcount{font-size:clamp(5px,1.1vw,6.5px);color:var(--cy);letter-spacing:.5px;padding:1px 4px;border:1px solid rgba(0,204,204,.2)}
 
 .seed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:5px;padding:8px 10px}
-.seed-card{border:1px solid var(--bd2);background:rgba(0,255,65,.012);padding:7px 9px;cursor:pointer;transition:all .2s;position:relative}
-.seed-card:hover{border-color:var(--gk);background:rgba(0,255,65,.025)}
+.seed-card{border:1px solid var(--bd2);background:rgba(0,229,54,.012);padding:7px 9px;cursor:pointer;transition:all .2s;position:relative}
+.seed-card:hover{border-color:var(--gk);background:rgba(0,229,54,.025)}
 .seed-tag{font-family:'Orbitron',sans-serif;font-size:clamp(5.5px,1.3vw,7px);color:var(--a);letter-spacing:2px;margin-bottom:3px}
 .seed-case{font-family:'Orbitron',sans-serif;font-size:clamp(7px,1.6vw,8.5px);color:var(--gd);letter-spacing:.5px;line-height:1.3;margin-bottom:4px}
 .seed-body{font-size:clamp(6px,1.3vw,7px);color:var(--fgk);line-height:1.55;font-family:'Share Tech Mono',monospace;white-space:pre-wrap;overflow:hidden;max-height:0;transition:max-height .3s ease}
@@ -362,7 +319,8 @@ button,input,textarea,select{font-family:inherit}
 .seed-mode{font-size:6px;color:var(--fgk);letter-spacing:1px}
 .seed-copy{font-family:'Orbitron',sans-serif;font-size:6px;color:var(--a);letter-spacing:1px;background:none;border:1px solid rgba(255,170,0,.2);padding:1px 5px;cursor:pointer;transition:all .2s}
 .seed-copy:hover{border-color:var(--a);color:var(--g)}
-  .rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px 10px}
+
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px 10px}
 .rule-blk{border:1px solid var(--bd);padding:5px 7px;background:rgba(0,0,0,.25)}
 .rule-hd{font-family:'Orbitron',sans-serif;font-size:clamp(5px,1.2vw,6.5px);color:var(--red);letter-spacing:1.5px;margin-bottom:3px}
 .rule-list{font-size:clamp(5.5px,1.2vw,7px);color:var(--fgk);line-height:1.8;font-family:'Share Tech Mono',monospace}
@@ -374,30 +332,6 @@ button,input,textarea,select{font-family:inherit}
 .telem-lbl{font-size:clamp(5px,1.1vw,6px);color:var(--fgk);letter-spacing:1.5px}
 .telem-val{font-family:'Orbitron',sans-serif;font-size:clamp(8px,2vw,11px);color:var(--g);letter-spacing:1px}
 .telem-st{font-size:clamp(5px,1.1vw,6px);color:var(--gd);letter-spacing:1px}
-
-.tier-ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:4px;padding:8px 10px}
-.tier-rung{border:1px solid var(--bd2);background:rgba(0,0,0,.28);padding:7px 9px;position:relative;overflow:hidden}
-.tier-rung::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gk)}
-.tier-rung.t2::before{background:var(--gd)}
-.tier-rung.t3::before{background:var(--cy)}
-.tier-rung.t4::before{background:var(--a)}
-.tier-rung.t5::before{background:var(--red)}
-.tier-name{font-family:'Orbitron',sans-serif;font-size:clamp(6px,1.3vw,7.5px);letter-spacing:1.5px;color:var(--gd);margin-bottom:3px}
-.tier-ind{font-size:clamp(5.5px,1.2vw,7px);color:var(--fgk);line-height:1.5}
-.comp-note{font-size:clamp(7px,1.5vw,8px);color:var(--fgd);line-height:1.65;border-top:1px solid var(--bd);padding:7px 10px;background:rgba(0,0,0,.18)}
-
-.rn-desc{font-size:clamp(7.5px,1.6vw,9px);color:var(--fgd);line-height:1.65;padding:8px 10px;border-bottom:1px solid var(--bd)}
-.rn-pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:4px;padding:8px 10px}
-.rn-step{border:1px solid var(--bd2);background:rgba(0,0,0,.3);padding:6px;text-align:center;font-size:clamp(6px,1.3vw,7px);color:var(--fgk);letter-spacing:1px}
-.rn-step em{font-family:'Orbitron',sans-serif;font-style:normal;color:var(--gd);letter-spacing:1.5px}
-
-#sound-note{
-  position:fixed;right:10px;bottom:10px;z-index:700;
-  border:1px solid var(--bd2);background:rgba(0,5,0,.92);color:var(--fgd);
-  padding:6px 9px;font-size:9px;letter-spacing:1px;display:none;
-  box-shadow:0 0 14px -6px rgba(0,255,65,.45);
-}
-#sound-note.show{display:block;animation:fedin .25s ease-out}
 
 @media(max-width:760px){
   .twoCol,.threeCol{grid-template-columns:1fr}
@@ -420,7 +354,7 @@ button,input,textarea,select{font-family:inherit}
   <div class="rright">
     <span class="rm mhide">Ψ:<span>0.847</span></span>
     <span class="rm mhide">ρtd:<span>0.74</span></span>
-    <button id="mbtn" title="Toggle terminal audio">♪</button>
+    <button id="mbtn" title="Toggle ambience">♪</button>
     <div id="rclock">00:00:00</div>
   </div>
 </div>
@@ -435,18 +369,18 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
       <div id="sigil">
         <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs><filter id="gf"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-          <polygon points="40,3 73,21 73,59 40,77 7,59 7,21" stroke="rgba(0,255,65,.34)" stroke-width=".8" fill="none"/>
-          <polygon points="40,13 63,25 63,55 40,67 17,55 17,25" stroke="rgba(0,255,65,.20)" stroke-width=".5" fill="none"/>
-          <ellipse cx="40" cy="40" rx="10" ry="6.5" stroke="rgba(0,255,65,.58)" stroke-width=".8" fill="rgba(0,255,65,.04)" filter="url(#gf)"/>
-          <circle cx="40" cy="40" r="3" fill="rgba(0,255,65,.38)" filter="url(#gf)"/>
-          <circle cx="40" cy="40" r="1.2" fill="rgba(0,255,65,.85)"/>
-          <line x1="40" y1="13" x2="40" y2="33.5" stroke="rgba(0,255,65,.24)" stroke-width=".6"/>
-          <line x1="63" y1="25" x2="50.5" y2="43.2" stroke="rgba(0,255,65,.24)" stroke-width=".6"/>
-          <line x1="63" y1="55" x2="50.5" y2="36.8" stroke="rgba(0,255,65,.24)" stroke-width=".6"/>
-          <line x1="40" y1="67" x2="40" y2="46.5" stroke="rgba(0,255,65,.24)" stroke-width=".6"/>
-          <line x1="17" y1="55" x2="29.5" y2="36.8" stroke="rgba(0,255,65,.24)" stroke-width=".6"/>
-          <line x1="17" y1="25" x2="29.5" y2="43.2" stroke="rgba(0,255,65,.24)" stroke-width=".6"/>
-          <text x="40" y="78" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(0,255,65,.28)" letter-spacing="2">I</text>
+          <polygon points="40,3 73,21 73,59 40,77 7,59 7,21" stroke="rgba(0,229,54,.32)" stroke-width=".8" fill="none"/>
+          <polygon points="40,13 63,25 63,55 40,67 17,55 17,25" stroke="rgba(0,229,54,.18)" stroke-width=".5" fill="none"/>
+          <ellipse cx="40" cy="40" rx="10" ry="6.5" stroke="rgba(0,229,54,.55)" stroke-width=".8" fill="rgba(0,229,54,.04)" filter="url(#gf)"/>
+          <circle cx="40" cy="40" r="3" fill="rgba(0,229,54,.35)" filter="url(#gf)"/>
+          <circle cx="40" cy="40" r="1.2" fill="rgba(0,229,54,.8)"/>
+          <line x1="40" y1="13" x2="40" y2="33.5" stroke="rgba(0,229,54,.22)" stroke-width=".6"/>
+          <line x1="63" y1="25" x2="50.5" y2="43.2" stroke="rgba(0,229,54,.22)" stroke-width=".6"/>
+          <line x1="63" y1="55" x2="50.5" y2="36.8" stroke="rgba(0,229,54,.22)" stroke-width=".6"/>
+          <line x1="40" y1="67" x2="40" y2="46.5" stroke="rgba(0,229,54,.22)" stroke-width=".6"/>
+          <line x1="17" y1="55" x2="29.5" y2="36.8" stroke="rgba(0,229,54,.22)" stroke-width=".6"/>
+          <line x1="17" y1="25" x2="29.5" y2="43.2" stroke="rgba(0,229,54,.22)" stroke-width=".6"/>
+          <text x="40" y="78" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(0,229,54,.25)" letter-spacing="2">I</text>
         </svg>
       </div>
       <div id="hr">
@@ -465,6 +399,7 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
         <a href="https://hilbertmesh.gumroad.com" target="_blank" class="store-btn">▸ ACCESS DOSSIER STORE</a>
         <a href="s5.html?tab=account" class="node-btn green">▸ PROFILE</a>
         <a href="s5.html?tab=forge" class="node-btn cyan">▸ OPEN FORGE</a>
+        <a href="music.html" class="node-btn">▸ MUSIC LIBRARY</a>
       </div>
     </div>
   </div>
@@ -477,6 +412,8 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
     <button class="tab" data-pane="feed">SYSTEM FEED</button>
     <button class="tab" data-pane="footprint">NODE FOOTPRINT</button>
     <button class="tab" data-pane="forge">DOSSIER FORGE</button>
+    <button class="tab" data-pane="community">PUBLIC CHANNEL</button>
+    <button class="tab" data-pane="music">MUSIC / DJ BOOTH</button>
   </div>
 
   <div id="pane-overview" class="pane active">
@@ -523,413 +460,743 @@ CI-Ω7 // HM-LATTICE // RM-01 // CONSTRAINT-FIELD OBSERVATORY &nbsp;·&nbsp; EGR
             <a class="dob cyan" href="s5.html?tab=forge">▸ ENTER FORGE</a>
             <a class="dob amber" href="s5.html?tab=charge">▸ BUY SIGMA</a>
           </div>
+
+          <div class="clb">
+            <div class="cll">DIRECT OPERATOR ROUTE</div>
+            <div class="clr">
+              <input class="cli" type="text" placeholder="ACCESS IS HANDLED IN S5 TERMINAL" disabled>
+              <button class="clbt" data-route="account">&gt;</button>
+            </div>
           </div>
+
+          <div class="clb">
+            <div class="cll">BIOMETRIC KEY</div>
+            <div class="bior"><div class="biod">· · · · · · · · · ·</div><div class="bioi">⬡</div></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="threeCol" style="margin-top:6px;">
+    <div class="pnl warnpnl">
+      <div class="wico"><div class="wsk">☠</div></div>
+      <div class="wtx">
+        WARNING: UNAUTHORIZED USE, DISTRIBUTION, OR ATTEMPTED ENTRY WILL RESULT IN IMMEDIATE PROTOCOL COUNTERMEASURES AND TRACEBACK.<br>
+        <span class="wsb">Public browsing is allowed. Backend diagnostic access remains master-only.</span>
+      </div>
+      <div class="wst"></div>
+    </div>
+
+    <div class="twoCol">
       <div class="pnl">
-        <div class="ph">OBSERVATION NOTES</div>
-        <div class="pb">
-          <div class="ovtxt">
-            The node reflects a hybrid system: public-facing shell + restricted S5 execution layer.
-            Most interaction pathways intentionally terminate in the terminal rather than exposing internal logic.
-          </div>
-          <div class="stb"><span class="st">[&nbsp;INFO&nbsp;]</span>Public users: read-only. Operators: authenticated execution.</div>
+        <div class="ph">LORE FRAGMENT</div>
+        <div class="lrb">
+          <div><div class="lrt">REQUEST DATA SHARD</div><div class="lrc">CLASS: Σ-AMBER REQUIRED</div></div>
+          <button class="lbtn" id="loreNext">[+]</button>
         </div>
+        <div class="lfrag" id="lfrag">"The frame holds because we hold the frame.<br>Reality-feel is not a property of the world.<br>It is a property of the processing system.<br>Remove the observer and the coherence<br>does not persist."</div>
+        <div class="lattr" id="lattr">— AF-22 // Hment ⊕ Hcaus Boundary Layer</div>
       </div>
 
       <div class="pnl">
-        <div class="ph">FORGE SUMMARY</div>
-        <div class="pb">
-          <div class="ovtxt">
-            The Dossier Forge converts structured seed input into multi-page outputs.
-            Modes control tone, density, and transformation pathway.
-          </div>
-          <div class="stb"><span class="st">[&nbsp;READY&nbsp;]</span>Forge routing active via S5 terminal.</div>
-        </div>
-      </div>
-
-      <div class="pnl">
-        <div class="ph">SYSTEM STATUS</div>
-        <div class="pb">
-          <div class="ovtxt">
-            Backend connected. Session validation active. Vault + queue layers operational.
-          </div>
-          <div class="stb"><span class="st">[&nbsp;LIVE&nbsp;]</span>Deployment stable under test conditions.</div>
-        </div>
+        <div class="ph">SYSTEM FEED</div>
+        <div id="feedlist"></div>
+        <div class="fpr"><span style="color:var(--g);font-size:10px;">▸</span><span class="fcar">_</span></div>
       </div>
     </div>
   </div>
-
   <div id="pane-dossier" class="pane">
     <div class="pnl">
-      <div class="ph">DOSSIER ARCHIVE</div>
-      <div id="dreg-list">
-        <div class="dreg-card">
-          <div class="drc-top">
-            <div class="drc-id">DSR-001</div>
-            <div class="drc-title">REALITY MANUFACTURING // IT-1 FRAGMENT</div>
-            <div class="drc-open">OPEN ▸</div>
+      <div class="ph" style="justify-content:space-between;">
+        <span>DOSSIER ARCHIVE — ARTIFACT REGISTRY</span>
+        <span id="dreg-count" style="font-size:6px;color:var(--fgk);letter-spacing:1px;font-family:'Share Tech Mono',monospace;"></span>
+      </div>
+      <div style="padding:5px 10px 3px;font-size:clamp(7px,1.6vw,8.5px);color:var(--fgd);line-height:1.6;font-family:'Courier Prime',serif;font-style:italic;border-bottom:1px solid var(--bd);">
+        Public artifact registry. Dossier families grow as fragments are appended. Operator-generated dossiers live in the private S5 Vault until published.
+      </div>
+      <div id="dreg-list"></div>
+      <div style="padding:6px 10px;border-top:1px solid var(--bd);display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <button class="dob" style="margin-top:0;flex:1;min-width:140px;" onclick="openDossierById('starter-0')">▸ OPEN REALITY MANUFACTURING</button>
+        <button class="dob cyan" style="margin-top:0;flex:1;min-width:140px;" onclick="openDossierById('starter-1')">▸ OPEN HILBERT FRONTIER</button>
+        <a class="dob amber" style="margin-top:0;flex:1;min-width:140px;" href="s5.html?tab=vault">▸ OPEN PRIVATE VAULT</a>
+      </div>
+    </div>
+
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">ARCHIVE RULES</div>
+        <div class="rules-grid">
+          <div class="rule-blk">
+            <div class="rule-hd">PRIVATE DEFAULT</div>
+            <div class="rule-list"><span>Generated dossiers begin private.</span><br>Publishing is a deliberate operator action.</div>
           </div>
-          <div class="drc-meta">
-            <span class="drc-tag tier-t5">TIER 5</span>
-            <span class="drc-conf high">HIGH CONF</span>
-            <span class="drc-status">SEALED</span>
+          <div class="rule-blk">
+            <div class="rule-hd">PUBLIC CHANNEL</div>
+            <div class="rule-list"><span>Public posting requires readiness.</span><br>Comprehension gate planned before chat unlock.</div>
+          </div>
+          <div class="rule-blk">
+            <div class="rule-hd">VAULT STORAGE</div>
+            <div class="rule-list"><span>Storage limits should be file-size based.</span><br>Newest dossier remains recoverable.</div>
+          </div>
+          <div class="rule-blk">
+            <div class="rule-hd">EXPORT</div>
+            <div class="rule-list"><span>TXT download is live.</span><br>PDF / styled viewer shell is next layer.</div>
           </div>
         </div>
+      </div>
 
-        <div class="dreg-card">
-          <div class="drc-top">
-            <div class="drc-id">DSR-002</div>
-            <div class="drc-title">CHRONOS DRIFT // TELEMETRY CHAIN</div>
-            <div class="drc-open">OPEN ▸</div>
+      <div class="pnl">
+        <div class="ph">PUBLIC CHANNEL PREVIEW</div>
+        <div class="pb">
+          <div class="ovtxt">
+            Published dossiers will appear here after the public channel system is enabled. For tonight, the live product path is:
           </div>
-          <div class="drc-meta">
-            <span class="drc-tag tier-t3">TIER 3</span>
-            <span class="drc-conf mod">MOD CONF</span>
-            <span class="drc-status">ACTIVE</span>
-          </div>
-        </div>
-
-        <div class="dreg-card">
-          <div class="drc-top">
-            <div class="drc-id">DSR-003</div>
-            <div class="drc-title">HILBERT FRONTIER // SURFACE LOGS</div>
-            <div class="drc-open">OPEN ▸</div>
-          </div>
-          <div class="drc-meta">
-            <span class="drc-tag tier-t1">TIER 1</span>
-            <span class="drc-conf low">LOW CONF</span>
-            <span class="drc-status">OPEN</span>
-          </div>
+          <div class="lane"><div class="lico">01</div><div class="lct"><div class="lt">FORGE</div><div class="ld">Generate a dossier in S5 terminal.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">02</div><div class="lct"><div class="lt">VAULT</div><div class="ld">Open, download, or publish/private toggle.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">03</div><div class="lct"><div class="lt">PUBLIC GATE</div><div class="ld">Future comprehension task before chat/posting rights.</div></div><div class="llk">QUEUE</div></div>
+          <a class="dob cyan" href="s5.html?tab=forge">▸ GENERATE DOSSIER</a>
         </div>
       </div>
     </div>
   </div>
 
   <div id="pane-intel" class="pane">
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">INTEL NODE — CLEAN DOSSIER MODES</div>
+        <div class="rn-desc">
+          Intelligence lanes produce non-Hilbert structured dossiers: history, technical analysis, science concepts, operational planning, and clean worldbuilding briefs.
+        </div>
+        <div class="rn-pipe">
+          <div class="rn-step"><em>seed</em></div>
+          <div class="rn-step"><em>intent</em></div>
+          <div class="rn-step"><em>constraints</em></div>
+          <div class="rn-step"><em>page map</em></div>
+          <div class="rn-step"><em>compiled output</em></div>
+        </div>
+        <div class="pb">
+          <div class="action-grid">
+            <div class="action-card">
+              <h3>PAID TEST</h3>
+              <p>Fast one-page route for system validation, vault saving, and Sigma behavior testing.</p>
+              <a class="node-btn green" href="s5.html?tab=forge">OPEN MODE</a>
+            </div>
+            <div class="action-card">
+              <h3>INTELLIGENCE</h3>
+              <p>Clean structured dossier mode for non-Hilbert science, history, technical, and product briefs.</p>
+              <a class="node-btn cyan" href="s5.html?tab=forge">OPEN MODE</a>
+            </div>
+            <div class="action-card">
+              <h3>INTEL-CLEAN</h3>
+              <p>Use when the seed must avoid lore framing and stay plain, useful, and audit-friendly.</p>
+              <a class="node-btn cyan" href="s5.html?tab=forge">OPEN MODE</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">TEST SEEDS</div>
+        <div class="seed-grid" id="seedGrid">
+          <div class="seed-card">
+            <div class="seed-tag">HISTORICAL</div>
+            <div class="seed-case">Library of Alexandria</div>
+            <div class="seed-body">Create a 1-page open historical dossier on the Library of Alexandria. Use structured sections: identity, timeline, loss vectors, disputed claims, evidence audit, and final classification. Avoid lore.</div>
+            <div class="seed-footer"><span class="seed-mode">intel-clean</span><button class="seed-copy" data-copy="Create a 1-page open historical dossier on the Library of Alexandria. Use structured sections: identity, timeline, loss vectors, disputed claims, evidence audit, and final classification. Avoid lore.">COPY</button></div>
+          </div>
+
+          <div class="seed-card">
+            <div class="seed-tag">TECHNICAL</div>
+            <div class="seed-case">Secure AI Document Vault</div>
+            <div class="seed-body">Create a 1-page technical dossier on how to design a secure user vault for AI-generated documents. Include risks, storage limits, privacy rules, access controls, and upgrade-tier logic.</div>
+            <div class="seed-footer"><span class="seed-mode">intelligence</span><button class="seed-copy" data-copy="Create a 1-page technical dossier on how to design a secure user vault for AI-generated documents. Include risks, storage limits, privacy rules, access controls, and upgrade-tier logic.">COPY</button></div>
+          </div>
+
+          <div class="seed-card">
+            <div class="seed-tag">SCIENCE</div>
+            <div class="seed-case">Ocean Thermal Energy</div>
+            <div class="seed-body">Create a 1-page scientific intelligence dossier on ocean thermal energy conversion. Include mechanism, bottlenecks, cost constraints, deployment zones, failure modes, and testable next steps.</div>
+            <div class="seed-footer"><span class="seed-mode">intelligence</span><button class="seed-copy" data-copy="Create a 1-page scientific intelligence dossier on ocean thermal energy conversion. Include mechanism, bottlenecks, cost constraints, deployment zones, failure modes, and testable next steps.">COPY</button></div>
+          </div>
+
+          <div class="seed-card">
+            <div class="seed-tag">WORLD</div>
+            <div class="seed-case">Lunar Lava Tube Settlement</div>
+            <div class="seed-body">Create a 1-page creative worldbuilding dossier for a frontier settlement built inside a lunar lava tube. Include infrastructure, hazards, economy, defense, social structure, and one unresolved tension node.</div>
+            <div class="seed-footer"><span class="seed-mode">hilbert</span><button class="seed-copy" data-copy="Create a 1-page creative worldbuilding dossier for a frontier settlement built inside a lunar lava tube. Include infrastructure, hazards, economy, defense, social structure, and one unresolved tension node.">COPY</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="pnl">
-      <div class="ph">INTEL NODE</div>
-      <div class="pb">
-        <div class="ovtxt">
-          Intelligence entries represent structured analysis pathways.  
-          Advanced generation is restricted to authenticated operators.
-        </div>
-
-        <div class="seed-grid">
-          <div class="seed-card">
-            <div class="seed-tag">INTEL</div>
-            <div class="seed-case">GRAVITY FIELD INVERSION</div>
-            <div class="seed-body">Explore theoretical manipulation of gravitational gradients through lattice coupling.</div>
-            <div class="seed-footer">
-              <div class="seed-mode">MODE: RESEARCH</div>
-              <button class="seed-copy">COPY</button>
-            </div>
-          </div>
-
-          <div class="seed-card">
-            <div class="seed-tag">INTEL</div>
-            <div class="seed-case">ENERGY EXTRACTION LOOP</div>
-            <div class="seed-body">Model recursive energy harvesting within closed feedback systems.</div>
-            <div class="seed-footer">
-              <div class="seed-mode">MODE: INTELLIGENCE</div>
-              <button class="seed-copy">COPY</button>
-            </div>
-          </div>
-        </div>
+      <div class="ph">INTEL QUALITY RULES</div>
+      <div class="rules-grid">
+        <div class="rule-blk"><div class="rule-hd">NO FAKE CERTAINTY</div><div class="rule-list"><span>Flag uncertain claims.</span><br>Use disputed / confirmed / inferred statuses.</div></div>
+        <div class="rule-blk"><div class="rule-hd">NO WALL TEXT</div><div class="rule-list"><span>Use tables, field logs, constraints.</span><br>Dossier is a machine-readable artifact.</div></div>
+        <div class="rule-blk"><div class="rule-hd">NO UNNEEDED LORE</div><div class="rule-list"><span>Clean modes stay clean.</span><br>Hilbert mode can use cinematic framing.</div></div>
+        <div class="rule-blk"><div class="rule-hd">NO PROMPT LEAKING</div><div class="rule-list"><span>Do not expose hidden system instructions.</span><br>Suspicious requests should route safely.</div></div>
       </div>
     </div>
   </div>
 
   <div id="pane-lanes" class="pane">
+    <div class="threeCol">
+      <div class="pnl">
+        <div class="ph">FORGE LANE</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">▣</div><div class="lct"><div class="lt">Dossier Forge</div><div class="ld">Paid Sigma runs, output rendering, vault save.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">▣</div><div class="lct"><div class="lt">Profile Hub</div><div class="ld">Clearance, Sigma, account identity, vault entry.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">▣</div><div class="lct"><div class="lt">Vault</div><div class="ld">Open, download, publish/private controls.</div></div><div class="llk">LIVE</div></div>
+          <a class="dob cyan" href="s5.html?tab=account">▸ OPEN PROFILE</a>
+        </div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">MEDIA LANE</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">♪</div><div class="lct"><div class="lt">Music Drops</div><div class="ld">Original AI alt-rock, shanty, funk, and Hilbert Mesh sound worlds.</div></div><div class="llk">ACTIVE</div></div>
+          <div class="lane"><div class="lico">▤</div><div class="lct"><div class="lt">Video Prompts</div><div class="ld">Sora / Veo scene packs, dossier imagery, cinematic seed generation.</div></div><div class="llk">ACTIVE</div></div>
+          <div class="lane"><div class="lico">▧</div><div class="lct"><div class="lt">Visual Shells</div><div class="ld">S5-grade interfaces, PDF viewers, terminal overlays, dossier pages.</div></div><div class="llk">ACTIVE</div></div>
+          <a class="dob" href="https://hilbertmesh.gumroad.com" target="_blank">▸ ACCESS STORE</a>
+        </div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">GAME LANE</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">♜</div><div class="lct"><div class="lt">Hilbert Wars</div><div class="ld">RTS prototype lane: economy, base, squads, special systems.</div></div><div class="llk">DEV</div></div>
+          <div class="lane"><div class="lico">⌂</div><div class="lct"><div class="lt">Hilbert Frontier</div><div class="ld">Survival/digging/gameplay world with underground bases and raider pressure.</div></div><div class="llk">DEV</div></div>
+          <div class="lane"><div class="lico">▦</div><div class="lct"><div class="lt">Music App</div><div class="ld">Queue player, offline listening, 432Hz conversion concept.</div></div><div class="llk">QUEUE</div></div>
+          <a class="dob amber" href="s5.html?tab=forge">▸ FORGE GAME DOSSIER</a>
+        </div>
+      </div>
+    </div>
+
     <div class="pnl">
-      <div class="ph">LANE REGISTRY</div>
-      <div class="pb">
-        <div class="lane">
-          <div class="lico">▸</div>
-          <div class="lct">
-            <div class="lt">FORGE EXECUTION</div>
-            <div class="ld">Handles dossier generation and output routing.</div>
-          </div>
-        </div>
-
-        <div class="lane">
-          <div class="lico">▸</div>
-          <div class="lct">
-            <div class="lt">VAULT STORAGE</div>
-            <div class="ld">Stores operator dossiers securely.</div>
-          </div>
-        </div>
-
-        <div class="lane">
-          <div class="lico">▸</div>
-          <div class="lct">
-            <div class="lt">QUEUE PROCESSOR</div>
-            <div class="ld">Tracks active and completed jobs.</div>
-          </div>
-        </div>
+      <div class="ph">TIER LADDER / PRODUCT FLOW</div>
+      <div class="tier-ladder">
+        <div class="tier-rung t1"><div class="tier-name">CIVILIAN</div><div class="tier-ind">1 ACTIVE SESSION</div></div>
+        <div class="tier-rung t2"><div class="tier-name">AGENT</div><div class="tier-ind">3 ACTIVE SESSIONS</div></div>
+        <div class="tier-rung t3"><div class="tier-name">SENIOR</div><div class="tier-ind">5 ACTIVE SESSIONS</div></div>
+        <div class="tier-rung t4"><div class="tier-name">VAULT</div><div class="tier-ind">FILE SIZE LIMITS</div></div>
+        <div class="tier-rung t5"><div class="tier-name">PUBLIC</div><div class="tier-ind">GATED POSTS</div></div>
+      </div>
+      <div class="comp-note">
+        Membership should unlock higher workflow volume without allowing server crashes. Multi-dossier synthesis remains capped by tier, token budget, and storage limits.
       </div>
     </div>
   </div>
 
   <div id="pane-feed" class="pane">
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">SYSTEM FEED — EXTENDED</div>
+        <div id="feedliste"></div>
+        <div class="fpr"><span style="color:var(--g);font-size:10px;">▸</span><span class="fcar">_</span></div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">DEPLOYMENT CHECKLIST</div>
+        <div class="pb">
+          <table class="mt">
+            <tr><td class="mtk">LOGIN</td><td class="mtv">S5 + MASTER</td><td class="mts ok">[PASS]</td></tr>
+            <tr><td class="mtk">SESSIONS</td><td class="mtv">LOCAL SESSION ONLY</td><td class="mts ok">[PASS]</td></tr>
+            <tr><td class="mtk">FORGE</td><td class="mtv">POST /api/forge</td><td class="mts ok">[PASS]</td></tr>
+            <tr><td class="mtk">VAULT</td><td class="mtv">POST /api/vault</td><td class="mts ok">[PASS]</td></tr>
+            <tr><td class="mtk">DOSSIER</td><td class="mtv">POST /api/dossier</td><td class="mts ok">[PASS]</td></tr>
+            <tr><td class="mtk">PAYMENTS</td><td class="mtv">STRIPE TEST</td><td class="mts warn">[TEST]</td></tr>
+            <tr><td class="mtk">DUMMY MONEY</td><td class="mtv">TURN OFF BEFORE LAUNCH</td><td class="mts fail">[REMIND]</td></tr>
+          </table>
+          <div class="stb"><span class="st">[&nbsp;NEXT&nbsp;]</span>After final fake payment tests, take dummy money mode off.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="pnl">
-      <div class="ph">SYSTEM FEED</div>
-      <div id="feedlist">
-        <div class="fe"><div class="ft">[00:01]</div><div class="fm ok">SESSION VERIFIED</div></div>
-        <div class="fe"><div class="ft">[00:02]</div><div class="fm ok">FORGE ROUTE ONLINE</div></div>
-        <div class="fe"><div class="ft">[00:03]</div><div class="fm warn">SIGMA BALANCE CHECK</div></div>
+      <div class="ph">LIVE PRODUCT TEST ORDER</div>
+      <div class="telem-strip">
+        <div class="telem-cell"><div class="telem-lbl">01</div><div class="telem-val">HOME</div><div class="telem-st">main site restored</div></div>
+        <div class="telem-cell"><div class="telem-lbl">02</div><div class="telem-val">PROFILE</div><div class="telem-st">session route</div></div>
+        <div class="telem-cell"><div class="telem-lbl">03</div><div class="telem-val">FORGE</div><div class="telem-st">run pipeline</div></div>
+        <div class="telem-cell"><div class="telem-lbl">04</div><div class="telem-val">VAULT</div><div class="telem-st">download/open</div></div>
+        <div class="telem-cell"><div class="telem-lbl">05</div><div class="telem-val">PAYMENTS</div><div class="telem-st">success/cancel</div></div>
       </div>
     </div>
   </div>
   <div id="pane-footprint" class="pane">
-    <div class="pnl">
-      <div class="ph">NODE FOOTPRINT</div>
-      <div class="pb">
-        <div id="pfmap">
-          <div class="fpm">
-            <svg viewBox="0 0 60 60">
-              <circle cx="30" cy="30" r="18" stroke="rgba(0,255,65,.4)" fill="none"/>
-              <circle cx="30" cy="30" r="10" stroke="rgba(0,255,65,.25)" fill="none"/>
-              <circle cx="30" cy="30" r="3" fill="rgba(0,255,65,.6)"/>
-            </svg>
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">NODE FOOTPRINT</div>
+        <div class="pb">
+          <div class="sigrow">
+            <div>
+              <div class="sigtag">HILBERTMESH.COM</div>
+              <div class="sigsub">PUBLIC NODE // S5 SHELL // DOSSIER ENGINE</div>
+            </div>
+            <div class="sigq">“The public shell is the invitation. The forge is the machine.”</div>
+            <div class="sigr">
+              <div class="sigdom">DOMAIN</div>
+              <div class="sigbld">hilbertmesh.com</div>
+            </div>
           </div>
-          <div>
-            <div class="fph">NODE CORE</div>
-            <div class="fpr2"><span>STATUS:</span> ACTIVE</div>
-            <div class="fpr2"><span>FIELD:</span> STABLE</div>
-            <div class="fpr2"><span>LINK:</span> ESTABLISHED</div>
+
+          <div class="telem-strip" style="margin-top:8px;border:1px solid var(--bd);">
+            <div class="telem-cell"><div class="telem-lbl">SITE</div><div class="telem-val">LIVE</div><div class="telem-st">public shell</div></div>
+            <div class="telem-cell"><div class="telem-lbl">FORGE</div><div class="telem-val">LIVE</div><div class="telem-st">Sigma runs</div></div>
+            <div class="telem-cell"><div class="telem-lbl">VAULT</div><div class="telem-val">LIVE</div><div class="telem-st">private dossiers</div></div>
+            <div class="telem-cell"><div class="telem-lbl">MUSIC</div><div class="telem-val">QUEUE</div><div class="telem-st">premium player later</div></div>
           </div>
-          <div>
-            <div class="fph">EXTENSION</div>
-            <div class="fpr2"><span>VAULT:</span> ONLINE</div>
-            <div class="fpr2"><span>QUEUE:</span> ACTIVE</div>
-            <div class="fpr2"><span>FORGE:</span> READY</div>
+
+          <div class="public-note">
+            Hilbert Mesh is expanding into dossiers, music, cinematic prompts, game prototypes, and operator tools.
+            The current public release should focus on: main site → profile → Sigma → forge → vault → download.
           </div>
         </div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">UPCOMING MODULES</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">♪</div><div class="lct"><div class="lt">Music Player</div><div class="ld">User playlists, account-tier queue limits, library browsing, lockable queues, mobile playback.</div></div><div class="llk">NEXT</div></div>
+          <div class="lane"><div class="lico">♜</div><div class="lct"><div class="lt">Game Vault</div><div class="ld">Purchased games and playable prototypes linked to account profile.</div></div><div class="llk">QUEUE</div></div>
+          <div class="lane"><div class="lico">☷</div><div class="lct"><div class="lt">Public Dossier Channel</div><div class="ld">Publish-ready dossiers after comprehension gate and anti-spam controls.</div></div><div class="llk">QUEUE</div></div>
+          <div class="lane"><div class="lico">⚑</div><div class="lct"><div class="lt">Agent Reports</div><div class="ld">Report agent, moderation review, ban/lockout system, abuse analytics.</div></div><div class="llk">QUEUE</div></div>
+          <div class="action-grid">
+            <a class="dob" href="s5.html?tab=account">▸ PROFILE</a>
+            <a class="dob cyan" href="s5.html?tab=forge">▸ FORGE</a>
+            <a class="dob amber" href="s5.html?tab=charge">▸ BUY SIGMA</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pnl">
+      <div class="ph">MUSIC PLAYER INTEGRATION PLAN</div>
+      <div class="pb">
+        <div class="ovtxt">
+          The uploaded QueueLock player should become a separate `music.html` page later, not embedded into this homepage yet.
+          Free accounts can start with a small playlist cap; members can unlock larger saved playlists and longer queues.
+        </div>
+        <table class="mt">
+          <tr><td class="mtk">FREE PLAYLISTS</td><td class="mtv">10 SONGS</td><td class="mts warn">[PLANNED]</td></tr>
+          <tr><td class="mtk">AGENT PLAYLISTS</td><td class="mtv">EXPANDED</td><td class="mts warn">[PLANNED]</td></tr>
+          <tr><td class="mtk">SENIOR PLAYLISTS</td><td class="mtv">LARGER LIBRARY</td><td class="mts warn">[PLANNED]</td></tr>
+          <tr><td class="mtk">QUEUE LOCK</td><td class="mtv">SUPPORTED BY PLAYER BASE</td><td class="mts ok">[BASE READY]</td></tr>
+          <tr><td class="mtk">VISUALIZER</td><td class="mtv">SUPPORTED BY PLAYER BASE</td><td class="mts ok">[BASE READY]</td></tr>
+          <tr><td class="mtk">BACKGROUND PLAY</td><td class="mtv">MEDIA SESSION API</td><td class="mts ok">[BASE READY]</td></tr>
+        </table>
       </div>
     </div>
   </div>
 
   <div id="pane-forge" class="pane">
-    <div class="pnl">
-      <div class="ph">DOSSIER FORGE</div>
-      <div class="pb">
-        <div class="rn-desc">
-          The forge is executed through the S5 terminal interface.  
-          Direct execution from the public shell is restricted.
-        </div>
-
-        <div class="forge-shell">
-          <div class="forge-steps">
-            <div class="fstep ok">INPUT LOCK</div>
-            <div class="fstep ok">MODE MAP</div>
-            <div class="fstep hot">STRUCT BUILD</div>
-            <div class="fstep">EXPANSION</div>
-            <div class="fstep">COMPILE</div>
-            <div class="fstep">OUTPUT</div>
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">DOSSIER FORGE — PUBLIC ACCESS NODE</div>
+        <div class="pb">
+          <div class="forge-shell">
+            <div class="ovtxt">
+              The forge itself now lives inside the S5 operator terminal. This public tab explains the pipeline and routes users cleanly into the working app.
+            </div>
+            <div class="forge-steps">
+              <div class="fstep ok">01 PROFILE</div>
+              <div class="fstep ok">02 SIGMA BALANCE</div>
+              <div class="fstep ok">03 SEED LOCK</div>
+              <div class="fstep hot">04 RUN FORGE</div>
+              <div class="fstep ok">05 VAULT SAVE</div>
+              <div class="fstep ok">06 DOWNLOAD</div>
+            </div>
+            <div class="action-grid">
+              <a class="dob cyan" href="s5.html?tab=forge">▸ ENTER LIVE FORGE</a>
+              <a class="dob" href="s5.html?tab=account">▸ OPEN PROFILE</a>
+              <a class="dob amber" href="s5.html?tab=charge">▸ BUY SIGMA</a>
+              <a class="dob" href="s5.html?tab=vault">▸ OPEN VAULT</a>
+            </div>
           </div>
 
           <div class="public-note">
-            To access full forge capability, authenticate via the S5 terminal.  
-            Public users may only observe system structure and sample flows.
+            Current cost rule: 1Σ per basic run. Hilbert, intelligence, research, refinery, critique, and expansion protocols run through the S5 terminal.
           </div>
+        </div>
+      </div>
 
-          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-            <a href="s5.html?tab=forge" class="dob cyan">▸ OPEN FORGE TERMINAL</a>
-            <a href="s5.html?tab=account" class="dob">▸ OPERATOR LOGIN</a>
-          </div>
+      <div class="pnl">
+        <div class="ph">FORGE UX TARGET</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">01</div><div class="lct"><div class="lt">Profile-first flow</div><div class="ld">Users log in once and land in account hub.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">02</div><div class="lct"><div class="lt">Step tracker</div><div class="ld">Forge shows session auth, seed lock, mode arbitration, Sigma debit, dispatch, save, sync.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">03</div><div class="lct"><div class="lt">Vault sync</div><div class="ld">Dossier appears in private vault after generation.</div></div><div class="llk">LIVE</div></div>
+          <div class="lane"><div class="lico">04</div><div class="lct"><div class="lt">Next shell</div><div class="ld">Open dossier should eventually launch a Pip-Boy / Fallout-style viewer.</div></div><div class="llk">NEXT</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pnl">
+      <div class="ph">ONE-PAGE STRESS TEST SEEDS</div>
+      <div class="seed-grid">
+        <div class="seed-card">
+          <div class="seed-tag">PAYLOAD TEST</div>
+          <div class="seed-case">Vault + Metadata Check</div>
+          <div class="seed-body">Create a compact 1-page technical dossier proving a live AI dossier pipeline can authenticate a user, debit a run credit, dispatch a model call, save output to a private vault, and expose download metadata. Include risks and failure modes.</div>
+          <div class="seed-footer"><span class="seed-mode">pipeline</span><button class="seed-copy" data-copy="Create a compact 1-page technical dossier proving a live AI dossier pipeline can authenticate a user, debit a run credit, dispatch a model call, save output to a private vault, and expose download metadata. Include risks and failure modes.">COPY</button></div>
+        </div>
+        <div class="seed-card">
+          <div class="seed-tag">HILBERT</div>
+          <div class="seed-case">Frontier Lava Tube Base</div>
+          <div class="seed-body">Create a 1-page Hilbert Frontier dossier for a prepared survivor building a tiny underground base inside a lunar lava tube. Include power, water, storage, shaft bracing, threat model, and one unresolved signal anomaly.</div>
+          <div class="seed-footer"><span class="seed-mode">hilbert</span><button class="seed-copy" data-copy="Create a 1-page Hilbert Frontier dossier for a prepared survivor building a tiny underground base inside a lunar lava tube. Include power, water, storage, shaft bracing, threat model, and one unresolved signal anomaly.">COPY</button></div>
+        </div>
+        <div class="seed-card">
+          <div class="seed-tag">CLEAN</div>
+          <div class="seed-case">Anti-spam Public Forum</div>
+          <div class="seed-body">Create a 1-page product-security dossier for a public AI dossier forum. Include anti-spam gates, report buttons, moderation workflow, rate limits, file-size vault caps, and how to avoid surveillance-style overreach.</div>
+          <div class="seed-footer"><span class="seed-mode">intel-clean</span><button class="seed-copy" data-copy="Create a 1-page product-security dossier for a public AI dossier forum. Include anti-spam gates, report buttons, moderation workflow, rate limits, file-size vault caps, and how to avoid surveillance-style overreach.">COPY</button></div>
         </div>
       </div>
     </div>
   </div>
+
+  <div id="pane-community" class="pane">
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">PUBLIC DOSSIER CHANNEL</div>
+        <div class="pb">
+          <div class="ovtxt">
+            Public posting is gated. Operators must pass the dossier comprehension task before publishing into public channels.
+            Dossiers remain private by default until the operator chooses to publish.
+          </div>
+          <div class="forge-steps">
+            <div class="fstep ok">01 PRIVATE DOSSIER</div>
+            <div class="fstep ok">02 COMPREHENSION TASK</div>
+            <div class="fstep hot">03 REVIEW GATE</div>
+            <div class="fstep">04 PUBLIC CHANNEL</div>
+          </div>
+          <div class="action-grid">
+            <a class="dob cyan" href="s5.html?tab=vault">▸ OPEN PRIVATE VAULT</a>
+            <a class="dob" href="s5.html?tab=account">▸ PROFILE / LOGIN</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">COMMUNITY MODULES</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">☷</div><div class="lct"><div class="lt">Public Dossier Feed</div><div class="ld">Finished public dossiers after gate completion.</div></div><div class="llk">NEXT</div></div>
+          <div class="lane"><div class="lico">☉</div><div class="lct"><div class="lt">Group Channels</div><div class="ld">Private/public groups for operators and members.</div></div><div class="llk">QUEUE</div></div>
+          <div class="lane"><div class="lico">⚑</div><div class="lct"><div class="lt">Report Agent</div><div class="ld">Report abuse, spam, trolling, or prompt-injection attempts.</div></div><div class="llk">QUEUE</div></div>
+          <div class="public-note">Public chat stays locked until the dossier comprehension path is complete.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pane-music" class="pane">
+    <div class="twoCol">
+      <div class="pnl">
+        <div class="ph">MUSIC / DJ BOOTH</div>
+        <div class="pb">
+          <div class="ovtxt">
+            Music is moving into its own S5 player module. Free accounts get a 10-song queue.
+            Members unlock larger queues, paid song libraries, alternate versions, and future album delivery into profile.
+          </div>
+          <div class="telem-strip" style="border:1px solid var(--bd);margin-bottom:8px;">
+            <div class="telem-cell"><div class="telem-lbl">FREE QUEUE</div><div class="telem-val">10</div><div class="telem-st">songs</div></div>
+            <div class="telem-cell"><div class="telem-lbl">AGENT</div><div class="telem-val">+</div><div class="telem-st">larger queue</div></div>
+            <div class="telem-cell"><div class="telem-lbl">SENIOR</div><div class="telem-val">++</div><div class="telem-st">paid vault</div></div>
+          </div>
+          <div class="action-grid">
+            <a class="dob cyan" href="music.html">▸ OPEN DJ BOOTH</a>
+            <a class="dob amber" href="s5.html?tab=upgrade">▸ MEMBERSHIP UNLOCKS</a>
+            <a class="dob" href="s5.html?tab=account">▸ PROFILE</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="pnl">
+        <div class="ph">PAID SONG VAULT PLAN</div>
+        <div class="pb">
+          <div class="lane"><div class="lico">♪</div><div class="lct"><div class="lt">Grandma's Biskit EP</div><div class="ld">First paid album/EP test target.</div></div><div class="llk">TEST</div></div>
+          <div class="lane"><div class="lico">≋</div><div class="lct"><div class="lt">Alternate Versions</div><div class="ld">Purchases can unlock more versions than public posts.</div></div><div class="llk">PLAN</div></div>
+          <div class="lane"><div class="lico">⟐</div><div class="lct"><div class="lt">Profile Delivery</div><div class="ld">Purchased songs later appear under Paid Songs in profile.</div></div><div class="llk">NEXT</div></div>
+          <div class="public-note">Master-only uploads will require backend object storage later; the current DJ Booth tests playback and routing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div id="dov">
   <div id="din">
     <div id="dhdr">
-      <div id="dtitle">DOSSIER VIEW</div>
-      <div class="dmeta">CLASS: S5</div>
+      <div id="dtitle">DOSSIER VIEWER</div>
+      <div class="dmeta" id="dmeta">PAGE 1 / 1</div>
       <button id="dclose">CLOSE</button>
     </div>
-
-    <div id="dnav">
-      <div class="dnl">PAGES</div>
-      <button class="dtab active">1</button>
-      <button class="dtab">2</button>
-      <button class="dtab">3</button>
-    </div>
-
+    <div id="dnav"><div class="dnl">PAGES</div></div>
     <div id="dprg"><div id="dpf"></div></div>
-
-    <div id="dbody">
-      <div class="dpg active">
-        <div class="dph">
-          <div class="dps">SECTION</div>
-          <div class="dpt">INITIALIZATION</div>
-          <div class="dpsu">ENTRY STATE</div>
-        </div>
-        <div class="dbtx">
-          The system initializes within a bounded constraint field.  
-          Observational coherence remains stable under current load.
-        </div>
-      </div>
-
-      <div class="dpg">
-        <div class="dph">
-          <div class="dps">SECTION</div>
-          <div class="dpt">EXPANSION</div>
-          <div class="dpsu">PROCESSING</div>
-        </div>
-        <div class="dbtx">
-          Expansion routines generate structured outputs based on seed parameters.  
-          Each pass refines coherence and density.
-        </div>
-      </div>
-
-      <div class="dpg">
-        <div class="dph">
-          <div class="dps">SECTION</div>
-          <div class="dpt">OUTPUT</div>
-          <div class="dpsu">FINAL STATE</div>
-        </div>
-        <div class="dbtx">
-          Output is compiled and stored within the vault layer.  
-          Access is restricted by clearance level.
-        </div>
-      </div>
-    </div>
-
+    <div id="dbody"></div>
     <div id="dfoot">
-      <button class="dpnav">◂ PREV</button>
-      <div id="dpind">1 / 3</div>
-      <button class="dpnav">NEXT ▸</button>
+      <button class="dpnav" id="dprev">PREV</button>
+      <div id="dpind">PAGE 1 / 1</div>
+      <button class="dpnav" id="dnext">NEXT</button>
     </div>
   </div>
 </div>
-<div id="sound-note">AUDIO ENABLED</div>
 
 <script>
-/* ---------- TAB SYSTEM ---------- */
-const tabs = document.querySelectorAll(".tab");
-const panes = document.querySelectorAll(".pane");
+const APP = {
+  currentPane: "overview",
+  currentDossier: null,
+  pageIndex: 0,
+  feed: [
+    ["00:01:14","FORGE BACKEND ONLINE","ok"],
+    ["00:02:08","VAULT RESPONSE PATH GREEN","ok"],
+    ["00:03:41","SIGMA CHARGE ROUTE ACTIVE","warn"],
+    ["00:05:22","PUBLIC SHELL RESTORED","ok"],
+    ["00:06:03","MUSIC PLAYER BASE QUEUED","warn"]
+  ],
+  lore: [
+    {
+      text: `"The frame holds because we hold the frame.<br>Reality-feel is not a property of the world.<br>It is a property of the processing system.<br>Remove the observer and the coherence<br>does not persist."`,
+      attr: "— AF-22 // Hment ⊕ Hcaus Boundary Layer"
+    },
+    {
+      text: `"Every archive is a pressure vessel.<br>Every dossier is a valve.<br>The question is not whether the world can be described.<br>The question is who survives the description."`,
+      attr: "— CI-Ω7 // Archive Intelligence Fragment"
+    },
+    {
+      text: `"A terminal is not a screen.<br>It is a ritualized boundary between intention and machinery."`,
+      attr: "— S5 Interface Doctrine"
+    }
+  ],
+  loreIndex: 0,
+  dossiers: [
+    {
+      id:"starter-0",
+      title:"REALITY MANUFACTURING — IT-1 DOCTRINE FRAGMENT",
+      tier:"T5",
+      confidence:"high",
+      status:"SEALED",
+      fragments:35,
+      pages:[
+        {
+          title:"IDENTITY BLOCK",
+          subtitle:"RM-01 // CONSTRAINT-FIELD OBSERVATORY",
+          body:`<div class="dbtx"><strong>Reality Manufacturing</strong> frames the observer as an operational component inside a coherence-production loop. The doctrine does not claim the world is fake; it treats reality-feel as an engineered stability property produced by constraint, feedback, and observer participation.</div>
+          <div class="dsec">Core claim</div>
+          <div class="deq">H<sub>safe</sub> = f(C, Ξ, O<sub>load</sub>, Σ<sub>ethics</sub>)</div>
+          <div class="dflg">Σ-AMBER ethics layer remains enforced across all experimental interpretation.</div>`
+        },
+        {
+          title:"PRESSURE MAP",
+          subtitle:"HMENT ⊕ HCAUS BOUNDARY",
+          body:`<table class="dtbl"><tr><th>Layer</th><th>Observed Function</th><th>Risk</th></tr><tr><td>Observer</td><td>coherence witness</td><td>feedback contamination</td></tr><tr><td>Archive</td><td>memory pressure</td><td>false canonization</td></tr><tr><td>Aegis</td><td>safety corridor</td><td>overconstraint</td></tr></table>
+          <div class="dnote">Fragment retained as lore/science-fiction artifact. Not a real-world physics claim.</div>`
+        }
+      ]
+    },
+    {
+      id:"starter-1",
+      title:"HILBERT FRONTIER — LAVA TUBE SETTLEMENT INDEX",
+      tier:"T3",
+      confidence:"mod",
+      status:"ACTIVE",
+      fragments:12,
+      pages:[
+        {
+          title:"FRONTIER SITE",
+          subtitle:"UNDERGROUND BASE / SURVIVAL LANE",
+          body:`<div class="dbtx">A prepared survivor establishes a tiny underground base using reinforced shafts, low-profile storage, silent power, and thermal shielding. The lava tube is stable enough to anchor a first shelter but unstable enough to keep every expansion risky.</div>
+          <div class="dsec">Base essentials</div>
+          <table class="dtbl"><tr><th>System</th><th>Need</th><th>Failure Mode</th></tr><tr><td>Bracing</td><td>shaft stability</td><td>collapse</td></tr><tr><td>Water</td><td>sealed reserve</td><td>contamination</td></tr><tr><td>Power</td><td>quiet battery loop</td><td>signal exposure</td></tr></table>`
+        },
+        {
+          title:"UNRESOLVED SIGNAL",
+          subtitle:"SURFACE / SUBSURFACE DRIFT",
+          body:`<div class="dbrh">ANOMALY: repeating tone detected below storage chamber three.</div>
+          <div class="dbtx">The signal does not behave like radio reflection or tunnel echo. It pulses only when the base lights are off.</div>`
+        }
+      ]
+    },
+    {
+      id:"starter-2",
+      title:"DOSSIER FORGE — PRODUCT SECURITY BRIEF",
+      tier:"T3",
+      confidence:"high",
+      status:"LIVE",
+      fragments:8,
+      pages:[
+        {
+          title:"LIVE PRODUCT PATH",
+          subtitle:"PROFILE → SIGMA → FORGE → VAULT",
+          body:`<div class="dbtx">The working product loop is now concrete: user creates or logs into an S5 account, buys Sigma, runs the forge, receives output, and finds the private dossier in the vault.</div>
+          <div class="dsec">Current green routes</div>
+          <table class="dtbl"><tr><th>Route</th><th>Status</th></tr><tr><td>/api/forge</td><td>green</td></tr><tr><td>/api/vault</td><td>green</td></tr><tr><td>/api/dossier</td><td>green</td></tr><tr><td>/api/create-checkout-session</td><td>green</td></tr></table>`
+        }
+      ]
+    }
+  ]
+};
 
-tabs.forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    tabs.forEach(b=>b.classList.remove("active"));
-    panes.forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    const target = document.getElementById("pane-" + btn.dataset.pane);
-    if(target) target.classList.add("active");
-  });
-});
+function $(id){ return document.getElementById(id); }
 
-/* ---------- CLOCK ---------- */
-function updateClock(){
+function setClock(){
   const d = new Date();
-  const t = d.toLocaleTimeString("en-US",{hour12:false});
-  const el = document.getElementById("rclock");
-  if(el) el.textContent = t;
+  $("rclock").textContent = d.toLocaleTimeString([], {hour12:false});
 }
-setInterval(updateClock,1000);
-updateClock();
+setClock();
+setInterval(setClock,1000);
 
-/* ---------- AUDIO SYSTEM (NON-ANNOYING) ---------- */
-let audioCtx;
-function initAudio(){
-  if(audioCtx) return;
-  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+function route(tab){
+  if(tab === "account") location.href = "s5.html?tab=account";
+  if(tab === "forge") location.href = "s5.html?tab=forge";
+  if(tab === "vault") location.href = "s5.html?tab=vault";
+  if(tab === "charge") location.href = "s5.html?tab=charge";
+  if(tab === "upgrade") location.href = "s5.html?tab=upgrade";
 }
-function playBeep(freq=420,vol=0.015,dur=0.06){
-  if(!audioCtx) return;
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.frequency.value = freq;
-  g.gain.value = vol;
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),dur*1000);
-}
-document.getElementById("mbtn")?.addEventListener("click",()=>{
-  initAudio();
-  playBeep(600,0.02,0.08);
-  const n = document.getElementById("sound-note");
-  if(n){
-    n.classList.add("show");
-    setTimeout(()=>n.classList.remove("show"),1200);
-  }
+
+document.querySelectorAll("[data-route]").forEach(btn=>{
+  btn.addEventListener("click",()=>route(btn.dataset.route));
 });
 
-/* ---------- DOSSIER VIEWER ---------- */
-const dov = document.getElementById("dov");
-const dclose = document.getElementById("dclose");
-
-document.querySelectorAll(".dreg-card").forEach(card=>{
-  card.addEventListener("click",()=>{
-    dov.classList.add("open");
-    document.getElementById("din").classList.add("ain");
+document.querySelectorAll("#tabs .tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    const pane = tab.dataset.pane;
+    APP.currentPane = pane;
+    document.querySelectorAll("#tabs .tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(p=>p.classList.remove("active"));
+    tab.classList.add("active");
+    $("pane-"+pane).classList.add("active");
   });
 });
 
-dclose?.addEventListener("click",()=>{
-  dov.classList.remove("open");
-});
+function renderFeed(){
+  const html = APP.feed.map(f=>`<div class="fe"><div class="ft">${f[0]}</div><div class="fm ${f[2]}">${f[1]}</div></div>`).join("");
+  if($("feedlist")) $("feedlist").innerHTML = html;
+  if($("feedliste")) $("feedliste").innerHTML = html + `<div class="fe"><div class="ft">00:07:44</div><div class="fm warn">TEST ALL PAYMENT BUTTONS WITH FAKE MONEY, THEN DISABLE DUMMY MONEY MODE</div></div>`;
+}
+renderFeed();
 
-/* ---------- DOSSIER NAV ---------- */
-const pages = document.querySelectorAll(".dpg");
-const tabsNav = document.querySelectorAll(".dtab");
-let pageIndex = 0;
+function nextLore(){
+  APP.loreIndex = (APP.loreIndex + 1) % APP.lore.length;
+  $("lfrag").style.opacity = "0";
+  setTimeout(()=>{
+    $("lfrag").innerHTML = APP.lore[APP.loreIndex].text;
+    $("lattr").textContent = APP.lore[APP.loreIndex].attr;
+    $("lfrag").style.opacity = "1";
+  },160);
+}
+if($("loreNext")) $("loreNext").addEventListener("click", nextLore);
 
-function setPage(i){
-  pages.forEach(p=>p.classList.remove("active"));
-  tabsNav.forEach(t=>t.classList.remove("active"));
-  pageIndex = Math.max(0,Math.min(i,pages.length-1));
-  pages[pageIndex].classList.add("active");
-  tabsNav[pageIndex].classList.add("active");
-  document.getElementById("dpind").textContent = (pageIndex+1)+" / "+pages.length;
-  document.getElementById("dpf").style.width = ((pageIndex+1)/pages.length*100)+"%";
+function renderDossierRegistry(){
+  const list = $("dreg-list");
+  if(!list) return;
+  $("dreg-count").textContent = APP.dossiers.length + " ARTIFACTS";
+  list.innerHTML = APP.dossiers.map(d=>`
+    <div class="dreg-card new-mat" onclick="openDossierById('${d.id}')">
+      <div class="drc-top">
+        <div class="drc-id">${d.id.toUpperCase()}</div>
+        <div class="drc-title">${d.title}</div>
+        <div class="drc-open">OPEN</div>
+      </div>
+      <div class="drc-meta">
+        <span class="drc-tag tier-${d.tier.toLowerCase()}">${d.tier}</span>
+        <span class="drc-conf ${d.confidence}">CONF: ${d.confidence.toUpperCase()}</span>
+        <span class="drc-fcount">${d.fragments} FRAG</span>
+        <span class="drc-status">${d.status}</span>
+      </div>
+    </div>
+  `).join("");
+}
+renderDossierRegistry();
+
+function openDossierById(id){
+  const dossier = APP.dossiers.find(d=>d.id===id);
+  if(!dossier) return;
+  APP.currentDossier = dossier;
+  APP.pageIndex = 0;
+  document.body.classList.add("dossier-open");
+  $("dov").classList.add("open");
+  $("din").classList.remove("ain");
+  void $("din").offsetWidth;
+  $("din").classList.add("ain");
+  renderDossier();
 }
 
-tabsNav.forEach((t,i)=>t.addEventListener("click",()=>setPage(i)));
+function renderDossier(){
+  const d = APP.currentDossier;
+  if(!d) return;
+  $("dtitle").textContent = d.title;
+  $("dmeta").textContent = `PAGE ${APP.pageIndex+1} / ${d.pages.length}`;
+  $("dpind").textContent = `PAGE ${APP.pageIndex+1} / ${d.pages.length}`;
+  $("dpf").style.width = ((APP.pageIndex+1)/d.pages.length*100)+"%";
 
-document.querySelectorAll(".dpnav")[0]?.addEventListener("click",()=>setPage(pageIndex-1));
-document.querySelectorAll(".dpnav")[1]?.addEventListener("click",()=>setPage(pageIndex+1));
+  $("dnav").innerHTML = `<div class="dnl">PAGES</div>` + d.pages.map((p,i)=>`
+    <button class="dtab ${i===APP.pageIndex?"active":""}" onclick="APP.pageIndex=${i};renderDossier();">P${String(i+1).padStart(2,"0")}</button>
+  `).join("");
 
-/* ---------- SEED COPY ---------- */
-document.querySelectorAll(".seed-copy").forEach(btn=>{
-  btn.addEventListener("click",(e)=>{
-    const txt = e.target.closest(".seed-card").querySelector(".seed-body").textContent;
-    navigator.clipboard.writeText(txt);
-    playBeep(720,0.015,0.05);
-  });
+  $("dbody").innerHTML = d.pages.map((p,i)=>`
+    <div class="dpg ${i===APP.pageIndex?"active":""}">
+      <div class="dph">
+        <div class="dps">HILBERT MESH // ${d.id.toUpperCase()}</div>
+        <div class="dpt">${p.title}</div>
+        <div class="dpsu">${p.subtitle || ""}</div>
+      </div>
+      ${p.body}
+      <div class="dsal">
+        <div class="dsal-t">The archive is not a graveyard. It is a pressure map.</div>
+        <div class="dsal-h">S5 SYSTEM NODE // PUBLIC SHELL</div>
+      </div>
+    </div>
+  `).join("");
+
+  $("dprev").disabled = APP.pageIndex <= 0;
+  $("dnext").disabled = APP.pageIndex >= d.pages.length - 1;
+}
+
+$("dclose").addEventListener("click",()=>{
+  $("dov").classList.remove("open");
+  document.body.classList.remove("dossier-open");
+});
+$("dprev").addEventListener("click",()=>{
+  if(APP.pageIndex>0){ APP.pageIndex--; renderDossier(); }
+});
+$("dnext").addEventListener("click",()=>{
+  const d = APP.currentDossier;
+  if(d && APP.pageIndex<d.pages.length-1){ APP.pageIndex++; renderDossier(); }
 });
 
-/* ---------- SEED EXPAND ---------- */
 document.querySelectorAll(".seed-card").forEach(card=>{
-  card.addEventListener("click",()=>{
+  card.addEventListener("click",e=>{
+    if(e.target.classList.contains("seed-copy")) return;
     card.classList.toggle("open");
   });
 });
-
-/* ---------- LIGHT SYSTEM FEED ---------- */
-function pushFeed(msg,type="ok"){
-  const list = document.getElementById("feedlist");
-  if(!list) return;
-  const el = document.createElement("div");
-  el.className="fe";
-  el.innerHTML='<div class="ft">['+new Date().toLocaleTimeString().slice(0,5)+']</div><div class="fm '+type+'">'+msg+'</div>';
-  list.prepend(el);
-  if(list.children.length>12) list.removeChild(list.lastChild);
-}
-setTimeout(()=>pushFeed("NODE ONLINE","ok"),1200);
-setTimeout(()=>pushFeed("FORGE ROUTE READY","ok"),2600);
-
-/* ---------- SAFE LINKS ---------- */
-document.querySelectorAll("a[href='s5.html']").forEach(a=>{
-  a.setAttribute("href","s5.html?tab=account");
+document.querySelectorAll(".seed-copy").forEach(btn=>{
+  btn.addEventListener("click",async e=>{
+    e.stopPropagation();
+    const text = btn.dataset.copy || "";
+    try{
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "COPIED";
+      setTimeout(()=>btn.textContent="COPY",900);
+    }catch{
+      btn.textContent = "COPY FAIL";
+      setTimeout(()=>btn.textContent="COPY",900);
+    }
+  });
 });
-</script>
 
+$("mbtn").addEventListener("click",()=>{
+  const b = $("mbtn");
+  b.textContent = b.textContent === "♪" ? "×" : "♪";
+});
+
+try{
+  localStorage.removeItem("hmf_s5_code");
+  localStorage.removeItem("hmf_s5_code_DEPRECATED");
+}catch{}
+</script>
 </body>
 </html>
