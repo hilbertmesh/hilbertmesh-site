@@ -1470,13 +1470,6 @@ async function runForge(queueOnly = false){
     $("scanLine").classList.add("hidden");
   }
 }
-      <script>
-/* continuation intentionally not opened twice when appending:
-   If your Part 6 already ends inside <script>, paste only the code below,
-   then keep the closing </script></body></html> at the bottom.
-*/
-</script>
-<script>
 function renderDev(){
   const box = $("devOutput");
   if(!box) return;
@@ -1908,7 +1901,6 @@ async function checkoutTier(tier){
   if(r.ok && r.url){ location.href = r.url; return; }
   alert("CHECKOUT FAILED:\n" + fmtErr(r));
 }
-
 function bindEvents(){
   document.querySelectorAll(".tabs .btn").forEach(btn => {
     btn.onclick = () => selectTab(btn.dataset.tab);
@@ -1926,100 +1918,130 @@ function bindEvents(){
     };
   });
 
-  $("loginBtn").onclick = async () => {
-    const raw = clean($("codeInput").value,160);
-    if(!raw){
-      $("loginErr").textContent = "ENTER OPERATOR CODE.";
-      $("loginErr").classList.remove("hidden");
-      return;
-    }
-    $("loginBtn").disabled = true;
-    await authenticate(raw);
-    $("loginBtn").disabled = false;
-  };
+  if($("loginBtn")){
+    $("loginBtn").onclick = async () => {
+      const raw = clean($("codeInput")?.value || "",160);
 
-  $("codeInput").addEventListener("keydown", e => {
-    if(e.key === "Enter") $("loginBtn").click();
-  });
+      if(!raw){
+        if($("loginErr")){
+          $("loginErr").textContent = "ENTER OPERATOR CODE.";
+          $("loginErr").classList.remove("hidden");
+        }
+        return;
+      }
 
-  $("createCivilianBtn").onclick = async () => {
-    $("createErr").classList.add("hidden");
-    const r = await postJson("/api/create-s5-code", {
-      email:clean($("newEmail").value,254),
-      username:clean($("newUsername").value,32),
-      phone:clean($("newPhone").value,32)
+      $("loginBtn").disabled = true;
+      try{
+        await authenticate(raw);
+      }catch(err){
+        if($("loginErr")){
+          $("loginErr").textContent = "FRONTEND AUTH ERROR: " + (err?.message || String(err));
+          $("loginErr").classList.remove("hidden");
+        }
+      }finally{
+        $("loginBtn").disabled = false;
+      }
+    };
+  }
+
+  if($("codeInput") && $("loginBtn")){
+    $("codeInput").addEventListener("keydown", e => {
+      if(e.key === "Enter") $("loginBtn").click();
     });
+  }
 
-    if(!r.ok){
-      $("createErr").textContent = fmtErr(r);
-      $("createErr").classList.remove("hidden");
-      return;
-    }
+  if($("createCivilianBtn")){
+    $("createCivilianBtn").onclick = async () => {
+      if($("createErr")) $("createErr").classList.add("hidden");
 
-    $("issuedCodeDisplay").textContent = r.code || "";
-    $("issuedCodeBox").classList.remove("hidden");
+      const r = await postJson("/api/create-s5-code", {
+        email:clean($("newEmail")?.value || "",254),
+        username:clean($("newUsername")?.value || "",32),
+        phone:clean($("newPhone")?.value || "",32)
+      });
 
-    if(r.sessionId){
-      state.sessionId = r.sessionId;
-      state.user = {
-        username:$("newUsername").value || "OPERATOR",
-        clearance:r.clearance || "CIVILIAN",
-        sigma:r.sigma || 0,
-        agentNumber:r.agentNumber || ""
-      };
-      saveSession(r.sessionId);
-    }
-  };
+      if(!r.ok){
+        if($("createErr")){
+          $("createErr").textContent = fmtErr(r);
+          $("createErr").classList.remove("hidden");
+        }
+        return;
+      }
 
-  $("copyIssuedCode").onclick = async () => {
-    try{ await navigator.clipboard.writeText($("issuedCodeDisplay").textContent || ""); }catch{}
-  };
+      if($("issuedCodeDisplay")) $("issuedCodeDisplay").textContent = r.code || "";
+      if($("issuedCodeBox")) $("issuedCodeBox").classList.remove("hidden");
 
-  $("enterIssuedProfile").onclick = async () => {
-    if(state.sessionId){
-      await loadProfileState(false);
-      showTerminal("account");
-      return;
-    }
-    $("codeInput").value = $("issuedCodeDisplay").textContent || "";
-    await authenticate($("codeInput").value);
-  };
+      if(r.sessionId){
+        state.sessionId = r.sessionId;
+        state.user = {
+          username:$("newUsername")?.value || "OPERATOR",
+          clearance:r.clearance || "CIVILIAN",
+          sigma:r.sigma || 0,
+          agentNumber:r.agentNumber || ""
+        };
+        saveSession(r.sessionId);
+      }
+    };
+  }
 
-  $("refreshBtn").onclick = async () => {
-    await loadProfileState(true);
-    renderVault();
-    renderCourseDossiers();
-  };
+  if($("copyIssuedCode")){
+    $("copyIssuedCode").onclick = async () => {
+      try{ await navigator.clipboard.writeText($("issuedCodeDisplay")?.textContent || ""); }catch{}
+    };
+  }
 
-  $("saveProfileBtn").onclick = saveProfile;
-  $("logoutBtn").onclick = () => {
-    clearSession();
-    state.sessionId = "";
-    state.user = null;
-    location.href = "./s5.html";
-  };
+  if($("enterIssuedProfile")){
+    $("enterIssuedProfile").onclick = async () => {
+      if(state.sessionId){
+        await loadProfileState(false);
+        showTerminal("account");
+        return;
+      }
+      if($("codeInput")) $("codeInput").value = $("issuedCodeDisplay")?.textContent || "";
+      await authenticate($("codeInput")?.value || "");
+    };
+  }
 
-  $("openMusicPageBtn").onclick = () => {
-    location.href = "./music.html";
-  };
+  if($("refreshBtn")){
+    $("refreshBtn").onclick = async () => {
+      await loadProfileState(true);
+      renderVault();
+      renderCourseDossiers();
+    };
+  }
 
-  $("runForgeBtn").onclick = () => runForge(false);
-  $("queueForgeBtn").onclick = () => runForge(true);
+  if($("saveProfileBtn")) $("saveProfileBtn").onclick = saveProfile;
 
-  $("refreshVaultBtn").onclick = loadVault;
-  $("clearVaultViewBtn").onclick = () => { $("vaultList").innerHTML = ""; };
+  if($("logoutBtn")){
+    $("logoutBtn").onclick = () => {
+      clearSession();
+      state.sessionId = "";
+      state.user = null;
+      location.href = "./s5.html";
+    };
+  }
 
-  $("pubIngestBtn").onclick = ingestPublicDossier;
-  $("refreshCourseBtn").onclick = loadPublicDossierState;
-  $("refreshPublicBtn").onclick = loadPublicDossierState;
+  if($("openMusicPageBtn")){
+    $("openMusicPageBtn").onclick = () => selectTab("music");
+  }
 
-  $("createChatBtn").onclick = createChatRoom;
-  $("refreshChatsBtn").onclick = loadChats;
-  $("sendChatBtn").onclick = sendChatMessage;
+  if($("runForgeBtn")) $("runForgeBtn").onclick = () => runForge(false);
+  if($("queueForgeBtn")) $("queueForgeBtn").onclick = () => runForge(true);
 
-  $("refreshMusicBtn").onclick = loadMusic;
-  $("clearQueueBtn").onclick = () => { state.musicQueue = []; renderMusicQueue(); };
-  $("uploadTrackBtn").onclick = uploadTrack;
+  if($("refreshVaultBtn")) $("refreshVaultBtn").onclick = loadVault;
+  if($("clearVaultViewBtn")) $("clearVaultViewBtn").onclick = () => { if($("vaultList")) $("vaultList").innerHTML = ""; };
+
+  if($("pubIngestBtn")) $("pubIngestBtn").onclick = ingestPublicDossier;
+  if($("refreshCourseBtn")) $("refreshCourseBtn").onclick = loadPublicDossierState;
+  if($("refreshPublicBtn")) $("refreshPublicBtn").onclick = loadPublicDossierState;
+
+  if($("createChatBtn")) $("createChatBtn").onclick = createChatRoom;
+  if($("refreshChatsBtn")) $("refreshChatsBtn").onclick = loadChats;
+  if($("sendChatBtn")) $("sendChatBtn").onclick = sendChatMessage;
+
+  if($("refreshMusicBtn")) $("refreshMusicBtn").onclick = loadMusic;
+  if($("clearQueueBtn")) $("clearQueueBtn").onclick = () => { state.musicQueue = []; renderMusicQueue(); };
+  if($("uploadTrackBtn")) $("uploadTrackBtn").onclick = uploadTrack;
 
   document.querySelectorAll("[data-sigma]").forEach(btn => {
     btn.onclick = () => checkoutSigma(btn.dataset.sigma);
@@ -2029,9 +2051,8 @@ function bindEvents(){
     btn.onclick = () => checkoutTier(btn.dataset.tier);
   });
 
-  $("dumpStateBtn").onclick = renderDev;
+  if($("dumpStateBtn")) $("dumpStateBtn").onclick = renderDev;
 }
-
 (async function init(){
   purgeRawCodes();
   bindEvents();
