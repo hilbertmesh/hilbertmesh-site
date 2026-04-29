@@ -1334,15 +1334,20 @@ async function authenticate(rawCode){
 
   const r = await postJson("/api/verify-s5-code", { code:rawCode });
 
-  if(!r.ok){
+  if(!r.ok || !r.sessionId || !r.user){
     $("loginErr").textContent = fmtErr(r);
     $("loginErr").classList.remove("hidden");
     return false;
   }
 
-  state.sessionId = r.sessionId || "";
-  state.user = r.user || null;
+  state.sessionId = r.sessionId;
+  state.user = r.user;
   saveSession(state.sessionId);
+
+  $("loginPanel").classList.add("hidden");
+  $("termPanel").classList.remove("hidden");
+
+  renderUser();
 
   await loadProfileState(false);
   showTerminal(requestedTab());
@@ -2055,17 +2060,38 @@ function bindEvents(){
 }
 (async function init(){
   purgeRawCodes();
-  bindEvents();
 
-  const tab = requestedTab();
-  const saved = loadSession();
+  const existing = loadSession();
 
-  if(saved){
-    const ok = await verifySession(saved, tab);
-    if(ok) return;
+  if(existing){
+    state.sessionId = existing;
+
+    const r = await getJson("/api/verify-session?sessionId=" + encodeURIComponent(existing));
+
+    if(r.ok && r.user){
+      state.user = r.user;
+
+      // 🔥 THIS WAS MISSING
+      $("loginPanel").classList.add("hidden");
+      $("termPanel").classList.remove("hidden");
+
+      renderUser();
+
+      const tab = requestedTab();
+      selectTab(tab);
+
+      await loadProfileState(false);
+      return;
+    }
+
+    // invalid session → clear it
+    clearSession();
+    state.sessionId = "";
   }
 
-  showLogin();
+  // fallback = show login
+  $("loginPanel").classList.remove("hidden");
+  $("termPanel").classList.add("hidden");
 })();
 </script>
 </body>
