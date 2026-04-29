@@ -1410,14 +1410,14 @@ function route(tab){
   if(pane) pane.classList.add("active");
 
   const match = [...document.querySelectorAll(".tab")]
-    .find(t => t.textContent.toLowerCase().includes(tab));
+    .find(t => (t.textContent || "").trim().toLowerCase() === tab);
   if(match) match.classList.add("active");
 }
 
 /* ===================== S5 ROUTING ===================== */
 function goS5(tab){
-  // preserves intended tab without forcing auth loop
-  location.href = "s5.html?tab=" + encodeURIComponent(tab || "account");
+  const t = encodeURIComponent(tab || "account");
+  window.location.assign("s5.html?tab=" + t);
 }
 
 /* ===================== CLOCK ===================== */
@@ -1440,26 +1440,25 @@ const FEED_LINES = [
 ];
 
 function addFeedLine(type,msg){
-  const wrap = document.getElementById("feedlist");
-  if(!wrap) return;
+  const targets = [
+    document.getElementById("feedlist"),
+    document.getElementById("feedliste")
+  ].filter(Boolean);
 
   const t = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  const div = document.createElement("div");
-  div.className = "fe";
-
   const cls = type === "warn" ? "warn" : type === "alert" ? "alert" : "ok";
 
-  div.innerHTML = `
-    <div class="ft">${t}</div>
-    <div class="fm ${cls}">${msg}</div>
-  `;
+  targets.forEach(wrap=>{
+    const div = document.createElement("div");
+    div.className = "fe";
+    div.innerHTML = `<div class="ft">${t}</div><div class="fm ${cls}">${msg}</div>`;
+    wrap.prepend(div);
 
-  wrap.prepend(div);
-  while(wrap.children.length > 25){
-    wrap.removeChild(wrap.lastChild);
-  }
+    while(wrap.children.length > 25){
+      wrap.removeChild(wrap.lastChild);
+    }
+  });
 }
-
 function bootFeed(){
   FEED_LINES.forEach((l,i)=>{
     setTimeout(()=>addFeedLine(l[0],l[1]), i*200);
@@ -1697,24 +1696,6 @@ function runDiagnostics(){
 }
 
 /* mirror feed into alternate feed panel */
-function addFeedLineMirror(type,msg){
-  const wrap = document.getElementById("feedliste");
-  if(!wrap) return;
-
-  const t = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  const cls = type === "warn" ? "warn" : type === "alert" ? "alert" : "ok";
-
-  const div = document.createElement("div");
-  div.className = "fe";
-  div.innerHTML = `<div class="ft">${t}</div><div class="fm ${cls}">${msg}</div>`;
-
-  wrap.prepend(div);
-  while(wrap.children.length > 25) wrap.removeChild(wrap.lastChild);
-}
-
-/* patch existing addFeedLine to also update feedliste */
-(function(){
-  const oldAdd = window.addFeedLine;
   window.addFeedLine = function(type,msg){
     if(typeof oldAdd === "function") oldAdd(type,msg);
     addFeedLineMirror(type,msg);
@@ -1936,4 +1917,4 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 </div>
 </body>
-          </html>
+</html>
