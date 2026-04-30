@@ -1119,7 +1119,7 @@ select{
     <div class="tab" data-panel="modes" onclick="setPanel('modes')">Specialist Modes</div>
     <div class="tab" data-panel="flashcards" onclick="setPanel('flashcards')">Flashcards</div>
     <div class="tab" data-panel="viewer" onclick="setPanel('viewer')">Viewer</div>
-    <div class="tab" data-panel="pacer" onclick="setPanel('pacer')">Pacer Challenge</div>
+    <div class="tab" data-panel="pacer" onclick="setPanel('pacer')">Pipeline Check</div>
     <div class="tab" data-panel="store" onclick="setPanel('store')">Store</div>
     <div class="tab" data-panel="about" onclick="setPanel('about')">About</div>
   </nav>
@@ -1316,7 +1316,8 @@ select{
           <div class="scanline"></div>
 
           <div class="row">
-            <button class="btn primary" onclick="s5OpenDeploy('GENERATE DOSSIER TEMPLATE', generateDossier)">Generate Dossier Template</button>
+            <button class="btn primary" onclick="s5OpenDeploy('BUILD LIVE FORGE DOSSIER', startPaidLiveForge)">Build Live Forge Dossier</button>
+<button class="btn" onclick="s5OpenDeploy('GENERATE DOSSIER TEMPLATE', generateDossier)">Generate Local Template</button>
             <button class="btn amber" onclick="clearForge()">Clear</button>
           </div>
           <div class="row">
@@ -1546,11 +1547,13 @@ onclick="s5OpenDeploy('COMMIT TO VIEWER', sendToViewer)">Send to Viewer</button>
         <div id="viewerPages"></div>
 
         <div class="viewer-actions">
+        <button class="btn primary" onclick="setPanel('forge')">Exit Viewer → Forge</button>
+          <button class="btn primary" onclick="setPanel('forge')">Exit Viewer → Forge</button>
           <button class="btn" onclick="prevPage()">◀ Prev</button>
           <button class="btn" onclick="nextPage()">Next ▶</button>
           <button class="btn" onclick="goPage(0)">⇤ First</button>
           <button class="btn" onclick="goPage(state.pages.length-1)">Last ⇥</button>
-          <button class="btn cyan" onclick="setPanel('pacer')">Pacer Check</button>
+          <button class="btn cyan" onclick="setPanel('pacer')">Pipeline Check</button>
           <button class="btn amber" onclick="exportViewerHTML()">Export HTML</button>
           <button class="btn amber" onclick="s5OpenDeploy('EXPORT VIEWER TXT', exportViewerTXT)">Export TXT</button>
           <button class="btn red" onclick="s5OpenDeploy('CLEAR VIEWER', clearViewer)">Clear Viewer</button>
@@ -1561,7 +1564,7 @@ onclick="s5OpenDeploy('COMMIT TO VIEWER', sendToViewer)">Send to Viewer</button>
     <!-- ═══ PACER PANEL ═══ -->
     <section id="panel-pacer" class="panel">
       <div class="card amber">
-        <div class="card-title">◆ PUBLIC DOSSIER PACER CHALLENGE</div>
+        <div class="card-title">◆ PUBLIC DOSSIER PIPELINE CHECK</div>
         <div class="sub">
           The Pacer validates structural integrity of the Viewer dossier. A passing dossier is public-ready: structured, complete, and exportable.
         </div>
@@ -1604,40 +1607,35 @@ Send a generated dossier to the Viewer first, or build a 9-page draft from the F
           No payment info ever passes through this Forge — clicks redirect to the storefront.
         </div>
 
-        <div class="store-grid">
-          <div class="store-item">
-            <div class="store-name">HILBERT SONG PACK</div>
-            <div class="store-price">$10</div>
-            <div class="store-desc">Songs, alternate versions, beta releases. Includes post-hardcore and 80s funk lanes. Manual delivery during beta.</div>
-            <button class="btn amber wide" onclick="buy('song-pack')">Buy Song Pack</button>
-          </div>
+       <div class="store-grid">
+  <div class="store-item" style="border-color:var(--g);box-shadow:0 0 14px rgba(0,255,65,.12);">
+    <div class="store-name">LIVE FORGE DOSSIER</div>
+    <div class="store-price">6Σ / 15 pages</div>
+    <div class="store-desc">Turn your current Forge title, theme, seed, and constraints into a paid AI dossier run. Price scales by page count.</div>
+    <button class="btn primary wide" onclick="s5OpenDeploy('BUILD LIVE FORGE DOSSIER', startPaidLiveForge)">Build Live Forge Dossier</button>
+  </div>
 
-          <div class="store-item">
-            <div class="store-name">PDF DOSSIER PACK</div>
-            <div class="store-price">$10</div>
-            <div class="store-desc">Premium dossiers, books, source material. Includes Hilbert Mesh canon dossiers in archive-grade format. Manual delivery.</div>
-            <button class="btn amber wide" onclick="buy('dossier-pack')">Buy Dossier Pack</button>
-          </div>
+  <div class="store-item">
+    <div class="store-name">PDF DOSSIER PACK</div>
+    <div class="store-price">$10</div>
+    <div class="store-desc">Premium dossiers, books, source material. Includes Hilbert Mesh canon dossiers in archive-grade format.</div>
+    <button class="btn amber wide" onclick="buy('dossier-pack')">Buy Dossier Pack</button>
+  </div>
 
-          <div class="store-item">
-            <div class="store-name">FLASHCARD SEED PACKS</div>
-            <div class="store-price">$5</div>
-            <div class="store-desc">Expanded flashcard packs covering radionics, ZPE, plasma cosmology, AGI sentience, cross-lane synthesis. New packs added on rotation.</div>
-            <button class="btn amber wide" onclick="buy('flashcard-pack')">Buy Flashcard Pack</button>
-          </div>
+  <div class="store-item">
+    <div class="store-name">FLASHCARD SEED PACKS</div>
+    <div class="store-price">$5</div>
+    <div class="store-desc">Expanded flashcard packs covering radionics, ZPE, plasma cosmology, AGI sentience, and cross-lane synthesis.</div>
+    <button class="btn amber wide" onclick="buy('flashcard-pack')">Buy Flashcard Pack</button>
+  </div>
 
-          <div class="store-item">
-            <div class="store-name">FOUNDER BUNDLE</div>
-            <div class="store-price">$25</div>
-            <div class="store-desc">All current packs plus future updates for the launch window. Songs + dossiers + flashcard packs.</div>
-            <button class="btn amber wide" onclick="buy('founder-bundle')">Buy Founder Bundle</button>
-          </div>
-        </div>
-
-        <div class="notice">
-          All transactions are handled by external payment processors. The Public Forge stores nothing.
-        </div>
-      </div>
+  <div class="store-item">
+    <div class="store-name">HILBERT AUDIO PACK</div>
+    <div class="store-price">$10</div>
+    <div class="store-desc">Songs, alternate versions, beta releases, and DJ Booth unlocks. Manual delivery during launch beta.</div>
+    <button class="btn amber wide" onclick="buy('song-pack')">Buy Audio Pack</button>
+  </div>
+</div>
     </section>
 
     <!-- ═══ ABOUT PANEL ═══ -->
@@ -1652,7 +1650,7 @@ Send a generated dossier to the Viewer first, or build a 9-page draft from the F
             cover identity blocks, 15-section dossier architecture, and pacer-compliant 9-page drafts that can be expanded by any AI of your choice.
           </p>
           <p>
-            All generation runs in your browser. No data is uploaded. No accounts. No tracking. No backend routing.
+            Local templates run in your browser. Paid Live Forge dossier runs hand off title, theme, seed, constraints, mode, and page count to secure checkout.
           </p>
         </div>
 
@@ -1663,8 +1661,7 @@ Send a generated dossier to the Viewer first, or build a 9-page draft from the F
             backend AI completion routing, or developer console tools. Those live inside the private S5 system and are not part of this public shell.
           </p>
           <p>
-            This Forge does not store API keys, does not authenticate, does not verify sessions, and does not call external services beyond
-            opening Stripe/Gumroad links to purchase content.
+            This Forge does not store API keys, does not authenticate, and does not verify sessions. Paid Forge checkout uses Stripe handoff only.
           </p>
         </div>
 
@@ -2183,7 +2180,162 @@ QUALITY REQUIREMENTS:
 /* ════════════════════════════════════════════════════════════
    FORGE GENERATION
 ════════════════════════════════════════════════════════════ */
+const LIVE_FORGE_LIMITS = {
+  title:120,
+  theme:600,
+  seed:5000,
+  constraints:1500,
+  minPages:3,
+  maxPages:25
+};
 
+function getLiveForgePages(){
+  const modalPages = Number(state.deployOptions?.pages || 0);
+  const fieldPages = Number($("fPages")?.value || 0);
+  const pages = Math.floor(modalPages || fieldPages || 15);
+  return Math.max(LIVE_FORGE_LIMITS.minPages, Math.min(LIVE_FORGE_LIMITS.maxPages, pages));
+}
+
+function sigmaForPages(pages){
+  return Math.max(2, Math.ceil((Number(pages) || 1) * 0.4));
+}
+
+function validateForgePayload(){
+  const title = ($("fTitle")?.value || "").trim();
+  const theme = ($("fTheme")?.value || "").trim();
+  const seed = ($("fSeed")?.value || "").trim();
+  const constraints = ($("fConstraints")?.value || "").trim();
+  const pages = getLiveForgePages();
+
+  if(!title) return {ok:false,error:"TITLE REQUIRED"};
+  if(!theme) return {ok:false,error:"THEME REQUIRED"};
+  if(!seed || seed.length < 20) return {ok:false,error:"SEED TOO SHORT"};
+  if(title.length > LIVE_FORGE_LIMITS.title) return {ok:false,error:"TITLE TOO LONG — max 120 characters"};
+  if(theme.length > LIVE_FORGE_LIMITS.theme) return {ok:false,error:"THEME TOO LONG — max 600 characters"};
+  if(seed.length > LIVE_FORGE_LIMITS.seed) return {ok:false,error:"SEED TOO LONG — max 5000 characters"};
+  if(constraints.length > LIVE_FORGE_LIMITS.constraints) return {ok:false,error:"CONSTRAINTS TOO LONG — max 1500 characters"};
+  if(pages < LIVE_FORGE_LIMITS.minPages || pages > LIVE_FORGE_LIMITS.maxPages) return {ok:false,error:"PAGE COUNT MUST BE 3–25"};
+
+  return {ok:true,title,theme,seed,constraints,pages};
+}
+
+async function startPaidLiveForge(){
+  const v = validateForgePayload();
+  if(!v.ok){
+    toast(v.error);
+    return;
+  }
+
+  const sigmaCost = sigmaForPages(v.pages);
+
+  const payload = {
+    productType:"legacy_paid_forge",
+    title:v.title,
+    theme:v.theme,
+    seed:v.seed,
+    constraints:v.constraints,
+    mode:state.mode || "hilbert",
+    pages:v.pages,
+    sigmaCost,
+    source:"public_live_forge"
+  };
+
+  try{
+    const r = await fetch("https://hilbert-backend.vercel.app/api/create-checkout-session",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+
+    const data = await r.json();
+
+    if(!data.ok || !data.url){
+      toast("STRIPE HANDOFF FAILED");
+      console.warn(data);
+      return;
+    }
+
+    window.location.href = data.url;
+  }catch(e){
+    console.error(e);
+    toast("NETWORK ERROR — STRIPE HANDOFF BLOCKED");
+  }
+}
+const LIVE_FORGE_LIMITS = {
+  title:120,
+  theme:600,
+  seed:5000,
+  constraints:1500,
+  minPages:3,
+  maxPages:25
+};
+
+function getLiveForgePages(){
+  const modalPages = Number(state.deployOptions?.pages || 0);
+  const fieldPages = Number($("fPages")?.value || 0);
+  const pages = Math.floor(modalPages || fieldPages || 15);
+  return Math.max(LIVE_FORGE_LIMITS.minPages, Math.min(LIVE_FORGE_LIMITS.maxPages, pages));
+}
+
+function sigmaForPages(pages){
+  return Math.max(2, Math.ceil((Number(pages) || 1) * 0.4));
+}
+
+function validateForgePayload(){
+  const title = ($("fTitle")?.value || "").trim();
+  const theme = ($("fTheme")?.value || "").trim();
+  const seed = ($("fSeed")?.value || "").trim();
+  const constraints = ($("fConstraints")?.value || "").trim();
+  const pages = getLiveForgePages();
+
+  if(!title) return {ok:false,error:"TITLE REQUIRED"};
+  if(!theme) return {ok:false,error:"THEME REQUIRED"};
+  if(!seed || seed.length < 20) return {ok:false,error:"SEED TOO SHORT"};
+  if(title.length > LIVE_FORGE_LIMITS.title) return {ok:false,error:"TITLE TOO LONG — max 120 characters"};
+  if(theme.length > LIVE_FORGE_LIMITS.theme) return {ok:false,error:"THEME TOO LONG — max 600 characters"};
+  if(seed.length > LIVE_FORGE_LIMITS.seed) return {ok:false,error:"SEED TOO LONG — max 5000 characters"};
+  if(constraints.length > LIVE_FORGE_LIMITS.constraints) return {ok:false,error:"CONSTRAINTS TOO LONG — max 1500 characters"};
+
+  return {ok:true,title,theme,seed,constraints,pages};
+}
+
+async function startPaidLiveForge(){
+  const v = validateForgePayload();
+  if(!v.ok){toast(v.error);return}
+
+  const sigmaCost = sigmaForPages(v.pages);
+
+  try{
+    const r = await fetch("https://hilbert-backend.vercel.app/api/create-checkout-session",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        productType:"legacy_paid_forge",
+        source:"public_live_forge",
+        title:v.title,
+        theme:v.theme,
+        seed:v.seed,
+        constraints:v.constraints,
+        mode:state.mode || "hilbert",
+        pages:v.pages,
+        sigmaCost
+      })
+    });
+
+    const data = await r.json();
+
+    if(!data.ok || !data.url){
+      toast("STRIPE HANDOFF FAILED");
+      console.warn(data);
+      return;
+    }
+
+    window.location.href = data.url;
+  }catch(e){
+    console.error(e);
+    toast("NETWORK ERROR — STRIPE HANDOFF BLOCKED");
+  }
+}
 function generateDossier(){
   const title = $("fTitle").value || "UNTITLED DOSSIER";
   const theme = $("fTheme").value || "UNSPECIFIED THEME";
@@ -3648,4 +3800,4 @@ window.HILBERT_EXPORT = function(){
 };
 </script>
 </body>
-  </html>
+</html>
