@@ -1173,9 +1173,13 @@ function saveSession(sessionId){
 function loadSession(){
   purgeRawCodes();
   try{
+    const session = localStorage.getItem(LS_SESSION) || "";
+    if(session) return session;
+
     const remember = localStorage.getItem(LS_REMEMBER);
     if(remember === "0") return "";
-    return localStorage.getItem(LS_SESSION) || "";
+
+    return "";
   }catch{
     return "";
   }
@@ -2060,38 +2064,20 @@ function bindEvents(){
 }
 (async function init(){
   purgeRawCodes();
+  bindEvents();
 
   const existing = loadSession();
 
   if(existing){
-    state.sessionId = existing;
+    const ok = await verifySession(existing, requestedTab());
+    if(ok) return;
 
-    const r = await getJson("/api/verify-session?sessionId=" + encodeURIComponent(existing));
-
-    if(r.ok && r.user){
-      state.user = r.user;
-
-      // 🔥 THIS WAS MISSING
-      $("loginPanel").classList.add("hidden");
-      $("termPanel").classList.remove("hidden");
-
-      renderUser();
-
-      const tab = requestedTab();
-      selectTab(tab);
-
-      await loadProfileState(false);
-      return;
-    }
-
-    // invalid session → clear it
     clearSession();
     state.sessionId = "";
+    state.user = null;
   }
 
-  // fallback = show login
-  $("loginPanel").classList.remove("hidden");
-  $("termPanel").classList.add("hidden");
+  showLogin();
 })();
 </script>
 </body>
