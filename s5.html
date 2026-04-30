@@ -1233,8 +1233,8 @@ function renderUser(){
   $("aEmblem").textContent = String(u.emblemRank || 0);
   $("aCourse").textContent = courseText;
 
-  if($("profilePublicName")) $("profilePublicName").value = u.publicName || "";
-  if($("profileBio")) $("profileBio").value = u.profileBio || "";
+ if($("profilePublicName")) $("profilePublicName").value = u.publicName || "";
+if($("profileBio")) $("profileBio").value = u.profileBio || "";
 
   $("devTabBtn").classList.toggle("hidden", !isDevUser());
   $("djUploadBox").classList.toggle("hidden", !isDevUser());
@@ -1345,10 +1345,10 @@ async function authenticate(rawCode){
   saveSession(state.sessionId);
 
   const ok = await verifySession(state.sessionId, requestedTab());
-  if(ok) return true;
+if(ok) return true;
 
-  showTerminal(requestedTab());
-  return true;
+showTerminal(requestedTab());
+return true;
 
 function authBody(extra = {}){
   return Object.assign({}, extra, { s5SessionId:state.sessionId });
