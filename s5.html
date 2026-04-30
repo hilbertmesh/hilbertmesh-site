@@ -1175,10 +1175,6 @@ function loadSession(){
   try{
     const session = localStorage.getItem(LS_SESSION) || "";
     if(session) return session;
-
-    const remember = localStorage.getItem(LS_REMEMBER);
-    if(remember === "0") return "";
-
     return "";
   }catch{
     return "";
@@ -1237,8 +1233,8 @@ function renderUser(){
   $("aEmblem").textContent = String(u.emblemRank || 0);
   $("aCourse").textContent = courseText;
 
-  $("profilePublicName").value = u.publicName || "";
-  $("profileBio").value = u.profileBio || "";
+  if($("profilePublicName")) $("profilePublicName").value = u.publicName || "";
+  if($("profileBio")) $("profileBio").value = u.profileBio || "";
 
   $("devTabBtn").classList.toggle("hidden", !isDevUser());
   $("djUploadBox").classList.toggle("hidden", !isDevUser());
@@ -1348,16 +1344,11 @@ async function authenticate(rawCode){
   state.user = r.user;
   saveSession(state.sessionId);
 
-  $("loginPanel").classList.add("hidden");
-  $("termPanel").classList.remove("hidden");
+  const ok = await verifySession(state.sessionId, requestedTab());
+  if(ok) return true;
 
-  renderUser();
-
-  await loadProfileState(false);
   showTerminal(requestedTab());
-
   return true;
-}
 
 function authBody(extra = {}){
   return Object.assign({}, extra, { s5SessionId:state.sessionId });
@@ -2081,4 +2072,4 @@ function bindEvents(){
 })();
 </script>
 </body>
-</html>
+  </html>
