@@ -1345,10 +1345,11 @@ async function authenticate(rawCode){
   saveSession(state.sessionId);
 
   const ok = await verifySession(state.sessionId, requestedTab());
-if(ok) return true;
+  if(ok) return true;
 
-showTerminal(requestedTab());
-return true;
+  showTerminal(requestedTab());
+  return true;
+}
 
 function authBody(extra = {}){
   return Object.assign({}, extra, { s5SessionId:state.sessionId });
@@ -1712,7 +1713,7 @@ function renderChats(){
 
 async function loadChats(){
   if(!state.sessionId) return;
-  const r = await postJson("/api/chats", authBody({ action:"list_rooms" }));
+  const r = await postJson("/api/public-dossiers", authBody({ action:"chat_list_rooms" }));
 
   if(r.ok){
     state.chats = Array.isArray(r.rooms) ? r.rooms : [];
@@ -1724,8 +1725,8 @@ async function loadChats(){
 }
 
 async function createChatRoom(){
-  const r = await postJson("/api/chats", authBody({
-    action:"create_room",
+  const r = await postJson("/api/public-dossiers", authBody({
+  action:"chat_create_room",
     title:clean($("chatTitle").value,120),
     kind:clean($("chatType").value,40)
   }));
@@ -1741,7 +1742,7 @@ async function openChatRoom(id){
   $("chatRoomTitle").textContent = room?.title || "Room";
   $("chatRoomBox").classList.remove("hidden");
 
-  const r = await postJson("/api/chats", authBody({ action:"list_messages", roomId:id }));
+  const r = await postJson("/api/public-dossiers", authBody({ action:"chat_list_messages", roomId:id }));
   if(!r.ok){
     $("chatMessages").textContent = fmtErr(r);
     return;
@@ -1757,8 +1758,8 @@ async function sendChatMessage(){
   const body = clean($("chatInput").value,2000);
   if(!body) return;
 
-  const r = await postJson("/api/chats", authBody({
-    action:"post_message",
+  const r = await postJson("/api/public-dossiers", authBody({
+  action:"chat_post_message",
     roomId:state.activeRoomId,
     body
   }));
@@ -1814,7 +1815,7 @@ function renderMusicQueue(){
 }
 
 async function loadMusic(){
-  const r = await postJson("/api/music", authBody({ action:"list" }));
+  const r = await postJson("/api/profile", authBody({ action:"music_list" }));
 
   if(r.ok){
     state.music = Array.isArray(r.tracks) ? r.tracks : [];
@@ -1842,14 +1843,14 @@ function addTrackToQueue(id){
 
 async function deleteTrack(id){
   if(!confirm("Delete this track from library?")) return;
-  const r = await postJson("/api/music", authBody({ action:"delete", id }));
+  const r = await postJson("/api/profile", authBody({ action:"music_delete", id }));
   if(!r.ok){ alert("DELETE TRACK FAILED:\n" + fmtErr(r)); return; }
   await loadMusic();
 }
 
 async function uploadTrack(){
-  const r = await postJson("/api/music", authBody({
-    action:"save",
+  const r = await postJson("/api/profile", authBody({
+  action:"music_save",
     title:clean($("djTitle").value,160),
     artist:clean($("djArtist").value,120),
     url:clean($("djUrl").value,1000),
