@@ -2312,6 +2312,20 @@ const LIVE_FORGE_LIMITS = {
 const CHECKOUT_URL = "https://hilbert-backend.vercel.app/api/create-checkout-session";
 const S5_VAULT_URL = "/s5.html?tab=vault";
 const S5_UPGRADE_URL = "/s5.html?tab=upgrade";
+const S5_FORGE_URL = "/s5.html?tab=forge";
+const S5_SESSION_KEY = "hmf_s5_session";
+
+// Read the active S5 session id (if any). Returns "" when the user is browsing
+// as public. Used to branch the paid Live Forge between Stripe (public) and
+// Sigma /api/forge (logged-in S5 agent). hardenPublicShell does NOT purge this
+// key — only raw codes / api keys / dev tokens are purged.
+function getActiveS5Session(){
+  try{
+    if(typeof localStorage === "undefined") return "";
+    const v = localStorage.getItem(S5_SESSION_KEY) || "";
+    return String(v || "").trim();
+  }catch(_){ return ""; }
+}
 
 // ─── FORGE DEBUG INSTRUMENTATION ─────────────────────────────────────────────
 // Lightweight logger that pipes events into the S5 Master Console debug
@@ -3337,22 +3351,51 @@ function openLineageLock(modeLabel){
   setTimeout(() => { window.location.href = S5_UPGRADE_URL; }, 350);
 }
 
-// PAID LIVE FORGE — Stripe handoff
+// PAID LIVE FORGE — branches on the presence of an S5 session.
+//   Public visitor  → Stripe checkout (returnContext: "public_forge")
+//                     Backend recomputes Sigma cost + price; success/cancel
+//                     return to /dossierforge.html?success=1 or ?cancelled=1.
+//   Logged-in agent → Stash forge fields in sessionStorage and redirect to
+//                     /s5.html?tab=forge so the run executes as a Sigma-funded
+//                     /api/forge call and the output saves to the S5 vault.
 async function startPaidLiveForge(){
-  forgeDebug("forge:stripe_start", {});
+  forgeDebug("forge:paid_start", {});
   const payload = buildForgePayload();
   if(!payload.ok){
-    forgeDebug("forge:stripe_invalid_payload", { error: payload.error });
+    forgeDebug("forge:paid_invalid_payload", { error: payload.error });
     toast(payload.error, "amber"); return;
   }
 
-  toast("Paid Forge handoff ready");
+  // ── MEMBER PATH: Sigma run via S5 ──
+  const sessionId = getActiveS5Session();
+  if(sessionId){
+    forgeDebug("forge:paid_member_route", { hasSession: true });
+    try{
+      sessionStorage.setItem("HILBERT_FORGE_HANDOFF", JSON.stringify({
+        title: payload.title,
+        theme: payload.theme,
+        seed: payload.seed,
+        constraints: payload.constraints,
+        mode: payload.mode,
+        pages: payload.pages,
+        stashedAt: Date.now()
+      }));
+    }catch(_){}
+    toast("Routing to S5 forge — Sigma run", "amber");
+    setTimeout(() => { window.location.href = S5_FORGE_URL; }, 250);
+    return;
+  }
 
+  // ── PUBLIC PATH: Stripe handoff ──
+  toast("Paid Forge handoff ready");
   try{
     const r = await fetch(CHECKOUT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(paidPayloadFromForge(payload))
+      body: JSON.stringify(Object.assign(
+        paidPayloadFromForge(payload),
+        { productType: "legacy_paid_forge", returnContext: "public_forge" }
+      ))
     });
 
     let data = null;
@@ -5842,6 +5885,34 @@ function initForge(){
 
   // Initial DRAFT DOSSIER button label sync.
   updateDraftButtonContext();
+
+  // ── STRIPE RETURN HANDLER ──
+  // Backend create-checkout-session.js routes public Live Forge success and
+  // cancel directly back here as ?success=1 or ?cancelled=1. We toast and
+  // strip the params so a refresh does not re-toast.
+  try{
+    const retParams = new URLSearchParams(window.location.search);
+    if(retParams.get("success") === "1"){
+      forgeDebug("forge:return_success", { sessionId: retParams.get("session_id") || "" });
+      toast("Live Forge payment confirmed — output is queued", "amber");
+      try{
+        const u = new URL(window.location.href);
+        u.searchParams.delete("success");
+        u.searchParams.delete("session_id");
+        const qs = u.searchParams.toString();
+        history.replaceState(null, "", u.pathname + (qs ? "?" + qs : ""));
+      }catch(_){}
+    } else if(retParams.get("cancelled") === "1"){
+      forgeDebug("forge:return_cancelled", {});
+      toast("Checkout cancelled — your draft is unchanged", "amber");
+      try{
+        const u = new URL(window.location.href);
+        u.searchParams.delete("cancelled");
+        const qs = u.searchParams.toString();
+        history.replaceState(null, "", u.pathname + (qs ? "?" + qs : ""));
+      }catch(_){}
+    }
+  }catch(_){}
 
   hardenPublicShell();
 }
