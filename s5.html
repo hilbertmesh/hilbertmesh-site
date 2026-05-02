@@ -2057,6 +2057,7 @@ function selectTab(tab){
     history.replaceState(null,"",url.pathname + "?" + url.searchParams.toString());
   }catch{}
 
+  if(tab === "forge") consumeForgeHandoff();
   if(tab === "vault") loadVault();
   if(tab === "public") loadPublicDossierState();
   if(tab === "chats"){
@@ -2773,10 +2774,24 @@ function renderAvatarPicker(){
   });
 }
 
+// Backend create-checkout-session.js gates sigma packs by a `pack` key
+// (small / medium / large). Map the raw sigma amount on the button to the
+// backend pack id. Anything unrecognized falls through with a clear error
+// rather than silently buying the wrong pack.
+function sigmaPackForAmount(n){
+  const v = Math.max(0, Math.floor(Number(n) || 0));
+  if(v >= 300) return "large";   // legacy 300 → large
+  if(v >= 100) return "medium";  // legacy 100 → medium
+  if(v >= 25)  return "medium";
+  if(v >= 10)  return "small";
+  if(v >= 30)  return "large";   // legacy "30 sigma" pack mapped to large tier
+  return "small";
+}
 async function checkoutSigma(amount){
+  const pack = sigmaPackForAmount(amount);
   const r = await postJson("/api/create-checkout-session", authBody({
-    productType:"sigma_pack",
-    sigma:Number(amount)
+    productType: "sigma_pack",
+    pack
   }));
 
   if(r.ok && r.url){ location.href = r.url; return; }
@@ -2785,7 +2800,11 @@ async function checkoutSigma(amount){
 
 async function checkoutTier(tier){
   const productType = tier === "SENIOR_AGENT" ? "membership_senior_agent" : "membership_agent";
-  const r = await postJson("/api/create-checkout-session", authBody({ productType, tier }));
+  const r = await postJson("/api/create-checkout-session", authBody({
+    productType,
+    tier,
+    returnContext: "member_tier_upgrade"
+  }));
 
   if(r.ok && r.url){ location.href = r.url; return; }
   alert("CHECKOUT FAILED:\n" + fmtErr(r));
@@ -3433,6 +3452,78 @@ async function loadMotd(){
     return motd;
   }catch(_){ return null; }
 }
+// Toast helper — minimal inline overlay so we can flag success/cancel returns
+// without depending on a heavier UI module.
+function s5Toast(msg, kind){
+  try{
+    const t = document.createElement("div");
+    t.textContent = String(msg || "");
+    t.style.cssText =
+      "position:fixed;left:50%;top:18px;transform:translateX(-50%);" +
+      "z-index:99999;padding:10px 16px;border:1px solid " +
+        (kind === "red" ? "rgba(255,85,85,.6)" : "rgba(0,229,54,.55)") + ";" +
+      "background:rgba(0,12,4,.94);color:" +
+        (kind === "red" ? "#ffb0b0" : (kind === "amber" ? "#ffc24a" : "#9dffad")) + ";" +
+      "font-family:'Share Tech Mono',monospace;font-size:11.5px;letter-spacing:1.4px;" +
+      "box-shadow:0 0 22px rgba(0,229,54,.18);max-width:min(680px,92vw);text-align:center;";
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2400);
+  }catch(_){}
+}
+
+// Pre-fill the forge tab from a stashed handoff (HILBERT_FORGE_HANDOFF) when
+// dossierforge.html routed a logged-in user to the S5 forge for a Sigma run.
+// Single-trip: stash is consumed even if any field map fails so a refresh does
+// not silently re-apply.
+function consumeForgeHandoff(){
+  let stash = null;
+  try{
+    const raw = sessionStorage.getItem("HILBERT_FORGE_HANDOFF");
+    if(!raw) return false;
+    sessionStorage.removeItem("HILBERT_FORGE_HANDOFF");
+    stash = JSON.parse(raw);
+  }catch(_){ return false; }
+  if(!stash || typeof stash !== "object") return false;
+  try{
+    if($("fCodename") && stash.title) $("fCodename").value = String(stash.title).slice(0, 120);
+    if($("fTheme") && stash.theme)    $("fTheme").value    = String(stash.theme).slice(0, 240);
+    if($("fSeed")) {
+      const seedBlock = String(stash.seed || "");
+      const consBlock = stash.constraints ? "\n\nCONSTRAINTS:\n" + String(stash.constraints) : "";
+      $("fSeed").value = (seedBlock + consBlock).slice(0, 6000);
+    }
+    if($("fPages") && stash.pages) $("fPages").value = String(Math.max(1, Math.min(50, Number(stash.pages) || 9)));
+    if(stash.mode){
+      state.selectedMode = String(stash.mode).toLowerCase();
+      document.querySelectorAll("#modeGrid .modecard").forEach(c => {
+        c.classList.toggle("active", (c.dataset.mode || "") === state.selectedMode);
+      });
+    }
+    s5Toast("Forge fields loaded from public Forge handoff", "amber");
+    return true;
+  }catch(_){ return false; }
+}
+
+// Surface checkout-return query params from create-checkout-session.js routing.
+// Strip them after a single toast so a refresh does not re-toast.
+function consumeCheckoutReturnParams(){
+  try{
+    const p = new URLSearchParams(location.search);
+    let dirty = false;
+    if(p.get("success") === "1"){
+      s5Toast("Payment confirmed — balance and entitlements syncing", "amber");
+      p.delete("success"); p.delete("session_id"); dirty = true;
+    } else if(p.get("cancelled") === "1"){
+      s5Toast("Checkout cancelled — nothing was charged", "amber");
+      p.delete("cancelled"); dirty = true;
+    }
+    if(dirty){
+      const qs = p.toString();
+      history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
+    }
+  }catch(_){}
+}
+
 (async function init(){
   purgeRawCodes();
   bindEvents();
@@ -3441,13 +3532,23 @@ async function loadMotd(){
 
   if(existing){
     const ok = await verifySession(existing, requestedTab());
-    if(ok) return;
+    if(ok){
+      // Authenticated boot completed — surface checkout return state and any
+      // public-forge handoff that arrived with this navigation.
+      consumeCheckoutReturnParams();
+      if(requestedTab() === "forge") consumeForgeHandoff();
+      return;
+    }
 
     clearSession();
     state.sessionId = "";
     state.user = null;
   }
 
+  // Public landing — the user is not logged in. Still surface checkout
+  // return state so cancel from the upgrade flow does not feel like a
+  // dead route.
+  consumeCheckoutReturnParams();
   showLogin();
 })();
 </script>
