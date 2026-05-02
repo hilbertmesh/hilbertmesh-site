@@ -1593,24 +1593,31 @@ input[type="checkbox"]{
 
       <div class="packs">
         <div class="pack">
-          <div class="nm">BASIC</div>
-          <div class="am">Σ30</div>
-          <div class="pr">$3</div>
-          <button class="btn amber wide" data-sigma="30">Buy</button>
+          <div class="nm">STARTER</div>
+          <div class="am">Σ20</div>
+          <div class="pr">$10</div>
+          <button class="btn amber wide" data-pack="pack20">Buy</button>
         </div>
 
         <div class="pack">
           <div class="nm">STANDARD</div>
           <div class="am">Σ100</div>
-          <div class="pr">$8</div>
-          <button class="btn amber wide" data-sigma="100">Buy</button>
+          <div class="pr">$25</div>
+          <button class="btn amber wide" data-pack="pack100">Buy</button>
         </div>
 
         <div class="pack">
           <div class="nm">HEAVY</div>
-          <div class="am">Σ300</div>
-          <div class="pr">$20</div>
-          <button class="btn amber wide" data-sigma="300">Buy</button>
+          <div class="am">Σ250</div>
+          <div class="pr">$50</div>
+          <button class="btn amber wide" data-pack="pack250">Buy</button>
+        </div>
+
+        <div class="pack">
+          <div class="nm">DEEP</div>
+          <div class="am">Σ600</div>
+          <div class="pr">$100</div>
+          <button class="btn amber wide" data-pack="pack600">Buy</button>
         </div>
       </div>
     </div>
@@ -1625,15 +1632,15 @@ input[type="checkbox"]{
       <div class="packs">
         <div class="pack">
           <div class="nm">AGENT</div>
-          <div class="am">$5</div>
-          <div class="disc">+33% Sigma efficiency</div>
+          <div class="am">$20<span style="font-size:11px;letter-spacing:1px;color:var(--dim);">/mo</span></div>
+          <div class="disc">30 Σ / month included · +33% Sigma efficiency · specialist modes unlocked</div>
           <button class="btn amber wide" data-tier="AGENT">Upgrade</button>
         </div>
 
         <div class="pack">
           <div class="nm">SENIOR AGENT</div>
-          <div class="am">$15</div>
-          <div class="disc">+50% Sigma efficiency</div>
+          <div class="am">$50<span style="font-size:11px;letter-spacing:1px;color:var(--dim);">/mo</span></div>
+          <div class="disc">90 Σ / month included · +50% Sigma efficiency · lineage / sandbox modes unlocked</div>
           <button class="btn amber wide" data-tier="SENIOR_AGENT">Upgrade</button>
         </div>
       </div>
@@ -1774,16 +1781,16 @@ input[type="checkbox"]{
   </div>
 
   <!-- ─── PRIVATE MESSAGE THREAD MODAL ─── -->
-  <div id="pmModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,8,4,.88);z-index:9100;display:flex;align-items:center;justify-content:center;padding:14px;">
-    <div style="max-width:560px;width:100%;background:linear-gradient(180deg,rgba(0,18,8,.96),rgba(0,8,4,.96));border:1px solid var(--bd3);padding:16px;font-family:'Share Tech Mono',monospace;color:var(--fg);display:flex;flex-direction:column;max-height:80vh;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h3 id="pmModalTitle" style="margin:0;font-family:'Orbitron',sans-serif;letter-spacing:1.5px;">PRIVATE THREAD</h3>
-        <button class="btn smallbtn" onclick="closePmModal()">CLOSE</button>
+  <div id="pmModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,8,4,.92);z-index:9100;display:flex;align-items:stretch;justify-content:center;padding:0;">
+    <div style="max-width:760px;width:100%;background:linear-gradient(180deg,rgba(0,18,8,.97),rgba(0,8,4,.97));border:1px solid var(--bd3);padding:18px;font-family:'Share Tech Mono',monospace;color:var(--fg);display:flex;flex-direction:column;height:100%;max-height:100vh;margin:auto;box-shadow:0 0 36px rgba(0,229,54,.18);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
+        <h3 id="pmModalTitle" style="margin:0;font-family:'Orbitron',sans-serif;letter-spacing:1.6px;font-size:13px;">PRIVATE THREAD</h3>
+        <button class="btn smallbtn" onclick="closePmModal()" style="min-height:42px;padding:8px 14px;font-size:11px;">CLOSE</button>
       </div>
-      <div id="pmModalThread" style="flex:1;overflow-y:auto;border:1px solid var(--bd2);padding:8px 10px;font-size:11px;line-height:1.55;background:rgba(0,4,2,.5);min-height:200px;max-height:50vh;"></div>
-      <div style="display:flex;gap:6px;margin-top:8px;">
-        <textarea id="pmModalInput" placeholder="Message…" style="flex:1;font-family:inherit;font-size:11px;background:var(--bg2);color:var(--fg);border:1px solid var(--bd2);padding:7px;min-height:40px;resize:vertical;"></textarea>
-        <button class="btn cyan" id="pmModalSendBtn" style="align-self:stretch;">Send</button>
+      <div id="pmModalThread" style="flex:1 1 auto;overflow-y:auto;border:1px solid var(--bd2);padding:12px 14px;font-size:12.5px;line-height:1.65;background:rgba(0,4,2,.55);min-height:240px;-webkit-overflow-scrolling:touch;"></div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;flex-shrink:0;">
+        <textarea id="pmModalInput" placeholder="Message…  (multi-line ok · Enter sends · Shift+Enter for newline)" maxlength="1200" rows="4" style="width:100%;font-family:inherit;font-size:14px;background:var(--bg2);color:var(--fg);border:1px solid var(--bd2);padding:12px;min-height:96px;max-height:280px;resize:vertical;line-height:1.5;letter-spacing:.4px;"></textarea>
+        <button class="btn cyan wide" id="pmModalSendBtn" style="min-height:52px;font-size:12.5px;letter-spacing:2.4px;">▸ Send</button>
       </div>
     </div>
   </div>
@@ -2774,21 +2781,27 @@ function renderAvatarPicker(){
   });
 }
 
-// Backend create-checkout-session.js gates sigma packs by a `pack` key
-// (small / medium / large). Map the raw sigma amount on the button to the
-// backend pack id. Anything unrecognized falls through with a clear error
-// rather than silently buying the wrong pack.
+// Backend create-checkout-session.js is the price authority. It accepts
+// pack20 / pack100 / pack250 / pack600 (canonical) or small / medium /
+// large (legacy aliases). The frontend never sends priceCents — backend
+// recomputes from the canonical table.
 function sigmaPackForAmount(n){
   const v = Math.max(0, Math.floor(Number(n) || 0));
-  if(v >= 300) return "large";   // legacy 300 → large
-  if(v >= 100) return "medium";  // legacy 100 → medium
-  if(v >= 25)  return "medium";
-  if(v >= 10)  return "small";
-  if(v >= 30)  return "large";   // legacy "30 sigma" pack mapped to large tier
-  return "small";
+  if(v >= 600) return "pack600";
+  if(v >= 250) return "pack250";
+  if(v >= 100) return "pack100";
+  if(v >= 20)  return "pack20";
+  return "pack20";
 }
-async function checkoutSigma(amount){
-  const pack = sigmaPackForAmount(amount);
+async function checkoutSigma(amountOrPack){
+  // Accept either a canonical pack key (pack20 / pack100 / pack250 / pack600)
+  // or a raw sigma amount (legacy buttons).
+  let pack;
+  if(typeof amountOrPack === "string" && /^pack\d+$/.test(amountOrPack)){
+    pack = amountOrPack;
+  } else {
+    pack = sigmaPackForAmount(amountOrPack);
+  }
   const r = await postJson("/api/create-checkout-session", authBody({
     productType: "sigma_pack",
     pack
@@ -2959,6 +2972,10 @@ function bindEvents(){
     btn.onclick = () => checkoutSigma(btn.dataset.sigma);
   });
 
+  document.querySelectorAll("[data-pack]").forEach(btn => {
+    btn.onclick = () => checkoutSigma(btn.dataset.pack);
+  });
+
   document.querySelectorAll("[data-tier]").forEach(btn => {
     btn.onclick = () => checkoutTier(btn.dataset.tier);
   });
@@ -3097,6 +3114,20 @@ async function sendPmFromModal(){
   $("pmModalInput").value = "";
   await openPmThread(pmCurrentAgent);
 }
+
+// Enter-to-send on the PM input. Shift+Enter inserts a newline (default
+// browser behavior). Bound once at module load.
+(function bindPmEnter(){
+  document.addEventListener("keydown", (e) => {
+    if(e.key !== "Enter" || e.shiftKey) return;
+    const ta = document.getElementById("pmModalInput");
+    if(!ta || document.activeElement !== ta) return;
+    const modal = document.getElementById("pmModal");
+    if(!modal || modal.classList.contains("hidden")) return;
+    e.preventDefault();
+    sendPmFromModal().catch(() => {});
+  });
+})();
 
 async function loadInbox(){
   const wrap = $("inboxList");
