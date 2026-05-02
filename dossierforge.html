@@ -2892,7 +2892,37 @@ function s5ConfirmDeploy(){
   s5ReadDeployOptions();
   $("s5DeployOverlay").classList.remove("show");
   state.pendingDeploy = null;
-  if(pending && typeof pending.callback === "function") pending.callback();
+  if(!pending || typeof pending.callback !== "function") return;
+
+  // Wrap callback. If it throws (network error etc.) we DO NOT silently
+  // fall through to a skeleton — the user sees the error toast and the
+  // suppression flag is restored cleanly.
+  const wasSuppressed = state.suppressDraftOutput;
+  state.suppressDraftOutput = pending.kind === "paid" ? true : wasSuppressed;
+  try {
+    const result = pending.callback();
+    // If the callback returned a Promise (startPaidLiveForge is async),
+    // attach a catch so a rejected promise doesn't leak as an unhandled
+    // rejection or somehow re-enter the draft path.
+    if(result && typeof result.catch === "function"){
+      result.catch(err => {
+        console.error("s5ConfirmDeploy callback rejected:", err);
+        if(typeof toast === "function"){
+          toast("PAID HANDOFF FAILED — " + String(err && err.message || err || "unknown error").slice(0, 80), "red");
+        }
+      }).finally(() => {
+        state.suppressDraftOutput = wasSuppressed;
+      });
+    } else {
+      state.suppressDraftOutput = wasSuppressed;
+    }
+  } catch (err) {
+    state.suppressDraftOutput = wasSuppressed;
+    console.error("s5ConfirmDeploy callback threw:", err);
+    if(typeof toast === "function"){
+      toast("PAID HANDOFF FAILED — " + String(err && err.message || err || "unknown error").slice(0, 80), "red");
+    }
+  }
 }
 
 
@@ -3361,10 +3391,23 @@ function openLineageLock(modeLabel){
 async function startPaidLiveForge(){
   forgeDebug("forge:paid_start", {});
 
-  // CONTRACT: Paid Live Forge MUST NOT generate any local skeleton/draft.
-  // Guard belt-and-braces with suppression flag so any indirect helper that
-  // tries to call buildZeroSigmaTemplate during the handoff is rejected by
-  // its existing suppression check.
+  // ──────────────────────────────────────────────────────────────────────
+  // CONTRACT — PAID LIVE FORGE NEVER GENERATES LOCAL OUTPUT
+  //
+  // This function MUST NOT call any of:
+  //   - generateZeroSigmaDossier
+  //   - buildZeroSigmaTemplate
+  //   - any specialist skeleton generator
+  //   - any Draft Dossier helper
+  //
+  // It validates fields, then routes to one of two paths:
+  //   - logged-in S5 → stash handoff and redirect to /s5.html?tab=forge
+  //                    (s5.html runs /api/forge with Sigma)
+  //   - public       → Stripe checkout via /api/create-checkout-session
+  //
+  // If anything fails, we surface a clean toast. We do NOT fall back to
+  // a local skeleton.
+  // ──────────────────────────────────────────────────────────────────────
   const _priorSuppress = state.suppressDraftOutput;
   state.suppressDraftOutput = true;
 
@@ -3372,15 +3415,19 @@ async function startPaidLiveForge(){
     const payload = buildForgePayload();
     if(!payload.ok){
       forgeDebug("forge:paid_invalid_payload", { error: payload.error });
-      toast(payload.error, "amber"); return;
+      toast(payload.error, "amber");
+      return;
     }
 
-    // ── MEMBER PATH: Sigma run via S5 ──
-    // If the user has an active S5 session, route the run through the
-    // member /api/forge path (Sigma-funded, output saves to vault). The S5
-    // forge tab consumes HILBERT_FORGE_HANDOFF on load and pre-fills fields.
+    // ── MEMBER PATH ──
+    // Only treat the session as valid if it has the right shape. A junk
+    // value in localStorage shouldn't silently route us into S5 with no
+    // verification. The s5.html boot still verifies the session against
+    // /api/verify-session before any Forge call lands.
     const sessionId = getActiveS5Session();
-    if(sessionId){
+    const hasValidSession = !!(sessionId && /^[A-Za-z0-9_\-]{16,}$/.test(sessionId));
+
+    if(hasValidSession){
       forgeDebug("forge:paid_member_route", { hasSession: true });
       try{
         sessionStorage.setItem("HILBERT_FORGE_HANDOFF", JSON.stringify({
@@ -3390,6 +3437,7 @@ async function startPaidLiveForge(){
           constraints: payload.constraints,
           mode: payload.mode,
           pages: payload.pages,
+          source: "dossierforge_paid",
           stashedAt: Date.now()
         }));
       }catch(_){}
@@ -3399,8 +3447,6 @@ async function startPaidLiveForge(){
     }
 
     // ── PUBLIC PATH: Stripe checkout ──
-    // Backend recomputes price + sigma cost; frontend numbers are ignored.
-    // success → /dossierforge.html?success=1 ; cancel → ?cancelled=1.
     toast("Paid Forge handoff ready");
     let r, data = null;
     try{
@@ -3414,14 +3460,14 @@ async function startPaidLiveForge(){
       });
       try{ data = await r.json(); }catch(_){ data = null; }
     }catch(e){
-      console.error(e);
+      console.error("Stripe handoff network error:", e);
       toast("NETWORK ERROR — STRIPE HANDOFF BLOCKED", "red");
       return;
     }
 
     // Tier-gated mode rejection from backend → route to upgrade.
-    if(data && data.error === "mode_requires_membership"){
-      forgeDebug("forge:paid_mode_locked", { mode: payload.mode });
+    if(data && (data.error === "mode_requires_membership" || data.error === "mode_locked")){
+      forgeDebug("forge:paid_mode_locked", { mode: payload.mode, error: data.error });
       toast("MODE LOCKED — log into S5 and upgrade your tier", "amber");
       setTimeout(() => { window.location.href = S5_UPGRADE_URL; }, 700);
       return;
@@ -3436,8 +3482,7 @@ async function startPaidLiveForge(){
 
     window.location.href = data.url;
   } finally {
-    // Restore suppression flag after the handoff window so a deliberate
-    // user Draft press afterwards still works.
+    // Restore suppression flag after the handoff window.
     state.suppressDraftOutput = _priorSuppress;
   }
 }
