@@ -1552,6 +1552,17 @@ input[type="checkbox"]{
         Curated Hilbert Mesh signal layer. Tracks can be free, tier-gated, or purchased. Catalog is admin-managed — operators browse and play; uploads route through the master console only. Audio keeps playing across S5/Forge tabs.
       </div>
 
+      <!-- FREE ROTATION — frontend-only static list. No uploads, no backend
+           storage. If FREE_ROTATION_TRACKS is empty, a placeholder is shown
+           instead of a fake player. -->
+      <div class="card cyan" id="freeRotationCard">
+        <h3>FREE ROTATION · NO LOGIN REQUIRED</h3>
+        <div class="small" style="opacity:.85;margin-bottom:8px;">
+          Public listening lane. Anyone with the link can stream these tracks while they work.
+        </div>
+        <div class="itemlist" id="freeRotationList"></div>
+      </div>
+
       <div class="grid2">
         <button class="btn amber" id="refreshMusicBtn">Refresh Library</button>
         <button class="btn" id="clearQueueBtn">Clear Queue</button>
@@ -2240,19 +2251,69 @@ async function runForge(queueOnly = false){
     const r = await postJson("/api/forge", payload);
 
     if(!r.ok){
-      $("forgeStatus").textContent = "FORGE ERROR // " + fmtErr(r);
+      // Map backend errors to actionable, human-readable messages.
+      // We DO NOT fall back to a local skeleton — the spec is explicit.
+      const errKey = String(r.error || "").toLowerCase();
+      let headline, hint = "";
+
+      if(errKey === "insufficient_sigma"){
+        const need = Number(r.sigmaRequired ?? r.required ?? 0);
+        const have = Number(r.sigmaBalance ?? r.sigma ?? 0);
+        headline = "INSUFFICIENT SIGMA · need " + need + " · have " + have;
+        hint = "Buy more Sigma in the BUY SIGMA tab, then try again.";
+      } else if(errKey === "mode_locked" || errKey === "mode_requires_tier"){
+        const tier = String(r.requiredTier || "agent").toUpperCase();
+        headline = "MODE LOCKED · requires " + tier;
+        hint = "This mode is restricted to " + tier + " tier. Open the UPGRADE tab to unlock.";
+      } else if(errKey === "vault_full"){
+        headline = "VAULT FULL";
+        hint = "Free a slot in the VAULT tab before running another Forge.";
+      } else if(errKey === "model_timeout"){
+        headline = "MODEL TIMEOUT";
+        hint = "Your Sigma was refunded automatically. Try again or reduce page count.";
+      } else if(errKey === "model_unreachable" || errKey === "model_error" || errKey === "model_empty_response"){
+        headline = "MODEL ERROR";
+        hint = (r.detail || "Upstream model failed.") + " Sigma was refunded.";
+      } else if(errKey === "vault_save_failed"){
+        headline = "VAULT SAVE FAILED";
+        hint = (r.detail || "Could not save the dossier.") + " Sigma was refunded.";
+      } else if(errKey === "session_required" || errKey === "invalid_session"){
+        headline = "SESSION EXPIRED — log out and back in";
+        hint = "";
+      } else {
+        headline = "FORGE ERROR · " + (r.error || "unknown_error").toUpperCase().replace(/_/g, " ");
+        hint = r.detail ? String(r.detail).slice(0, 200) : "";
+      }
+
+      $("forgeStatus").textContent = headline;
       $("forgeStatus").classList.add("red");
-      $("forgeOutput").textContent = JSON.stringify(r,null,2);
+
+      // Build a clean output panel — no raw JSON dump.
+      const lines = ["// FORGE RUN HALTED", ""];
+      lines.push("ERROR: " + (r.error || "unknown_error"));
+      if(r.requiredTier)  lines.push("REQUIRED TIER: " + r.requiredTier);
+      if(r.sigmaRequired) lines.push("SIGMA REQUIRED: " + r.sigmaRequired);
+      if(r.sigmaBalance != null) lines.push("SIGMA BALANCE: " + r.sigmaBalance);
+      if(r.sigmaRefunded)  lines.push("SIGMA REFUNDED: " + r.sigmaRefunded);
+      if(r.modelStatus)   lines.push("MODEL HTTP STATUS: " + r.modelStatus);
+      if(hint) { lines.push(""); lines.push("→ " + hint); }
+      lines.push("");
+      lines.push("// No skeleton output is generated for paid runs.");
+
+      $("forgeOutput").textContent = lines.join("\n");
       $("forgeOutput").classList.remove("hidden");
-      setSteps(-1,-1);
+      setSteps(-1, -1);
+      // Refresh sigma display in case backend refunded.
+      loadProfileState(true).catch(() => {});
       return;
     }
 
-    setSteps(-1,4);
+    setSteps(-1, 4);
     renderForgeResult(r);
   }catch(err){
     $("forgeStatus").textContent = "FRONTEND ERROR // " + (err?.message || String(err));
     $("forgeStatus").classList.add("red");
+    setSteps(-1, -1);
   }finally{
     $("scanLine").classList.add("hidden");
   }
@@ -2759,6 +2820,54 @@ const AVATAR_OPTIONS = [
 ];
 const AVATAR_GLYPH_BY_ID = AVATAR_OPTIONS.reduce((acc, a) => { acc[a.id] = a.glyph; return acc; }, {});
 
+// ─── FREE ROTATION (static frontend playlist) ───────────────────────────────
+//
+// Add entries here as { title, artist, url } where `url` is a direct .mp3
+// or .ogg link. No backend storage, no uploads, no fake playback. If the
+// array is empty, the DJ Booth shows a placeholder line instead of a fake
+// player.
+//
+// Example:
+//   { title: "Outside Frequency", artist: "Hilbert", url: "https://.../track.mp3" }
+const FREE_ROTATION_TRACKS = [
+  // Populate with real .mp3 / .ogg URLs to enable playback.
+];
+
+function renderFreeRotation(){
+  const wrap = document.getElementById("freeRotationList");
+  if(!wrap) return;
+  if(!Array.isArray(FREE_ROTATION_TRACKS) || FREE_ROTATION_TRACKS.length === 0){
+    wrap.innerHTML =
+      '<div class="item">' +
+        '<div class="meta" style="opacity:.85;">' +
+          '<strong style="color:var(--cyan);letter-spacing:1.5px;">DJ BOOTH RELAY AWAITING PUBLISHED TRACKS</strong><br>' +
+          'Free rotation will appear here once tracks are added. No fake playback.' +
+        '</div>' +
+      '</div>';
+    return;
+  }
+  wrap.innerHTML = FREE_ROTATION_TRACKS.map((t, i) => {
+    const title = String(t && t.title || "Untitled").replace(/[<>"&]/g, "");
+    const artist = String(t && t.artist || "Hilbert Mesh").replace(/[<>"&]/g, "");
+    const url = String(t && t.url || "").replace(/["<>]/g, "");
+    if(!url){
+      return (
+        '<div class="item">' +
+          '<div class="title">' + (i + 1) + '. ' + title + '</div>' +
+          '<div class="meta">' + artist + ' · <span class="warn">URL missing</span></div>' +
+        '</div>'
+      );
+    }
+    return (
+      '<div class="item">' +
+        '<div class="title">' + (i + 1) + '. ' + title + '</div>' +
+        '<div class="meta">' + artist + '</div>' +
+        '<audio controls preload="metadata" src="' + url + '" style="width:100%;margin-top:6px;"></audio>' +
+      '</div>'
+    );
+  }).join("");
+}
+
 function avatarGlyph(id){
   return AVATAR_GLYPH_BY_ID[String(id || "").toLowerCase()] || "◉";
 }
@@ -2967,6 +3076,10 @@ function bindEvents(){
     renderMusicQueue();
   };
   if($("uploadTrackBtn")) $("uploadTrackBtn").onclick = uploadTrack;
+
+  // Render the static free-rotation placeholder list once at boot. Cheap
+  // enough to render every event-bind pass.
+  try{ renderFreeRotation(); }catch(_){}
 
   document.querySelectorAll("[data-sigma]").forEach(btn => {
     btn.onclick = () => checkoutSigma(btn.dataset.sigma);
