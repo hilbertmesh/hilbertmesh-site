@@ -1298,23 +1298,21 @@ body.dossier-open{overflow:hidden}
       <div class="ph">SYSTEM OVERVIEW <span class="ph-tag">NODE-01</span></div>
       <div class="pb">
         <div class="ovtxt">
-          Hilbert Mesh is a structured intelligence node for generating, archiving, and publishing dossiers, doctrine, music, and field signal artifacts. The public surface stays open. Authentication is required only inside the S5 account system.
+          Hilbert Mesh is a structured intelligence node for generating, archiving, and publishing dossiers, doctrine, music, and field signal artifacts. The public surface stays open. Authentication lives only inside the S5 account system.
         </div>
 
         <table class="mt">
           <tr><td class="mtk">PUBLIC NODE</td><td class="mtv ok">OPEN</td></tr>
           <tr><td class="mtk">LIVE FORGE</td><td class="mtv ok">ROUTED</td></tr>
-          <tr><td class="mtk">SIGNAL INTERCEPT</td><td class="mtv ok">LOCAL</td></tr>
-          <tr><td class="mtk">DOCTRINE DECODER</td><td class="mtv ok">LOCAL</td></tr>
-          <tr><td class="mtk">ANOMALY SORTER</td><td class="mtv ok">LOCAL</td></tr>
+          <tr><td class="mtk">PUBLIC DOSSIERS</td><td class="mtv ok">LIVE</td></tr>
+          <tr><td class="mtk">AGENT CHAT</td><td class="mtv ok">COURSE-GATED</td></tr>
           <tr><td class="mtk">FLASH INDEX</td><td class="mtv ok">18 SEEDS</td></tr>
-          <tr><td class="mtk">DJ BOOTH</td><td class="mtv ok">ROTATING</td></tr>
           <tr><td class="mtk">REALITY NODE</td><td class="mtv warn">TIER 7</td></tr>
         </table>
 
         <div class="stb">
-          Every public tab contains a working local system or a routed S5/Forge target. No authentication wall on the homepage.
-          <span class="st">ROUTER SAFE</span>
+          No authentication wall on the homepage. Every panel below opens a working public system.
+          <span class="st">SAFE</span>
         </div>
       </div>
     </div>
@@ -1322,14 +1320,92 @@ body.dossier-open{overflow:hidden}
     <div class="pnl">
       <div class="ph">PRIMARY ACCESS <span class="ph-tag">PRIORITY</span></div>
       <div class="pb">
-        <button class="dob" onclick="goForge()">ENTER LIVE FORGE</button>
-        <button class="dob amber" onclick="route('signal')">RUN SIGNAL INTERCEPT</button>
-        <button class="dob cyan" onclick="route('doctrine')">OPEN DOCTRINE DECODER</button>
-        <button class="dob ghost" onclick="route('flash')">DRAW FLASH SEED</button>
+        <button class="dob" onclick="goForge()">▸ ENTER LIVE FORGE</button>
+        <button class="dob amber" onclick="route('public')">▸ VIEW PUBLIC DOSSIERS</button>
+        <button class="dob cyan" onclick="goS5('chats')">▸ AGENT CHAT NETWORK</button>
+        <button class="dob ghost" onclick="route('flash')">▸ DRAW FLASH SEED</button>
+        <button class="dob ghost" onclick="route('signal')">▸ RUN SIGNAL INTERCEPT</button>
 
         <div class="stb amber">
-          Books, PDF dossiers, song packs, and bundles all route through the external store. S5 account-bound playback and entitlement records remain inside S5.
-          <span class="st">EXTERNAL STORE</span>
+          Live Forge runs are public via Stripe, or Sigma-funded for logged-in S5 agents. Either path works.
+          <span class="st">DUAL PATH</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Four primary discovery panels (LIVE FORGE / PUBLIC DOSSIERS / AGENT CHAT / DOSSIER COURSE) -->
+  <div class="twoCol">
+
+    <div class="pnl">
+      <div class="ph">LIVE FORGE <span class="ph-tag">DOSSIER GENERATION</span></div>
+      <div class="pb">
+        <div class="ovtxt">
+          Generate structured Hilbert dossiers. Free local templates and paid Live Forge runs. No login required to start.
+        </div>
+        <div class="btn-row">
+          <button class="dob" onclick="goForge()">▸ OPEN LIVE FORGE</button>
+          <button class="dob ghost" onclick="route('flash')">▸ BROWSE SEED CARDS</button>
+        </div>
+        <div class="stb">
+          Public users pay via Stripe checkout. Logged-in agents spend Sigma and save to the S5 vault.
+          <span class="st">PUBLIC + S5</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pnl">
+      <div class="ph">PUBLIC DOSSIERS <span class="ph-tag">RESEARCH NODES</span></div>
+      <div class="pb">
+        <div class="ovtxt">
+          View published research nodes from across the Mesh. Live feed of agent-published outputs, updated continuously.
+        </div>
+        <div class="btn-row">
+          <button class="dob amber" onclick="route('public')">▸ OPEN PUBLIC FEED</button>
+          <button class="dob ghost" onclick="goS5('public')">▸ PUBLISH MY OWN</button>
+        </div>
+        <div class="stb">
+          Reading is open to everyone. Publishing requires the dossier course pacer.
+          <span class="st">OPEN READ</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="twoCol">
+
+    <div class="pnl">
+      <div class="ph">AGENT CHAT NETWORK <span class="ph-tag">CHANNELS</span></div>
+      <div class="pb">
+        <div class="ovtxt">
+          Access public and private research channels, agent rooms, and direct messages between operators in the network.
+        </div>
+        <div class="btn-row">
+          <button class="dob cyan" onclick="goS5('chats')">▸ ENTER CHAT NETWORK</button>
+          <button class="dob ghost" onclick="goS5('public')">▸ VERIFY COURSE</button>
+        </div>
+        <div class="stb">
+          Public reading opens after S5 login. Posting unlocks once the dossier course is cleared.
+          <span class="st">COURSE-GATED</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pnl">
+      <div class="ph">DOSSIER COURSE <span class="ph-tag">PACER</span></div>
+      <div class="pb">
+        <div class="ovtxt">
+          Unlock communication systems. The 4-block formula and 9-page pacer — submit one dossier through the course to open chat, publishing, and rooms.
+        </div>
+        <div class="btn-row">
+          <button class="dob" onclick="openDossier('hm-course-brief')">▸ READ COURSE BRIEF</button>
+          <button class="dob amber" onclick="goS5('public')">▸ ENTER COURSE</button>
+        </div>
+        <div class="stb amber">
+          Pass the pacer once. Communication systems unlock for that S5 account permanently.
+          <span class="st">UNLOCK</span>
         </div>
       </div>
     </div>
@@ -1362,10 +1438,12 @@ body.dossier-open{overflow:hidden}
       <div class="ph">DJ BOOTH</div>
       <div class="pb">
         <div class="ovtxt">
-          Open the DJ Booth in another tab while forging to keep Hilbert songs in rotation. Free rotation lives inside the S5 music player. Paid EP packs route through the external store.
+          Open the DJ Booth in another tab while forging. Free rotation in the player. Paid EP packs route through the external store.
         </div>
-        <button class="dob cyan" onclick="goS5('music')">OPEN MUSIC PLAYER</button>
-        <button class="dob amber" onclick="openStore()">OPEN STORE</button>
+        <div class="btn-row">
+          <button class="dob cyan" onclick="route('music')">▸ OPEN MUSIC TAB</button>
+          <button class="dob ghost" onclick="goS5('music')">▸ FULL PLAYER</button>
+        </div>
       </div>
     </div>
 
@@ -1931,7 +2009,7 @@ body.dossier-open{overflow:hidden}
 
       <div class="btn-row three">
         <button class="dob amber" onclick="openStore()">OPEN FULL STORE</button>
-        <button class="dob" onclick="location.href='reality-manufacturing.html'">READ REALITY NODE</button>
+        <button class="dob" onclick="goS5('vault')">OPEN MY VAULT</button>
         <button class="dob cyan" onclick="goS5('upgrade')">UPGRADE TIER</button>
       </div>
 
