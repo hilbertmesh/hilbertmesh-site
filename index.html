@@ -2819,21 +2819,64 @@ document.addEventListener("DOMContentLoaded",init);
    GRAND CENTRAL FLASH INDEX
    Backed by hilbert_flash_registry.js (window.HILBERT_FLASH_REGISTRY).
    Registry-driven — no card data is hardcoded into this HTML.
+
+   Each card supports five route intents into the Forge tools:
+     COPY SEED       → clipboard
+     LIVE FORGE      → /dossierforge.html?gcfi=ID  (forge tab, base mode)
+     DOSSIER MODE    → /dossierforge.html?gcfi=ID  (forge tab, mode set
+                       from card pipeline → research / critique / hilbert)
+     SPECIALIST MODE → /dossierforge.html?gcfi=ID  (Specialist Modes tab,
+                       inferred specialist mode from card pipeline)
+     LINEAGE MODE    → /dossierforge.html?gcfi=ID  (Command Center / Lineage
+                       tab, fields filled, NO auto generate)
+
+   The handoff is stashed in sessionStorage as HILBERT_GCFI_HANDOFF and
+   includes title/theme/seed/constraints/mode/routeIntent. The Forge
+   page consumes it on load and routes to the matching tab.
    ============================================================ */
 const GCFI = {
   all: [],
   filtered: [],
-  page: 0,
-  pageSize: 60,
+  visible: 60,           // current visible window into the filtered list
+  pageStep: 60,          // load-more increment
   search: "",
   lane: "",
   conf: "",
   type: ""
 };
 
+// Pipeline → base Forge mode mapping. Used when the card carries a pipeline
+// label but the user picked LIVE FORGE or DOSSIER MODE (which need a base
+// mode hint, not a specialist mode).
+const GCFI_PIPELINE_TO_MODE = {
+  "MECHANISM EXTRACTION": "research",
+  "CONTRADICTION AUDIT":  "critique",
+  "ANOMALY REPORT":       "research",
+  "TECHNICAL MEMO":       "intelligence",
+  "ARCHIVE SYNTHESIS":    "hilbert",
+  "STRATEGIC SUMMARY":    "intelligence",
+  "FIELD REPORT":         "intelligence",
+  "THREAT ASSESSMENT":    "critique",
+  "HISTORICAL CONTEXT":   "hilbert",
+  "SEED ADAPTIVE":        "hilbert"
+};
+
+// Pipeline → Forge SPECIALIST mode mapping. These ids must match the
+// specialist modes the dossierforge.html Specialist tab understands.
+const GCFI_PIPELINE_TO_SPECIALIST = {
+  "MECHANISM EXTRACTION": "experiment",
+  "CONTRADICTION AUDIT":  "contradiction",
+  "ANOMALY REPORT":       "experiment",
+  "TECHNICAL MEMO":       "architecture",
+  "ARCHIVE SYNTHESIS":    "archive",
+  "STRATEGIC SUMMARY":    "pacer_stress",
+  "FIELD REPORT":         "experiment",
+  "THREAT ASSESSMENT":    "contradiction",
+  "HISTORICAL CONTEXT":   "archive",
+  "SEED ADAPTIVE":        "experiment"
+};
+
 function gcfiInit(){
-  // The registry script is loaded with `defer`; if for any reason it isn't
-  // ready yet (e.g., running over file://), retry a few times before giving up.
   let tries = 0;
   function attempt(){
     const reg = window.HILBERT_FLASH_REGISTRY;
@@ -2852,20 +2895,18 @@ function gcfiInit(){
   }
   attempt();
 
-  // Wire controls (idempotent — run once at init).
   const search = document.getElementById("gcfiSearch");
   const lane = document.getElementById("gcfiLane");
   const conf = document.getElementById("gcfiConf");
   const type = document.getElementById("gcfiType");
-  if(search) search.addEventListener("input", () => { GCFI.search = search.value || ""; gcfiApply(); });
-  if(lane) lane.addEventListener("change", () => { GCFI.lane = lane.value || ""; gcfiApply(); });
-  if(conf) conf.addEventListener("change", () => { GCFI.conf = conf.value || ""; gcfiApply(); });
-  if(type) type.addEventListener("change", () => { GCFI.type = type.value || ""; gcfiApply(); });
+  if(search) search.addEventListener("input", () => { GCFI.search = search.value || ""; GCFI.visible = GCFI.pageStep; gcfiApply(); });
+  if(lane) lane.addEventListener("change", () => { GCFI.lane = lane.value || ""; GCFI.visible = GCFI.pageStep; gcfiApply(); });
+  if(conf) conf.addEventListener("change", () => { GCFI.conf = conf.value || ""; GCFI.visible = GCFI.pageStep; gcfiApply(); });
+  if(type) type.addEventListener("change", () => { GCFI.type = type.value || ""; GCFI.visible = GCFI.pageStep; gcfiApply(); });
 }
 
 function gcfiBoot(reg){
   GCFI.all = reg.slice();
-  // Populate filter dropdowns from registry data.
   const lanes = new Set(), confs = new Set(), types = new Set();
   for(const c of GCFI.all){
     if(c.lane) lanes.add(c.lane);
@@ -2876,7 +2917,6 @@ function gcfiBoot(reg){
     const sel = document.getElementById(id);
     if(!sel) return;
     const current = sel.value;
-    // keep first "ALL" option, replace the rest
     while(sel.options.length > 1) sel.remove(1);
     [...values].sort().forEach(v => {
       const opt = document.createElement("option");
@@ -2892,6 +2932,7 @@ function gcfiBoot(reg){
   const countEl = document.getElementById("gcfiCount");
   if(countEl) countEl.textContent = GCFI.all.length + " CARDS";
 
+  GCFI.visible = GCFI.pageStep;
   gcfiApply();
 }
 
@@ -2920,33 +2961,69 @@ function gcfiApply(){
     return true;
   });
 
-  const status = document.getElementById("gcfiStatus");
-  if(status){
-    status.textContent = "REGISTRY :: " + GCFI.filtered.length + " / " + GCFI.all.length + " CARDS";
-  }
-
   gcfiRender();
 }
 
 function gcfiRender(){
   const grid = document.getElementById("gcfiGrid");
+  const status = document.getElementById("gcfiStatus");
   if(!grid) return;
   if(!GCFI.filtered.length){
     grid.innerHTML = '<div class="gcfi-empty">// NO CARDS MATCH FILTER //</div>';
+    if(status){
+      status.innerHTML = "REGISTRY :: 0 / " + GCFI.all.length + " CARDS";
+    }
     return;
   }
-  // Render up to pageSize for performance — search/filter narrows further.
-  const slice = GCFI.filtered.slice(0, GCFI.pageSize);
-  const html = slice.map(gcfiCardHtml).join("");
+
+  const showing = Math.min(GCFI.visible, GCFI.filtered.length);
+  const slice = GCFI.filtered.slice(0, showing);
+  let html = slice.map(gcfiCardHtml).join("");
+
+  // Append a load-more button if there are more cards behind the cursor.
+  if(showing < GCFI.filtered.length){
+    const remaining = GCFI.filtered.length - showing;
+    const nextChunk = Math.min(remaining, GCFI.pageStep);
+    html +=
+      '<div style="grid-column:1/-1;text-align:center;padding:14px 6px;">' +
+        '<button class="dob amber" onclick="gcfiLoadMore()" style="max-width:480px;margin:0 auto;">' +
+          '▸ LOAD ' + nextChunk + ' MORE  ·  ' + remaining + ' REMAINING' +
+        '</button>' +
+      '</div>';
+  } else if(GCFI.filtered.length > GCFI.pageStep){
+    html +=
+      '<div style="grid-column:1/-1;text-align:center;padding:10px 6px;">' +
+        '<div class="micro" style="opacity:.85;">END OF FILTERED REGISTRY · ' + GCFI.filtered.length + ' CARDS LOADED</div>' +
+      '</div>';
+  }
+
   grid.innerHTML = html;
+
+  if(status){
+    status.innerHTML =
+      "REGISTRY :: " + showing + " of " + GCFI.filtered.length + " visible · " +
+      GCFI.all.length + " total cards";
+  }
+}
+
+function gcfiLoadMore(){
+  GCFI.visible = Math.min(GCFI.filtered.length, GCFI.visible + GCFI.pageStep);
+  gcfiRender();
+  // Scroll the grid container so the new chunk is visible without losing
+  // the user's place at the previous end-of-list.
+  const grid = document.getElementById("gcfiGrid");
+  if(grid){
+    grid.scrollTop = grid.scrollHeight - grid.clientHeight - 80;
+  }
 }
 
 function gcfiCardHtml(c){
   const seed = String(c.seed || "");
   const seedTrunc = seed.length > 280 ? seed.slice(0, 280) + "…" : seed;
   const tags = Array.isArray(c.tags) ? c.tags.slice(0, 6).join(" · ") : "";
+  const idAttr = escAttr(c.id);
   return (
-    '<div class="gcfi-card" data-id="' + escAttr(c.id) + '">' +
+    '<div class="gcfi-card" data-id="' + idAttr + '">' +
       '<div class="gcfi-head">' +
         '<span class="gcfi-id">' + escapeHtml(c.id || "") + '</span>' +
         '<span class="gcfi-lane">' + escapeHtml(c.lane || "") + '</span>' +
@@ -2959,16 +3036,18 @@ function gcfiCardHtml(c){
       (tags ? '<div class="gcfi-tags">TAGS · ' + escapeHtml(tags) + '</div>' : '') +
       '<div class="gcfi-seed">' + escapeHtml(seedTrunc) + '</div>' +
       '<div class="gcfi-actions">' +
-        '<button class="gcfi-btn" onclick="gcfiCopySeed(\'' + escAttr(c.id) + '\')">COPY SEED</button>' +
-        '<button class="gcfi-btn cy" onclick="gcfiSendToForge(\'' + escAttr(c.id) + '\')">→ LIVE FORGE</button>' +
-        '<button class="gcfi-btn amber" onclick="gcfiOpenS5(\'' + escAttr(c.id) + '\')">→ S5 GATE</button>' +
+        '<button class="gcfi-btn"       onclick="gcfiCopySeed(\'' + idAttr + '\')">COPY SEED</button>' +
+        '<button class="gcfi-btn cy"    onclick="gcfiRoute(\'' + idAttr + '\',\'live\')">→ LIVE FORGE</button>' +
+        '<button class="gcfi-btn"       onclick="gcfiRoute(\'' + idAttr + '\',\'dossier\')">→ DOSSIER MODE</button>' +
+        '<button class="gcfi-btn amber" onclick="gcfiRoute(\'' + idAttr + '\',\'specialist\')">→ SPECIALIST</button>' +
+        '<button class="gcfi-btn amber" onclick="gcfiRoute(\'' + idAttr + '\',\'lineage\')">→ LINEAGE</button>' +
       '</div>' +
     '</div>'
   );
 }
 
 function escAttr(s){
-  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+  return String(s == null ? "" : s).replace(/[&<>"\']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
 }
@@ -2997,33 +3076,57 @@ function gcfiCopySeed(id){
   addFeedLine("ok", "REGISTRY COPY :: " + (c.id || ""));
 }
 
-function gcfiSendToForge(id){
+// Route a registry card into the Forge with an explicit intent. The Forge
+// consumes the stash on load (via ?gcfi=ID + sessionStorage). We never
+// generate output here — we only fill fields and pick the right tab.
+function gcfiRoute(id, intent){
   const c = gcfiCardById(id);
   if(!c) return;
-  // Stash the card so the Forge can fill its fields on load. We use
-  // sessionStorage rather than localStorage so the transfer is single-trip
-  // and never silently re-applies on a later visit.
-  try{
-    sessionStorage.setItem("HILBERT_GCFI_HANDOFF", JSON.stringify({
-      id: c.id,
-      title: c.title || "",
-      theme: c.theme || "",
-      seed: c.seed || "",
-      lane: c.lane || "",
-      topic: c.topic || "",
-      tags: Array.isArray(c.tags) ? c.tags.join(", ") : "",
-      confidence: c.confidence || "",
-      type: c.type || "",
-      stashedAt: Date.now()
-    }));
-  }catch(_){}
-  addFeedLine("ok", "FORGE HANDOFF :: " + (c.id || ""));
+  const intentNorm = String(intent || "live").toLowerCase();
+
+  // Decide the mode hint that goes into the handoff.
+  let modeHint = "";
+  if(intentNorm === "specialist"){
+    modeHint = GCFI_PIPELINE_TO_SPECIALIST[String(c.pipeline || "").toUpperCase()] || "experiment";
+  } else if(intentNorm === "lineage"){
+    modeHint = ""; // Lineage tab picks the lineage mode itself.
+  } else if(intentNorm === "dossier"){
+    modeHint = GCFI_PIPELINE_TO_MODE[String(c.pipeline || "").toUpperCase()] || "research";
+  } else {
+    modeHint = GCFI_PIPELINE_TO_MODE[String(c.pipeline || "").toUpperCase()] || "hilbert";
+  }
+
+  const payload = {
+    id: c.id,
+    title: c.title || "",
+    theme: c.theme || "",
+    seed: c.seed || "",
+    constraints: Array.isArray(c.tags) ? ("TAGS: " + c.tags.join(", ")) : "",
+    lane: c.lane || "",
+    topic: c.topic || "",
+    tags: Array.isArray(c.tags) ? c.tags.join(", ") : "",
+    confidence: c.confidence || "",
+    type: c.type || "",
+    pipeline: c.pipeline || "",
+    mode: modeHint,
+    routeIntent: intentNorm,
+    stashedAt: Date.now()
+  };
+
+  try{ sessionStorage.setItem("HILBERT_GCFI_HANDOFF", JSON.stringify(payload)); }catch(_){}
+  addFeedLine("ok", "FORGE HANDOFF :: " + (c.id || "") + " · " + intentNorm.toUpperCase());
   window.location.href = "/dossierforge.html?gcfi=" + encodeURIComponent(c.id);
 }
 
-function gcfiOpenS5(){
-  // Generic route — S5 console handles the tab routing. Card details stay in
-  // the handoff stash so the Forge tab can pick them up after auth.
+// Legacy alias kept so the existing call site (interceptSignal flow etc.)
+// still works. Routes to the base LIVE FORGE intent.
+function gcfiSendToForge(id){ gcfiRoute(id, "live"); }
+
+function gcfiOpenS5(id){
+  // Stash the card so that after the user logs in and the S5 forge tab
+  // opens, the seed is still available.
+  const c = gcfiCardById(id);
+  if(c){ gcfiRoute(id, "live"); /* writes the stash */ }
   window.location.href = "/s5.html?tab=forge";
 }
 
@@ -3031,13 +3134,13 @@ function gcfiRandom(){
   const pool = GCFI.filtered.length ? GCFI.filtered : GCFI.all;
   if(!pool.length) return;
   const pick = pool[Math.floor(Math.random() * pool.length)];
-  // Scroll the random pick into view by re-rendering with it pinned at top.
   const idx = GCFI.filtered.indexOf(pick);
   if(idx > 0){
     GCFI.filtered = [pick].concat(GCFI.filtered.filter(x => x !== pick));
   } else if(idx === -1){
     GCFI.filtered = [pick].concat(GCFI.filtered);
   }
+  GCFI.visible = Math.max(GCFI.visible, GCFI.pageStep);
   gcfiRender();
   const grid = document.getElementById("gcfiGrid");
   if(grid){
@@ -3062,6 +3165,7 @@ function gcfiClear(){
   if(conf) conf.value = "";
   if(type) type.value = "";
   GCFI.search = ""; GCFI.lane = ""; GCFI.conf = ""; GCFI.type = "";
+  GCFI.visible = GCFI.pageStep;
   gcfiApply();
 }
 </script>
