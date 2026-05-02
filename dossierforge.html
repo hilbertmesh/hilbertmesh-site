@@ -3360,58 +3360,85 @@ function openLineageLock(modeLabel){
 //                     /api/forge call and the output saves to the S5 vault.
 async function startPaidLiveForge(){
   forgeDebug("forge:paid_start", {});
-  const payload = buildForgePayload();
-  if(!payload.ok){
-    forgeDebug("forge:paid_invalid_payload", { error: payload.error });
-    toast(payload.error, "amber"); return;
-  }
 
-  // ── MEMBER PATH: Sigma run via S5 ──
-  const sessionId = getActiveS5Session();
-  if(sessionId){
-    forgeDebug("forge:paid_member_route", { hasSession: true });
+  // CONTRACT: Paid Live Forge MUST NOT generate any local skeleton/draft.
+  // Guard belt-and-braces with suppression flag so any indirect helper that
+  // tries to call buildZeroSigmaTemplate during the handoff is rejected by
+  // its existing suppression check.
+  const _priorSuppress = state.suppressDraftOutput;
+  state.suppressDraftOutput = true;
+
+  try {
+    const payload = buildForgePayload();
+    if(!payload.ok){
+      forgeDebug("forge:paid_invalid_payload", { error: payload.error });
+      toast(payload.error, "amber"); return;
+    }
+
+    // ── MEMBER PATH: Sigma run via S5 ──
+    // If the user has an active S5 session, route the run through the
+    // member /api/forge path (Sigma-funded, output saves to vault). The S5
+    // forge tab consumes HILBERT_FORGE_HANDOFF on load and pre-fills fields.
+    const sessionId = getActiveS5Session();
+    if(sessionId){
+      forgeDebug("forge:paid_member_route", { hasSession: true });
+      try{
+        sessionStorage.setItem("HILBERT_FORGE_HANDOFF", JSON.stringify({
+          title: payload.title,
+          theme: payload.theme,
+          seed: payload.seed,
+          constraints: payload.constraints,
+          mode: payload.mode,
+          pages: payload.pages,
+          stashedAt: Date.now()
+        }));
+      }catch(_){}
+      toast("Routing to S5 forge — Sigma run", "amber");
+      setTimeout(() => { window.location.href = S5_FORGE_URL; }, 250);
+      return;
+    }
+
+    // ── PUBLIC PATH: Stripe checkout ──
+    // Backend recomputes price + sigma cost; frontend numbers are ignored.
+    // success → /dossierforge.html?success=1 ; cancel → ?cancelled=1.
+    toast("Paid Forge handoff ready");
+    let r, data = null;
     try{
-      sessionStorage.setItem("HILBERT_FORGE_HANDOFF", JSON.stringify({
-        title: payload.title,
-        theme: payload.theme,
-        seed: payload.seed,
-        constraints: payload.constraints,
-        mode: payload.mode,
-        pages: payload.pages,
-        stashedAt: Date.now()
-      }));
-    }catch(_){}
-    toast("Routing to S5 forge — Sigma run", "amber");
-    setTimeout(() => { window.location.href = S5_FORGE_URL; }, 250);
-    return;
-  }
+      r = await fetch(CHECKOUT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign(
+          paidPayloadFromForge(payload),
+          { productType: "legacy_paid_forge", returnContext: "public_forge" }
+        ))
+      });
+      try{ data = await r.json(); }catch(_){ data = null; }
+    }catch(e){
+      console.error(e);
+      toast("NETWORK ERROR — STRIPE HANDOFF BLOCKED", "red");
+      return;
+    }
 
-  // ── PUBLIC PATH: Stripe handoff ──
-  toast("Paid Forge handoff ready");
-  try{
-    const r = await fetch(CHECKOUT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign(
-        paidPayloadFromForge(payload),
-        { productType: "legacy_paid_forge", returnContext: "public_forge" }
-      ))
-    });
-
-    let data = null;
-    try{ data = await r.json(); }catch(_){ data = null; }
+    // Tier-gated mode rejection from backend → route to upgrade.
+    if(data && data.error === "mode_requires_membership"){
+      forgeDebug("forge:paid_mode_locked", { mode: payload.mode });
+      toast("MODE LOCKED — log into S5 and upgrade your tier", "amber");
+      setTimeout(() => { window.location.href = S5_UPGRADE_URL; }, 700);
+      return;
+    }
 
     if(!data || !data.ok || !data.url){
       console.warn("Checkout handoff failed:", data);
-      toast("STRIPE HANDOFF FAILED — try again", "red");
+      const msg = data && data.detail ? data.detail : (data && data.error ? data.error : "try again");
+      toast("STRIPE HANDOFF FAILED — " + String(msg).slice(0, 80), "red");
       return;
     }
 
     window.location.href = data.url;
-
-  }catch(e){
-    console.error(e);
-    toast("NETWORK ERROR — STRIPE HANDOFF BLOCKED", "red");
+  } finally {
+    // Restore suppression flag after the handoff window so a deliberate
+    // user Draft press afterwards still works.
+    state.suppressDraftOutput = _priorSuppress;
   }
 }
 
@@ -5848,11 +5875,16 @@ function initForge(){
   }catch(_){}
 
   // ─── GRAND CENTRAL FLASH INDEX HANDOFF ───
-  // If the user clicked "→ LIVE FORGE" on a registry card from index.html,
-  // pick up the stashed card and pre-fill the Forge identity. Single-trip:
-  // sessionStorage is cleared after read so the same card never silently
-  // re-applies on a later load. This is a deliberate user action; clear
-  // any stale routing-suppression flags so Draft Dossier still works after.
+  // If the user clicked any of the per-card route buttons on index.html
+  // (LIVE FORGE / DOSSIER MODE / SPECIALIST / LINEAGE), pick up the stashed
+  // card and pre-fill the matching tab. Single-trip: sessionStorage is
+  // cleared after read so the same card never silently re-applies on a
+  // later load. This is a deliberate user action; clear any stale routing-
+  // suppression flags so Draft Dossier still works after.
+  //
+  // Honored stash fields:
+  //   id, title, theme, seed, constraints, lane, topic, tags, confidence,
+  //   mode, routeIntent ("live"|"dossier"|"specialist"|"lineage")
   try{
     const params2 = new URLSearchParams(window.location.search);
     const gcfiId = params2.get("gcfi");
@@ -5860,13 +5892,22 @@ function initForge(){
     if(gcfiId && stash){
       const card = JSON.parse(stash);
       sessionStorage.removeItem("HILBERT_GCFI_HANDOFF");
-      // Validate the handoff by id match — refuse stale cross-card stashes.
       if(card && card.id === gcfiId){
-        forgeDebug("forge:gcfihandoff", { id: gcfiId, hasTitle: !!card.title, hasSeed: !!card.seed });
+        const intent = String(card.routeIntent || "live").toLowerCase();
+        forgeDebug("forge:gcfihandoff", {
+          id: gcfiId,
+          intent,
+          hasTitle: !!card.title,
+          hasSeed: !!card.seed,
+          mode: card.mode || ""
+        });
         state.routingFromFlashcard = false;
         state.suppressDraftOutput = false;
         state.activeContext = "forge";
         state.activeContextMode = "";
+
+        // Always fill the base Forge identity fields so any tab the user
+        // clicks afterwards inherits the seed.
         if($("fTitle")) $("fTitle").value = String(card.title || "").slice(0, 120);
         if($("fTheme")) $("fTheme").value = String(card.theme || "").slice(0, 600);
         if($("fSeed")) $("fSeed").value = String(card.seed || "").slice(0, 5000);
@@ -5875,10 +5916,37 @@ function initForge(){
           const tagBlock = card.tags ? "TAGS: " + card.tags : "";
           const laneBlock = card.lane ? "LANE: " + card.lane : "";
           const confBlock = card.confidence ? "CONFIDENCE TARGET: " + card.confidence : "";
-          $("fConstraints").value = [laneBlock, confBlock, tagBlock].filter(Boolean).join(" · ");
+          const explicit  = card.constraints ? String(card.constraints) : "";
+          $("fConstraints").value = [explicit, laneBlock, confBlock, tagBlock].filter(Boolean).join(" · ");
         }
-        setPanel("forge");
-        if(typeof toast === "function") toast("Loaded from Grand Central · " + card.id);
+
+        // If the card carries an explicit mode, set it. setModeByName is the
+        // canonical mode picker; it tolerates unknown modes by leaving the
+        // current mode in place.
+        if(card.mode && typeof setModeByName === "function"){
+          try{ setModeByName(String(card.mode).toLowerCase()); }catch(_){}
+        }
+
+        // Route intent → tab. NEVER auto-generate output. The tab opens with
+        // fields filled and waits for the user.
+        let targetPanel = "forge";
+        let toastMsg = "Loaded from Grand Central · " + card.id;
+        if(intent === "specialist"){
+          targetPanel = "modes";
+          toastMsg = "Loaded into Specialist · " + card.id;
+        } else if(intent === "lineage"){
+          targetPanel = "command";
+          toastMsg = "Loaded into Lineage / Command Center · " + card.id;
+          // Pre-fill Command Center fields if those inputs exist on this build.
+          if($("ccTitle")) $("ccTitle").value = String(card.title || "").slice(0, 120);
+          if($("ccSeed"))  $("ccSeed").value  = String(card.seed  || "").slice(0, 5000);
+        } else if(intent === "dossier"){
+          targetPanel = "forge";
+          toastMsg = "Loaded into Dossier Mode · " + card.id;
+        }
+
+        setPanel(targetPanel);
+        if(typeof toast === "function") toast(toastMsg);
       }
     }
   }catch(_){}
