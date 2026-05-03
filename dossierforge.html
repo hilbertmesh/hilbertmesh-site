@@ -1542,7 +1542,7 @@ body.stream-safe .scanline:before{animation:none}
             <button class="btn cyan" onclick="copyOutput()">Copy Output</button>
             <button class="btn amber" onclick="downloadOutputTXT()">Download TXT</button>
             <button class="btn purple" onclick="downloadOutputHTML()">Download HTML</button>
-            <button class="btn vault" onclick="saveToVault()">Save to Vault</button>
+            <button class="btn vault" id="mainVaultBtn" onclick="saveToVault()">Save to Vault</button>
           </div>
 
           <div class="notice cyan" style="margin-top:10px;">
@@ -2940,11 +2940,13 @@ function readPanelPages(inputId){
 }
 
 function getSpecialistPagesOverride(){
-  return readPanelPages("fSpecPages");
+  const v = readPanelPages("fSpecPages");
+  return (v && v >= 3 && v <= 25) ? v : null;
 }
 
 function getLineagePagesOverride(){
-  return readPanelPages("fLinPages");
+  const v = readPanelPages("fLinPages");
+  return (v && v >= 3 && v <= 25) ? v : null;
 }
 
 function _renderCostPreviewInto(targetId, pages){
@@ -2976,14 +2978,16 @@ function _renderCostPreviewInto(targetId, pages){
 function updateSpecCostPreview(skipMark){
   const el = document.getElementById("fSpecPages");
   if(el && !skipMark) el.dataset.userEdited = "1";
-  const pages = getSpecialistPagesOverride() || clampPages($("fPages")?.value || 9);
+  const rawVal = el ? el.value : "";
+  const pages = (rawVal && clampPages(rawVal) >= 3) ? clampPages(rawVal) : clampPages($("fPages")?.value || 9);
   _renderCostPreviewInto("fSpecCost", pages);
 }
 
 function updateLinCostPreview(skipMark){
   const el = document.getElementById("fLinPages");
   if(el && !skipMark) el.dataset.userEdited = "1";
-  const pages = getLineagePagesOverride() || clampPages($("fPages")?.value || 9);
+  const rawVal = el ? el.value : "";
+  const pages = (rawVal && clampPages(rawVal) >= 3) ? clampPages(rawVal) : clampPages($("fPages")?.value || 9);
   _renderCostPreviewInto("fLinCost", pages);
 }
 
@@ -3771,7 +3775,13 @@ function renderPaidForgeSuccess(data, payload){
 
   showOutput(headerLines + out, "PAID FORGE · " + String(payload.mode || "hilbert").toUpperCase());
 
-  // Append a small vault link banner below the output card (idempotent).
+  // Hide the manual "Save to Vault" button — paid runs auto-save server-side.
+  try {
+    const vaultBtn = document.getElementById("mainVaultBtn");
+    if(vaultBtn) vaultBtn.style.display = "none";
+  } catch(_) {}
+
+  // Append SAVED TO VAULT banner + OPEN VAULT link below output-actions (idempotent).
   try {
     let banner = document.getElementById("paidForgeVaultBanner");
     if(!banner){
@@ -3787,8 +3797,9 @@ function renderPaidForgeSuccess(data, payload){
     if(banner){
       const did = data && data.dossierId ? String(data.dossierId).slice(0,80) : "";
       banner.innerHTML =
-        '<strong>SAVED TO S5 VAULT</strong>' + (did ? ' · <span style="opacity:.85;">' + did.replace(/[<>&"]/g,"") + '</span>' : '') +
-        ' · <a href="' + S5_VAULT_URL + '" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:underline;">Open Vault</a>';
+        '<strong>SAVED TO VAULT</strong>' +
+        (did ? ' · <span style="opacity:.85;">' + did.replace(/[<>&"]/g,"") + '</span>' : '') +
+        ' · <a href="' + S5_VAULT_URL + '" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:underline;letter-spacing:1.2px;">OPEN VAULT</a>';
     }
   } catch(_) {}
 }
@@ -3818,8 +3829,8 @@ function renderPaidForgeError(data, payload){
     lines.push("");
     lines.push("→ Free a slot in the S5 VAULT before running another Forge.");
   } else if(errKey === "model_timeout"){
-    lines.push("MODEL TIMEOUT");
-    lines.push("→ Sigma was refunded automatically. Try again or reduce page count.");
+    lines.push("MODEL TIMEOUT — Sigma refunded.");
+    lines.push("→ Try fewer pages (3–9 recommended) or retry. No skeleton generated.");
   } else if(errKey === "model_error" || errKey === "model_unreachable" || errKey === "model_empty_response"){
     if(data.httpStatus != null) lines.push("MODEL HTTP STATUS: " + data.httpStatus);
     if(data.model) lines.push("MODEL: " + data.model);
@@ -6782,4 +6793,4 @@ window.HILBERT_LINEAGE_REGISTRY = function(){
 };
 </script>
 </body>
-</html>
+  </html>
