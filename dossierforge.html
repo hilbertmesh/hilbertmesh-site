@@ -3437,7 +3437,7 @@ async function startPaidLiveForge(){
           constraints: payload.constraints,
           mode: payload.mode,
           pages: payload.pages,
-          iteration: ($(\"fIteration\")?.value || \"IT-1\").trim() || \"IT-1\",
+          iteration: ($("fIteration")?.value || "IT-1").trim() || "IT-1",
           source: "dossierforge_paid",
           stashedAt: Date.now()
         }));
