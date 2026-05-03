@@ -3680,8 +3680,9 @@ function consumeForgeHandoff(){
   }catch(_){ return false; }
   if(!stash || typeof stash !== "object") return false;
   try{
-    if($("fCodename") && stash.title) $("fCodename").value = String(stash.title).slice(0, 120);
-    if($("fTheme") && stash.theme)    $("fTheme").value    = String(stash.theme).slice(0, 240);
+    if($(\"fCodename\") && stash.title) $(\"fCodename\").value = String(stash.title).slice(0, 120);
+    if($(\"fIteration\")) $(\"fIteration\").value = String(stash.iteration || \"IT-1\").slice(0, 80) || \"IT-1\";
+    if($(\"fTheme\") && stash.theme)    $(\"fTheme\").value    = String(stash.theme).slice(0, 240);
     if($("fSeed")) {
       const seedBlock = String(stash.seed || "");
       const consBlock = stash.constraints ? "\n\nCONSTRAINTS:\n" + String(stash.constraints) : "";
