@@ -1578,7 +1578,7 @@ input[type="checkbox"]{
       <div class="card hidden amber" id="djUploadBox">
         <h3>DJ CONTROL · MASTER CONSOLE</h3>
         <div class="small" style="margin-bottom:8px;opacity:.85;">
-          Admin-only. Backend enforces master/dev override; this UI surface is not the security boundary.
+          Admin-only. Backend enforces master/dev override; this UI surface is not the security boundary. Free tracks only — paste an externally hosted audio URL. No file uploads.
         </div>
 
         <label>Title</label>
@@ -1587,13 +1587,25 @@ input[type="checkbox"]{
         <label>Artist</label>
         <input class="input" id="djArtist">
 
-        <label>URL</label>
-        <input class="input" id="djUrl">
+        <label>Description</label>
+        <textarea class="input" id="djDescription" rows="2" maxlength="2000" placeholder="Optional liner notes"></textarea>
 
-        <label>Price (cents)</label>
-        <input class="input" id="djPrice" type="number" value="0">
+        <label>Audio URL</label>
+        <input class="input" id="djUrl" placeholder="https://...mp3 or .wav">
 
-        <button class="btn amber wide" id="uploadTrackBtn">Upload Track</button>
+        <label>Cover URL</label>
+        <input class="input" id="djCoverUrl" placeholder="Optional cover image URL">
+
+        <label>Tags (comma-separated)</label>
+        <input class="input" id="djTags" placeholder="post-hardcore, dossier-soundtrack, demo">
+
+        <label>Visibility</label>
+        <select class="input" id="djVisibility">
+          <option value="public">Public</option>
+          <option value="private">Private (admin only)</option>
+        </select>
+
+        <button class="btn amber wide" id="uploadTrackBtn">Save Track</button>
       </div>
     </div>
 
@@ -2152,10 +2164,35 @@ function authBody(extra = {}){
   return Object.assign({}, extra, { s5SessionId:state.sessionId });
 }
 
+// MODE → ROUTE INTENT BUCKET. Mirrors the backend MODE_INTENT in
+// api/forge.js. The backend re-derives this from the mode key as the
+// authoritative path, but sending it explicitly makes the intent visible
+// in any debug capture and lets the backend log a divergence if a stale
+// frontend ships a wrong value.
+const MODE_INTENT = {
+  // base / forge
+  hilbert:"forge", intelligence:"forge", research:"forge", critique:"forge",
+  argue:"forge", expand:"forge", lore:"forge",
+  // specialist
+  identity:"specialist", song_audit:"specialist", archive:"specialist",
+  experiment:"specialist", contradiction:"specialist", architecture:"specialist",
+  pacer_stress:"specialist",
+  // lineage
+  harmonic:"lineage", temporal:"lineage", exotic:"lineage",
+  intake:"lineage", refinery:"lineage",
+  // dev
+  sandbox:"dev", lab:"dev"
+};
+function resolveRouteIntent(mode){
+  return MODE_INTENT[String(mode || "").toLowerCase()] || "forge";
+}
+
 function buildForgePayload(queueOnly = false){
+  const mode = state.selectedMode;
   return authBody({
-    mode:state.selectedMode,
-    _runMode:state.selectedMode,
+    mode,
+    _runMode:mode,
+    routeIntent: resolveRouteIntent(mode),
     queueOnly,
     iteration:clean($("fIteration").value,80),
     codename:clean($("fCodename").value,120),
@@ -2165,6 +2202,7 @@ function buildForgePayload(queueOnly = false){
     pages:Math.max(1,Math.min(50,Number($("fPages").value)||1)),
     style:clean($("fStyle").value,80),
     presentation:clean($("fPresentation").value,80),
+    constraints:clean($("fConstraints")?.value || "", 1500),
     seed:clean($("fSeed").value,6000)
   });
 }
@@ -2295,7 +2333,11 @@ async function runForge(queueOnly = false){
       if(r.sigmaRequired) lines.push("SIGMA REQUIRED: " + r.sigmaRequired);
       if(r.sigmaBalance != null) lines.push("SIGMA BALANCE: " + r.sigmaBalance);
       if(r.sigmaRefunded)  lines.push("SIGMA REFUNDED: " + r.sigmaRefunded);
-      if(r.modelStatus)   lines.push("MODEL HTTP STATUS: " + r.modelStatus);
+      // Per spec: model_error responses include httpStatus + model. We
+      // also accept the legacy `modelStatus` alias for forward-compat.
+      const httpStatus = (r.httpStatus != null) ? r.httpStatus : r.modelStatus;
+      if(httpStatus != null && httpStatus !== "") lines.push("MODEL HTTP STATUS: " + httpStatus);
+      if(r.model)         lines.push("MODEL: " + r.model);
       if(hint) { lines.push(""); lines.push("→ " + hint); }
       lines.push("");
       lines.push("// No skeleton output is generated for paid runs.");
@@ -2758,20 +2800,29 @@ async function deleteTrack(id){
 }
 
 async function uploadTrack(){
+  const tagsRaw = ($("djTags")?.value || "").trim();
+  const tags = tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
+
   const r = await postJson("/api/profile", authBody({
-  action:"music_save",
+    action:"music_save",
     title:clean($("djTitle").value,160),
     artist:clean($("djArtist").value,120),
-    url:clean($("djUrl").value,1000),
-    priceCents:Math.max(0,Number($("djPrice").value)||0)
+    description:clean($("djDescription")?.value || "",2000),
+    audioUrl:clean($("djUrl").value,1000),
+    coverUrl:clean($("djCoverUrl")?.value || "",1000),
+    tags,
+    visibility: ($("djVisibility")?.value === "private" ? "private" : "public")
   }));
 
-  if(!r.ok){ alert("UPLOAD FAILED:\n" + fmtErr(r)); return; }
+  if(!r.ok){ alert("SAVE TRACK FAILED:\n" + fmtErr(r)); return; }
 
   $("djTitle").value = "";
   $("djArtist").value = "";
+  if($("djDescription")) $("djDescription").value = "";
   $("djUrl").value = "";
-  $("djPrice").value = "0";
+  if($("djCoverUrl")) $("djCoverUrl").value = "";
+  if($("djTags")) $("djTags").value = "";
+  if($("djVisibility")) $("djVisibility").value = "public";
   await loadMusic();
 }
 
