@@ -2303,22 +2303,35 @@ function renderForgeResult(r){
   state.lastForge = r;
 
   const out = extractForgeOutput(r);
+  const dossierId = String(r.dossierId || (r.dossier && r.dossier.id) || "");
+  const sigmaLeft = r.sigma != null ? String(r.sigma) : (r.sigmaDisplay || "");
+  const runCost = r.runCost != null ? String(r.runCost) : "";
   const meta = [
     "FORGE COMPLETE",
     "MODE: " + state.selectedMode,
-    "CODENAME: " + clean($("fCodename").value,120),
-    "ITERATION: " + clean($("fIteration").value,80),
-    "THEME: " + clean($("fTheme").value,240),
-    "TYPE: " + clean($("fType").value,80),
-    "PAGES: " + String(Math.max(1,Math.min(50,Number($("fPages").value)||1))),
+    "CODENAME: " + clean($(\"fCodename\").value,120),
+    "ITERATION: " + clean($(\"fIteration\").value,80),
+    "THEME: " + clean($(\"fTheme\").value,240),
+    "TYPE: " + clean($(\"fType\").value,80),
+    "PAGES: " + String(Math.max(1,Math.min(50,Number($(\"fPages\").value)||1))),
+    dossierId ? "DOSSIER ID: " + dossierId : "",
+    runCost ? "SIGMA SPENT: " + runCost : "",
+    sigmaLeft ? "SIGMA REMAINING: " + sigmaLeft : "",
+    "SAVED TO VAULT",
     ""
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 
-  $("forgeOutput").textContent = meta + out;
-  $("forgeOutput").classList.remove("hidden");
-  $("forgeStatus").textContent = "FORGE COMPLETE // OUTPUT SEALED";
-  $("forgeStatus").classList.remove("hidden","red");
-  $("forgeStatus").classList.add("amber");
+  $(\"forgeOutput\").textContent = meta + out;
+  $(\"forgeOutput\").classList.remove("hidden");
+
+  const statusEl = $(\"forgeStatus\");
+  if(statusEl){
+    statusEl.innerHTML = "FORGE COMPLETE // SAVED TO VAULT" +
+      (dossierId ? " · <span style=\"opacity:.8;font-size:.9em;\">" + dossierId + "</span>" : "") +
+      " &nbsp;<a href=\"?tab=vault\" onclick=\"selectTab('vault');return false;\" style=\"color:var(--amber);text-decoration:underline;letter-spacing:1.5px;\">OPEN VAULT</a>";
+    statusEl.classList.remove("hidden","red");
+    statusEl.classList.add("amber");
+  }
 
   loadProfileState(true);
 }
