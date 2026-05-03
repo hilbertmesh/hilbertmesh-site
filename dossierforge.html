@@ -3437,6 +3437,7 @@ async function startPaidLiveForge(){
           constraints: payload.constraints,
           mode: payload.mode,
           pages: payload.pages,
+          iteration: ($(\"fIteration\")?.value || \"IT-1\").trim() || \"IT-1\",
           source: "dossierforge_paid",
           stashedAt: Date.now()
         }));
@@ -6089,4 +6090,4 @@ window.HILBERT_LINEAGE_REGISTRY = function(){
 };
 </script>
 </body>
-</html>
+  </html>
