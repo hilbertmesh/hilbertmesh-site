@@ -3665,7 +3665,7 @@ input[type="checkbox"]{
       <button class="btn amber" data-tab="account">▸ Profile</button>
 
 
-      <button class="btn" data-tab="forge">▸ Live Forge</button>
+      <button class="btn" id="liveForgeNavBtn">▸ Live Forge</button>
 
 
       <button class="btn" data-tab="vault">▸ Vault</button>
@@ -9502,7 +9502,14 @@ function bindEvents(){
   document.querySelectorAll("[data-jump]").forEach(card => {
 
 
-    card.onclick = () => selectTab(card.dataset.jump);
+    card.onclick = () => {
+      if(card.dataset.jump === "forge"){
+        // Navigate to dossierforge.html — it reads the session from localStorage automatically.
+        window.location.href = "dossierforge.html";
+      } else {
+        selectTab(card.dataset.jump);
+      }
+    };
 
 
   });
@@ -9912,6 +9919,7 @@ function bindEvents(){
     }
   }
 
+  if($("liveForgeNavBtn")) $("liveForgeNavBtn").onclick = () => { window.location.href = "dossierforge.html"; };
   if($("refreshBtn")){
 
 
