@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>HILBERT // CHECKOUT CANCELLED</title>
+<style>
+:root{--bg:#020802;--fg:#00ff41;--fg2:#ffd58f;--bd:#ffaa00;--red:#ff5555;--panel:rgba(20,8,4,.9)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{min-height:100vh;background:var(--bg);color:var(--fg);font-family:ui-monospace,Menlo,Consolas,monospace;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,85,85,.035) 3px),radial-gradient(circle at center,rgba(255,85,85,.12),transparent 55%);pointer-events:none}
+.wrap{position:relative;z-index:1;min-height:100vh;display:grid;place-items:center;padding:16px}
+.panel{width:min(820px,100%);border:1px solid var(--red);background:var(--panel);box-shadow:0 0 44px rgba(255,85,85,.12);padding:22px}
+.badge{color:var(--bd);letter-spacing:3px;font-size:11px;margin-bottom:14px}
+h1{font-size:clamp(24px,7vw,38px);letter-spacing:4px;margin:0 0 12px;color:var(--red)}
+.line{height:1px;background:var(--red);margin:16px 0}
+.status{color:#ffb0b0;font-size:13px;line-height:1.8}
+.status div:before{content:"× ";color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:18px}
+.btn{display:block;color:var(--fg);background:#001500;border:1px solid #00aa33;padding:15px 18px;text-decoration:none;letter-spacing:2px;font-size:13px;min-height:46px;text-align:center}
+.btn.amber{color:var(--bd);border-color:var(--bd)}
+.btn.red{color:#ffb0b0;border-color:var(--red)}
+.note{margin-top:14px;font-size:11px;color:#9a8a6a;letter-spacing:1px;line-height:1.7}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <div class="badge">S5 PAYMENT RELAY // CANCELLED</div>
+    <h1>CHECKOUT CANCELLED</h1>
+    <div class="line"></div>
+
+    <div class="status">
+      <div>No charge completed</div>
+      <div>Account session unchanged</div>
+      <div>Returning to Live Forge…</div>
+    </div>
+
+    <div class="grid">
+      <a class="btn amber" id="forgeBtn">▸ RETURN TO LIVE FORGE</a>
+      <a class="btn" id="profileBtn">▸ S5 PROFILE</a>
+      <a class="btn red" id="homeBtn">▸ MAIN MENU</a>
+    </div>
+
+    <div class="note" id="note">
+      If your browser blocks the auto-redirect, tap <strong>RETURN TO LIVE FORGE</strong>.
+    </div>
+  </div>
+</div>
+
+<script>
+// Defensive fallback. The current backend create-checkout-session.js routes
+// cancel directly to /dossierforge.html?cancelled=1 on the frontend, so this
+// page only renders if a Stripe session was created with the legacy default
+// cancel_url. Auto-bounce to the frontend so the user is never stranded on
+// the backend host.
+const FRONTEND = "https://hilbertmesh-site.vercel.app";
+function s5(tab){ return FRONTEND + "/s5.html?tab=" + encodeURIComponent(tab) + "&cancelled=1&v=" + Date.now(); }
+function forgeUrl(){ return FRONTEND + "/dossierforge.html?cancelled=1&v=" + Date.now(); }
+
+document.getElementById("forgeBtn").href = forgeUrl();
+document.getElementById("profileBtn").href = s5("account");
+document.getElementById("homeBtn").href = FRONTEND + "/?v=" + Date.now();
+
+try{
+  localStorage.removeItem("hmf_s5_code");
+  localStorage.removeItem("hmf_s5_code_DEPRECATED");
+}catch{}
+
+// Auto-bounce after a short pause so the user can read the cancel notice.
+setTimeout(() => {
+  try{ window.location.replace(forgeUrl()); }catch(_){}
+}, 1500);
+</script>
+</body>
+</html>

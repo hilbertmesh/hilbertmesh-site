@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>HILBERT // PAYMENT CONFIRMED</title>
+<style>
+:root{--bg:#020802;--fg:#00ff41;--fg2:#9dffad;--dim:#4f8f5a;--bd:#00aa33;--amber:#ffaa00;--err:#ff5555;--panel:rgba(0,18,4,.92)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{min-height:100vh;background:var(--bg);color:var(--fg);font-family:ui-monospace,Menlo,Consolas,monospace;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,255,65,.035) 3px),radial-gradient(circle at center,rgba(0,255,65,.12),transparent 55%);pointer-events:none}
+.wrap{position:relative;z-index:1;min-height:100vh;display:grid;place-items:center;padding:16px}
+.panel{width:min(820px,100%);border:1px solid var(--bd);background:var(--panel);box-shadow:0 0 44px rgba(0,255,65,.14);padding:22px}
+.badge{color:var(--amber);letter-spacing:3px;font-size:11px;margin-bottom:14px}
+h1{font-size:clamp(24px,7vw,38px);letter-spacing:4px;margin:0 0 12px;text-shadow:0 0 18px rgba(0,255,65,.5)}
+.line{height:1px;background:var(--bd);margin:16px 0;box-shadow:0 0 12px var(--fg)}
+.status{display:grid;gap:8px;color:var(--fg2);font-size:13px;line-height:1.6}
+.status div:before{content:"✓ ";color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:18px}
+.btn{display:block;color:var(--fg);background:#001500;border:1px solid var(--bd);padding:15px 18px;text-decoration:none;letter-spacing:2px;font-size:13px;min-height:46px;text-align:center}
+.btn:hover{background:rgba(0,255,65,.08)}
+.btn.amber{color:var(--amber);border-color:var(--amber)}
+.small{color:var(--dim);font-size:11px;margin-top:14px;line-height:1.6}
+.warn{color:var(--amber)}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <div class="badge">S5 PAYMENT RELAY // VERIFIED</div>
+    <h1>PAYMENT CONFIRMED</h1>
+    <div class="line"></div>
+    <div class="status">
+      <div>Checkout completed</div>
+      <div>Stripe relay accepted</div>
+      <div>Sigma / membership grant queued for account sync</div>
+      <div id="bounceLine">Returning you to the relevant Hilbert console…</div>
+    </div>
+
+    <div class="grid">
+      <a class="btn amber" id="primaryBtn">▸ CONTINUE</a>
+      <a class="btn" id="profileBtn">▸ S5 PROFILE</a>
+      <a class="btn" id="homeBtn">▸ MAIN MENU</a>
+    </div>
+
+    <div class="small">
+      If your balance does not update instantly, return to S5 Profile and wait a few seconds. Webhook settlement can briefly lag a fresh checkout.<br>
+      <span class="warn">No raw S5 credential is displayed or stored on this page.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Defensive fallback. The current create-checkout-session.js routes success
+// directly to the frontend so this page only renders for legacy or
+// fall-through callers. We try to pick the best continue target from the
+// URL (e.g. ?source=public_forge) and bounce to it.
+const FRONTEND = "https://hilbertmesh-site.vercel.app";
+function s5(tab, extra){
+  const ex = extra ? "&" + extra : "";
+  return FRONTEND + "/s5.html?tab=" + encodeURIComponent(tab) + "&success=1" + ex + "&v=" + Date.now();
+}
+function forgeUrl(){
+  const sid = new URLSearchParams(location.search).get("session_id") || "";
+  const sidPart = sid ? ("&session_id=" + encodeURIComponent(sid)) : "";
+  return FRONTEND + "/dossierforge.html?success=1" + sidPart + "&v=" + Date.now();
+}
+
+const params = new URLSearchParams(location.search);
+const src = (params.get("source") || params.get("ctx") || "").toLowerCase();
+
+// Choose primary continue target.
+let primary = s5("account");
+let primaryLabel = "▸ RETURN TO PROFILE";
+if(src === "public_forge" || src === "legacy_paid_forge"){
+  primary = forgeUrl();
+  primaryLabel = "▸ RETURN TO LIVE FORGE";
+} else if(src === "member_forge_topup"){
+  primary = s5("forge");
+  primaryLabel = "▸ ENTER FORGE";
+} else if(src === "store" || src === "product_purchase"){
+  primary = s5("store");
+  primaryLabel = "▸ OPEN STORE";
+}
+
+const pBtn = document.getElementById("primaryBtn");
+pBtn.href = primary;
+pBtn.textContent = primaryLabel;
+document.getElementById("profileBtn").href = s5("account");
+document.getElementById("homeBtn").href = FRONTEND + "/?v=" + Date.now();
+
+try{
+  localStorage.removeItem("hmf_s5_code");
+  localStorage.removeItem("hmf_s5_code_DEPRECATED");
+}catch{}
+
+// Auto-bounce so the user is never stranded on the backend host.
+setTimeout(() => {
+  try{ window.location.replace(primary); }catch(_){}
+}, 1800);
+</script>
+</body>
+</html>
