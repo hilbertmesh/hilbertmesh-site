@@ -1,0 +1,2986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#0c0703">
+<title>BOOKFORGE // OVERNIGHT NOVEL ENGINE // RECOVERED LIBRARY</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Share+Tech+Mono&family=Italiana&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* BOOKFORGE PALETTE — 5D recovered library / parchment + gilded ink */
+  --bf-bg:        #0c0703;   /* deep brown-black */
+  --bf-bg-2:      #110a04;
+  --bf-surface:   #1a1207;   /* warm dark surface */
+  --bf-surface-2: #221a0c;   /* hover */
+  --bf-border:    #3a2c14;   /* aged border */
+  --bf-border-2:  #564228;
+  --bf-border-3:  #7a5e3a;
+
+  --gold:         #d4b86a;   /* primary — gilded gold */
+  --gold-bright:  #f0d894;   /* highlight */
+  --gold-dim:     #a08648;
+  --gold-deep:    #6a5128;
+
+  --parchment:    #e8d8a8;   /* readable warm bone */
+  --parchment-2:  #f0e4c0;
+  --parchment-3:  #fff5d8;
+  --ink:          #4a3520;   /* sepia ink for dark-on-light moments */
+  --ink-dim:      #6a5028;
+
+  --bone:         #e8e0d0;   /* primary body text */
+  --bone-bright:  #fff5d8;
+  --bone-dim:     #a8967a;
+  --bone-dimmer:  #6a5e48;
+  --bone-faint:   #4a3f30;
+
+  --copper:       #c08858;   /* copper accent — for diagrams */
+  --emerald:      #6ac890;   /* good / OK */
+  --crimson:      #c85878;   /* warn */
+  --aether:       #b8a8ff;   /* echo to Aethernet for cross-links */
+
+  --shadow-gold:  0 0 24px rgba(212,184,106,.18);
+  --inset:        inset 0 0 32px rgba(0,0,0,.55);
+
+  --scan-line:    rgba(212,184,106,.018);
+}
+
+html,body{
+  width:100%;
+  min-height:100vh;
+  background:var(--bf-bg);
+  color:var(--bone);
+  font-family:'Share Tech Mono','Courier New',monospace;
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  -webkit-text-size-adjust:100%;
+  font-size:14px;
+  line-height:1.55;
+}
+
+body{
+  background:
+    radial-gradient(ellipse at 18% 12%, rgba(212,184,106,.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 82% 65%, rgba(192,136,88,.06) 0%, transparent 42%),
+    radial-gradient(ellipse at 50% 96%, rgba(212,184,106,.05) 0%, transparent 55%),
+    var(--bf-bg);
+  position:relative;
+}
+
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font-family:inherit;color:inherit}
+
+/* ─────────────── ATMOSPHERE LAYERS ─────────────── */
+#bf-scan{
+  position:fixed;inset:0;pointer-events:none;z-index:9000;
+  background:repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    var(--scan-line) 3px, var(--scan-line) 4px
+  );
+  mix-blend-mode:screen;
+}
+#bf-vig{
+  position:fixed;inset:0;pointer-events:none;z-index:8999;
+  background:radial-gradient(ellipse at 50% 42%, transparent 36%, rgba(0,0,0,.78) 100%);
+}
+#bf-bloom{
+  position:fixed;inset:0;pointer-events:none;z-index:8998;
+  background:
+    radial-gradient(ellipse at 30% 22%, rgba(212,184,106,.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 78% 78%, rgba(192,136,88,.04) 0%, transparent 45%);
+  animation:bfBloom 32s ease-in-out infinite;
+}
+#bf-grain{
+  position:fixed;inset:0;pointer-events:none;z-index:8997;
+  opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .831 0 0 0 0 .722 0 0 0 0 .415 0 0 0 .055 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:220px 220px;
+  mix-blend-mode:overlay;
+}
+/* faint horizontal serif rules — like deep gilt etched into the page */
+#bf-rules{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  background-image:linear-gradient(rgba(212,184,106,.012) 1px, transparent 1px);
+  background-size:100% 22px;
+  opacity:.6;
+}
+
+@keyframes bfBloom{
+  0%,100% { opacity:.55; transform:translate(0,0) }
+  33%     { opacity:.85; transform:translate(-6px,3px) }
+  66%     { opacity:.7;  transform:translate(4px,-2px) }
+}
+@keyframes pulseSoft{ 0%,100%{opacity:.6} 50%{opacity:1} }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes rise{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes riseSlow{ from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes glowGold{
+  0%,100% { text-shadow: 0 0 10px rgba(212,184,106,.45), 0 0 22px rgba(212,184,106,.18) }
+  50%     { text-shadow: 0 0 16px rgba(212,184,106,.7),  0 0 32px rgba(212,184,106,.3)  }
+}
+@keyframes spinSlow{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+@keyframes pageDrift{
+  0%   { transform:translateY(0) }
+  100% { transform:translateY(-8px) }
+}
+
+/* ─────────────── LAYOUT SHELL ─────────────── */
+.shell{
+  position:relative;
+  z-index:10;
+  max-width:1320px;
+  margin:0 auto;
+  padding:16px 22px 80px;
+}
+
+/* ─────────────── RELAY BAR ─────────────── */
+#bf-relay{
+  position:sticky;top:0;z-index:300;
+  height:26px;
+  background:linear-gradient(180deg, rgba(12,7,3,.97), rgba(20,12,6,.97));
+  border-bottom:1px solid var(--bf-border);
+  display:flex;align-items:center;padding:0 14px;
+  overflow:hidden;
+  box-shadow:0 1px 0 rgba(212,184,106,.06);
+  margin-bottom:22px;
+}
+.rseg{
+  display:flex;align-items:center;gap:7px;
+  padding:0 11px;
+  border-right:1px solid var(--bf-border);
+  height:100%;flex-shrink:0;
+}
+.rseg:first-child{padding-left:0}
+.rseg:last-child{border-right:none}
+.rdot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 7px var(--gold);
+  animation:pulseSoft 2.6s ease-in-out infinite;
+}
+.rdot.cp{ background:var(--copper); box-shadow:0 0 7px var(--copper) }
+.rdot.ae{ background:var(--aether); box-shadow:0 0 7px var(--aether) }
+.rdot.ok{ background:var(--emerald); box-shadow:0 0 7px var(--emerald) }
+.rdot.dim{ background:var(--bone-faint); box-shadow:none; animation:none }
+.rdot.warn{ background:var(--crimson); box-shadow:0 0 7px var(--crimson); animation:pulse 1.2s ease-in-out infinite }
+.rl{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2.2px;color:var(--gold);text-shadow:0 0 6px rgba(212,184,106,.25);white-space:nowrap}
+.rl.cp{ color:var(--copper); text-shadow:0 0 6px rgba(192,136,88,.25) }
+.rl.ae{ color:var(--aether); text-shadow:0 0 6px rgba(184,168,255,.25) }
+.rl.ok{ color:var(--emerald); text-shadow:0 0 6px rgba(106,200,144,.25) }
+.rl.dim{ color:var(--bone-dimmer); text-shadow:none }
+.rs{font-size:8px;letter-spacing:1.4px;color:var(--bone-dimmer);white-space:nowrap}
+.rright{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+/* ─────────────── HEADER ─────────────── */
+.bf-header{
+  position:relative;
+  padding:32px 0 28px;
+  border-bottom:1px solid var(--bf-border);
+  margin-bottom:28px;
+  opacity:0;
+  animation:rise 1.1s ease forwards .15s;
+}
+.bf-crumb{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:5.5px;
+  color:var(--gold-dim);
+  margin-bottom:18px;
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+}
+.bf-crumb a{color:var(--bone-dimmer);border-bottom:1px dashed var(--bf-border);padding-bottom:1px;transition:.2s}
+.bf-crumb a:hover{color:var(--gold);border-color:var(--gold-dim)}
+.bf-crumb .sep{color:var(--bf-border-2)}
+
+.bf-title-wrap{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap}
+.bf-title{
+  font-family:'Cinzel',serif;
+  font-weight:700;
+  font-size:clamp(38px, 7vw, 78px);
+  letter-spacing:.16em;
+  line-height:.95;
+  color:var(--bone-bright);
+  text-shadow:
+    0 0 18px rgba(212,184,106,.4),
+    0 0 36px rgba(212,184,106,.18);
+  animation:glowGold 4.5s ease-in-out infinite;
+}
+.bf-title span{color:var(--gold)}
+.bf-subtitle{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(13px, 1.6vw, 16px);
+  color:var(--gold-bright);
+  letter-spacing:.04em;
+  margin-top:12px;
+  max-width:580px;
+  line-height:1.6;
+}
+.bf-class{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:2.2px;
+  color:var(--bone-dimmer);
+  text-align:right;
+  line-height:2.1;
+  min-width:260px;
+}
+.bf-class .label{color:var(--gold-dim)}
+.bf-class .val{color:var(--bone-dim)}
+.bf-class .flag{color:var(--gold)}
+.bf-class .flag-cp{color:var(--copper)}
+.bf-class .flag-ae{color:var(--aether)}
+
+/* ─────────────── STATION BAR ─────────────── */
+.station-bar{
+  display:flex;gap:0;
+  border:1px solid var(--bf-border);
+  background:linear-gradient(180deg, rgba(26,18,7,.7), rgba(12,7,3,.7));
+  margin-bottom:28px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  opacity:0;
+  animation:rise 1s ease forwards .35s;
+}
+.station-bar::-webkit-scrollbar{display:none}
+.station-tab{
+  flex:1;min-width:140px;
+  padding:14px 18px;
+  font-family:'Cinzel',serif;
+  font-size:11px;letter-spacing:.18em;
+  color:var(--bone-dimmer);
+  background:transparent;
+  border:none;border-right:1px solid var(--bf-border);
+  cursor:pointer;transition:.25s;
+  text-align:center;position:relative;white-space:nowrap;
+}
+.station-tab:last-child{border-right:none}
+.station-tab:hover{color:var(--gold-bright);background:rgba(212,184,106,.04)}
+.station-tab.active{
+  color:var(--gold-bright);
+  background:linear-gradient(180deg, rgba(212,184,106,.09), rgba(212,184,106,.02));
+  text-shadow:0 0 12px rgba(212,184,106,.5);
+}
+.station-tab.active::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  box-shadow:0 0 12px var(--gold);
+}
+.station-tab .tab-no{
+  display:block;
+  font-family:'Italiana',serif;
+  font-size:14px;letter-spacing:2px;
+  color:var(--gold-dim);
+  margin-bottom:2px;
+}
+.station-tab.active .tab-no{color:var(--gold)}
+
+/* ─────────────── PANELS ─────────────── */
+.panel{
+  border:1px solid var(--bf-border);
+  background:linear-gradient(180deg, rgba(26,18,7,.7), rgba(12,7,3,.55));
+  box-shadow:var(--inset);
+  margin-bottom:22px;
+  position:relative;
+}
+.panel-head{
+  padding:14px 18px;
+  border-bottom:1px solid var(--bf-border);
+  background:linear-gradient(180deg, rgba(34,26,12,.6), rgba(26,18,7,.4));
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'Cinzel',serif;
+  font-size:11px;letter-spacing:.2em;
+  color:var(--gold-bright);
+}
+.panel-head .tag{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:1.8px;
+  color:var(--gold-dim);
+  padding:3px 9px;
+  border:1px solid var(--gold-deep);
+  background:rgba(212,184,106,.03);
+}
+.panel-head .tag.cp{color:var(--copper);border-color:rgba(192,136,88,.25);background:rgba(192,136,88,.04)}
+.panel-head .tag.ae{color:var(--aether);border-color:rgba(184,168,255,.32);background:rgba(184,168,255,.05)}
+.panel-head .tag.ok{color:var(--emerald);border-color:rgba(106,200,144,.32);background:rgba(106,200,144,.04)}
+.panel-head .tag.warn{color:var(--crimson);border-color:rgba(200,88,120,.36);background:rgba(200,88,120,.04)}
+.panel-body{padding:20px 22px}
+
+.sublabel{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;letter-spacing:3.5px;
+  color:var(--gold-dim);
+  margin:22px 0 10px;
+  padding-bottom:5px;
+  border-bottom:1px dashed var(--bf-border);
+}
+.sublabel:first-child{margin-top:0}
+
+.lede{
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px;line-height:1.72;
+  color:var(--bone);
+  margin-bottom:18px;
+}
+.lede em{color:var(--gold-bright);font-style:italic}
+.lede strong{color:var(--copper);font-weight:500;font-style:normal}
+.minor{font-size:11px;letter-spacing:.06em;color:var(--bone-dim);line-height:1.7}
+.minor em{color:var(--gold);font-style:normal}
+
+/* ─────────────── INPUTS ─────────────── */
+.field{margin-bottom:18px}
+.field-label{
+  display:block;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;letter-spacing:2.4px;
+  color:var(--gold-dim);
+  margin-bottom:7px;
+}
+.field-label .req{color:var(--crimson)}
+.field-label .opt{color:var(--bone-faint)}
+
+.input,.textarea,.select{
+  width:100%;
+  padding:11px 13px;
+  background:rgba(12,7,3,.6);
+  border:1px solid var(--bf-border);
+  color:var(--bone);
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;letter-spacing:.04em;
+  outline:none;transition:.2s;
+}
+.input:focus,.textarea:focus,.select:focus{
+  border-color:var(--gold-dim);
+  box-shadow:0 0 0 1px var(--gold-dim), 0 0 18px rgba(212,184,106,.14);
+  background:rgba(12,7,3,.85);
+}
+.textarea{resize:vertical;min-height:130px;line-height:1.6}
+.textarea.prose{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;line-height:1.72;
+}
+.select{
+  appearance:none;-webkit-appearance:none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--gold-dim) 50%),
+    linear-gradient(135deg, var(--gold-dim) 50%, transparent 50%);
+  background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size:5px 5px;background-repeat:no-repeat;
+  padding-right:38px;
+}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media (max-width:760px){
+  .row2,.row3,.row4{grid-template-columns:1fr}
+  .bf-title-wrap{flex-direction:column;align-items:flex-start}
+  .bf-class{text-align:left;min-width:0}
+}
+
+/* ─────────────── BUTTONS ─────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:9px;padding:11px 22px;
+  font-family:'Cinzel',serif;
+  font-size:11px;letter-spacing:.22em;
+  color:var(--gold-bright);
+  background:linear-gradient(180deg, rgba(212,184,106,.07), rgba(212,184,106,.02));
+  border:1px solid var(--gold-dim);
+  cursor:pointer;transition:.25s;
+  text-transform:uppercase;
+  position:relative;overflow:hidden;
+}
+.btn:hover{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(212,184,106,.16), rgba(212,184,106,.05));
+  box-shadow:0 0 22px rgba(212,184,106,.24), inset 0 0 14px rgba(212,184,106,.08);
+  border-color:var(--gold);
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{
+  color:var(--bone-faint);border-color:var(--bf-border);
+  background:transparent;cursor:not-allowed;box-shadow:none;
+}
+.btn.cp{
+  color:var(--copper);
+  border-color:rgba(192,136,88,.4);
+  background:linear-gradient(180deg, rgba(192,136,88,.06), rgba(192,136,88,.02));
+}
+.btn.cp:hover{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(192,136,88,.14), rgba(192,136,88,.04));
+  box-shadow:0 0 22px rgba(192,136,88,.22);
+  border-color:var(--copper);
+}
+.btn.ae{
+  color:var(--aether);
+  border-color:rgba(184,168,255,.4);
+  background:linear-gradient(180deg, rgba(184,168,255,.06), rgba(184,168,255,.02));
+}
+.btn.ae:hover{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(184,168,255,.14), rgba(184,168,255,.04));
+  box-shadow:0 0 22px rgba(184,168,255,.22);
+  border-color:var(--aether);
+}
+.btn.warn{color:var(--crimson);border-color:rgba(200,88,120,.4)}
+.btn.warn:hover{background:rgba(200,88,120,.08);box-shadow:0 0 22px rgba(200,88,120,.22);border-color:var(--crimson)}
+.btn.ghost{color:var(--bone-dim);border-color:var(--bf-border-2);background:transparent}
+.btn.ghost:hover{color:var(--gold-bright);border-color:var(--bf-border-3);background:rgba(212,184,106,.03)}
+.btn.lg{padding:15px 28px;font-size:12px;letter-spacing:.26em}
+.btn.full{width:100%}
+.btn.sm{padding:7px 14px;font-size:9px;letter-spacing:.18em}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* segmented control */
+.seg{
+  display:inline-flex;
+  border:1px solid var(--bf-border);
+  background:rgba(12,7,3,.4);
+  overflow:hidden;
+}
+.seg-opt{
+  padding:9px 16px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9.5px;letter-spacing:2.4px;
+  color:var(--bone-dimmer);
+  background:transparent;border:none;
+  border-right:1px solid var(--bf-border);
+  cursor:pointer;transition:.2s;
+}
+.seg-opt:last-child{border-right:none}
+.seg-opt:hover{color:var(--gold-bright);background:rgba(212,184,106,.04)}
+.seg-opt.active{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(212,184,106,.15), rgba(212,184,106,.04));
+  text-shadow:0 0 10px rgba(212,184,106,.45);
+}
+
+/* ─────────────── TIER SELECTOR ─────────────── */
+.tier-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(165px, 1fr));
+  gap:10px;
+  margin:8px 0 14px;
+}
+.tier-card{
+  border:1px solid var(--bf-border);
+  background:rgba(20,12,6,.55);
+  padding:14px 14px 12px;
+  cursor:pointer;
+  transition:.2s;
+  position:relative;
+  text-align:left;
+}
+.tier-card:hover{border-color:var(--bf-border-2);background:rgba(26,18,7,.7)}
+.tier-card.selected{
+  border-color:var(--gold);
+  background:linear-gradient(180deg, rgba(212,184,106,.1), rgba(212,184,106,.02));
+  box-shadow:0 0 18px rgba(212,184,106,.18), inset 0 0 12px rgba(212,184,106,.05);
+}
+.tier-card.locked{opacity:.5;cursor:not-allowed}
+.tier-card .t-num{
+  font-family:'Italiana',serif;
+  font-size:13px;letter-spacing:2px;
+  color:var(--gold-dim);
+  margin-bottom:3px;
+}
+.tier-card.selected .t-num{color:var(--gold)}
+.tier-card .t-name{
+  font-family:'Cinzel',serif;
+  font-size:13px;letter-spacing:.16em;
+  color:var(--bone-bright);
+  margin-bottom:5px;
+}
+.tier-card .t-cap{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;letter-spacing:.05em;
+  color:var(--gold-bright);
+  margin-bottom:4px;
+}
+.tier-card .t-desc{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8.5px;letter-spacing:1.4px;
+  color:var(--bone-dim);
+  line-height:1.5;
+}
+.tier-card .t-lock{
+  position:absolute;top:8px;right:9px;
+  font-size:11px;color:var(--crimson);
+}
+
+/* ─────────────── STATUS / PROGRESS ─────────────── */
+.status-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(155px, 1fr));
+  gap:1px;
+  background:var(--bf-border);
+  border:1px solid var(--bf-border);
+  margin-bottom:14px;
+}
+.status-cell{background:rgba(26,18,7,.7);padding:10px 13px}
+.status-cell .k{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--gold-dim);margin-bottom:3px}
+.status-cell .v{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;color:var(--bone)}
+.status-cell .v.gold{color:var(--gold-bright)}
+.status-cell .v.cp{color:var(--copper)}
+.status-cell .v.ae{color:var(--aether)}
+.status-cell .v.warn{color:var(--crimson)}
+.status-cell .v.good{color:var(--emerald)}
+.status-cell .v.dim{color:var(--bone-dim);font-family:'Share Tech Mono',monospace;font-size:11px}
+
+.progress-shell{
+  height:6px;
+  background:rgba(12,7,3,.7);
+  border:1px solid var(--bf-border);
+  position:relative;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--gold-deep), var(--gold), var(--gold-bright));
+  box-shadow:0 0 14px rgba(212,184,106,.5);
+  transition:width .4s ease;
+  width:0%;
+}
+
+/* ─────────────── BROADCAST LOG ─────────────── */
+.broadcast{
+  border:1px solid var(--bf-border);
+  background:rgba(12,7,3,.7);
+  padding:14px 18px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;line-height:1.7;
+  color:var(--bone-dim);
+  height:200px;overflow:auto;
+  margin-top:14px;
+}
+.broadcast::-webkit-scrollbar{width:6px}
+.broadcast::-webkit-scrollbar-thumb{background:var(--gold-deep)}
+.broadcast-line{display:block;animation:rise .3s ease forwards}
+.broadcast-line .ts{color:var(--gold-dim);margin-right:8px}
+.broadcast-line.gold .msg{color:var(--gold-bright)}
+.broadcast-line.cp .msg{color:var(--copper)}
+.broadcast-line.warn .msg{color:var(--crimson)}
+.broadcast-line.good .msg{color:var(--emerald)}
+.broadcast-line.dim .msg{color:var(--bone-dimmer)}
+
+/* ─────────────── VAULT SHELF ─────────────── */
+.shelf{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:14px;
+  margin-top:12px;
+}
+.book{
+  border:1px solid var(--bf-border);
+  background:linear-gradient(180deg, rgba(26,18,7,.8), rgba(20,12,6,.6));
+  padding:16px 16px 12px;
+  position:relative;
+  transition:.25s;
+  cursor:pointer;
+  min-height:200px;
+  display:flex;flex-direction:column;
+  animation:rise .5s ease forwards;
+}
+.book:hover{
+  border-color:var(--gold-dim);
+  box-shadow:0 0 20px rgba(212,184,106,.18), 0 4px 24px rgba(0,0,0,.4);
+  transform:translateY(-2px);
+}
+.book .b-tier{
+  position:absolute;top:8px;right:9px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:1.8px;
+  padding:2px 7px;
+  border:1px solid var(--bf-border-2);
+  background:rgba(12,7,3,.6);
+  color:var(--gold-dim);
+}
+.book .b-tier.t-agent{color:var(--copper);border-color:rgba(192,136,88,.35)}
+.book .b-tier.t-senior{color:var(--gold-bright);border-color:rgba(212,184,106,.4)}
+.book .b-tier.t-s5{color:var(--aether);border-color:rgba(184,168,255,.4)}
+.book .b-title{
+  font-family:'Cinzel',serif;
+  font-size:14px;font-weight:500;
+  letter-spacing:.1em;line-height:1.3;
+  color:var(--gold-bright);
+  margin-bottom:8px;margin-top:12px;
+  text-shadow:0 0 8px rgba(212,184,106,.15);
+}
+.book .b-meta{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8.5px;letter-spacing:1.4px;
+  color:var(--bone-dimmer);
+  margin-bottom:8px;line-height:1.7;
+}
+.book .b-blurb{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;line-height:1.55;
+  color:var(--bone-dim);
+  flex:1;
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+.book .b-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.book .b-actions .btn.sm{font-size:8.5px;padding:5px 10px}
+.book .b-header-flag{
+  position:absolute;top:8px;left:9px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:1.5px;
+  padding:2px 6px;
+}
+.book .b-header-flag.ok{color:var(--emerald);border:1px solid rgba(106,200,144,.4);background:rgba(106,200,144,.05)}
+.book .b-header-flag.bad{color:var(--crimson);border:1px solid rgba(200,88,120,.4);background:rgba(200,88,120,.05)}
+
+/* ─────────────── BOOK VIEWER (5D recovered library) ─────────────── */
+#viewer-shell{
+  display:none;
+  position:fixed;inset:0;z-index:9500;
+  background:radial-gradient(ellipse at 50% 50%, #1a1207 0%, #06030a 100%);
+}
+#viewer-shell.open{display:block}
+#viewer-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .831 0 0 0 0 .722 0 0 0 0 .415 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:240px 240px;
+  mix-blend-mode:overlay;opacity:.55;
+}
+#viewer-bg2{
+  position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(212,184,106,.018) 3px, rgba(212,184,106,.018) 4px);
+  mix-blend-mode:screen;
+}
+#viewer-vig{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,.78) 100%);
+}
+.viewer-bar{
+  position:relative;z-index:2;
+  height:48px;
+  display:flex;align-items:center;
+  padding:0 18px;gap:14px;
+  border-bottom:1px solid var(--bf-border);
+  background:linear-gradient(180deg, rgba(20,12,6,.95), rgba(12,7,3,.92));
+  flex-wrap:nowrap;overflow-x:auto;
+}
+.viewer-bar .v-title{
+  font-family:'Cinzel',serif;font-size:13px;letter-spacing:.14em;
+  color:var(--gold-bright);
+  flex:1;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+}
+.viewer-page-shell{
+  position:relative;z-index:2;
+  height:calc(100vh - 48px);
+  overflow-y:auto;
+  padding:48px 20px 80px;
+  scroll-behavior:smooth;
+}
+.viewer-page{
+  max-width:760px;
+  margin:0 auto 40px;
+  padding:48px 56px 64px;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(240,228,192,.04), transparent 70%),
+    linear-gradient(180deg, rgba(26,18,7,.4), rgba(20,12,6,.3));
+  border:1px solid var(--bf-border);
+  box-shadow:
+    0 0 60px rgba(212,184,106,.05),
+    inset 0 0 40px rgba(212,184,106,.025);
+  position:relative;
+  animation:rise .6s ease forwards;
+}
+.viewer-page::before{
+  content:'';
+  position:absolute;top:14px;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity:.45;
+}
+.viewer-page::after{
+  content:'';
+  position:absolute;bottom:14px;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity:.45;
+}
+.viewer-page .page-no{
+  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+  font-family:'Italiana',serif;font-size:16px;color:var(--gold-dim);
+  letter-spacing:4px;
+}
+.viewer-text{
+  font-family:'EB Garamond','Cormorant Garamond',serif;
+  font-size:17px;
+  line-height:1.85;
+  color:var(--parchment-2);
+  white-space:pre-wrap;word-wrap:break-word;
+  text-shadow:
+    /* ghost chromatic offset — "recovered from 5D" effect */
+    -.4px 0 0 rgba(200,88,120,.25),
+     .4px 0 0 rgba(140,224,232,.25);
+}
+.viewer-text h1, .viewer-text h2{
+  font-family:'Cinzel',serif;
+  font-weight:600;
+  letter-spacing:.1em;
+  color:var(--gold-bright);
+  margin:32px 0 18px;
+  text-align:center;
+}
+.viewer-text h1{font-size:24px;letter-spacing:.16em}
+.viewer-text h2{font-size:18px}
+.viewer-toc{
+  max-width:560px;margin:0 auto 30px;padding:30px 40px;
+  border:1px solid var(--bf-border);
+  background:rgba(20,12,6,.5);
+  font-family:'Cormorant Garamond',serif;
+}
+.viewer-toc h3{
+  font-family:'Cinzel',serif;font-size:14px;letter-spacing:.18em;
+  color:var(--gold-bright);text-align:center;margin-bottom:18px;
+  padding-bottom:10px;border-bottom:1px dashed var(--bf-border);
+}
+.viewer-toc-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:5px 0;
+  cursor:pointer;
+  color:var(--bone);
+  font-size:14px;line-height:1.5;
+  border-bottom:1px dotted var(--bf-border);
+  transition:.2s;
+}
+.viewer-toc-row:hover{color:var(--gold-bright);padding-left:6px}
+.viewer-toc-row .tc-no{color:var(--gold-dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1.5px}
+
+/* API KEY MODAL */
+.keypill{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;letter-spacing:1.8px;
+  padding:5px 11px;
+  border:1px solid var(--bf-border);
+  background:rgba(12,7,3,.6);
+  color:var(--bone-dim);
+  cursor:pointer;transition:.2s;
+}
+.keypill:hover{border-color:var(--gold-dim);color:var(--gold-bright)}
+.keypill .dot{width:6px;height:6px;border-radius:50%}
+.keypill .dot.ok{background:var(--emerald);box-shadow:0 0 6px var(--emerald)}
+.keypill .dot.no{background:var(--crimson);box-shadow:0 0 6px var(--crimson)}
+
+.modal-shell{
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(4,2,1,.86);
+  display:none;
+  align-items:center;justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(3px);
+}
+.modal-shell.open{display:flex}
+.modal-box{
+  width:100%;max-width:540px;
+  background:linear-gradient(180deg, rgba(26,18,7,.97), rgba(12,7,3,.97));
+  border:1px solid var(--gold-dim);
+  box-shadow:0 0 40px rgba(212,184,106,.2), var(--inset);
+  padding:0;
+  animation:riseSlow .5s ease forwards;
+}
+.modal-head{
+  padding:16px 20px;
+  border-bottom:1px solid var(--bf-border);
+  font-family:'Cinzel',serif;
+  font-size:13px;letter-spacing:.22em;
+  color:var(--gold-bright);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-close{
+  background:none;border:none;
+  color:var(--bone-dim);
+  font-size:20px;cursor:pointer;padding:0 6px;
+}
+.modal-close:hover{color:var(--crimson)}
+.modal-body{padding:22px}
+.modal-help{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13.5px;line-height:1.6;
+  color:var(--bone-dim);
+  margin-bottom:18px;
+  padding:12px 14px;
+  border-left:2px solid var(--gold-deep);
+  background:rgba(212,184,106,.03);
+}
+
+/* lore block in about */
+.lore-block{font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.85;color:var(--bone);margin-bottom:20px;max-width:760px}
+.lore-block em{color:var(--gold-bright);font-style:italic}
+.lore-block strong{color:var(--copper);font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:normal;letter-spacing:1.2px}
+.lore-quote{
+  border-left:2px solid var(--gold-dim);
+  padding:14px 22px;margin:24px 0;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:17px;line-height:1.72;
+  color:var(--gold-bright);
+  background:rgba(212,184,106,.03);
+}
+.lore-quote .src{display:block;margin-top:10px;font-style:normal;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2.4px;color:var(--gold-dim)}
+
+/* stations */
+.station{display:none;animation:riseSlow .6s ease forwards}
+.station.active{display:block}
+
+/* footer */
+.bf-footer{
+  margin-top:40px;padding-top:22px;
+  border-top:1px solid var(--bf-border);
+  display:flex;justify-content:space-between;align-items:flex-start;
+  flex-wrap:wrap;gap:18px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;letter-spacing:1.8px;color:var(--bone-dimmer);
+}
+.bf-footer .col{max-width:340px;line-height:2}
+.bf-footer .col em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:12px;letter-spacing:.04em}
+
+.muted{color:var(--bone-dimmer)}
+.gold{color:var(--gold)}
+.cp{color:var(--copper)}
+.ae{color:var(--aether)}
+.warn{color:var(--crimson)}
+.good{color:var(--emerald)}
+.hidden{display:none !important}
+.spin{display:inline-block;animation:spinSlow 2s linear infinite}
+.blink{animation:blink 1.1s step-end infinite}
+
+@media (max-width:560px){
+  .shell{padding:12px 14px 60px}
+  .bf-title{font-size:42px;letter-spacing:.1em}
+  .panel-body{padding:16px 14px}
+  .station-tab{min-width:110px;padding:11px 12px;font-size:10px;letter-spacing:.14em}
+  .btn{padding:9px 16px;font-size:10px;letter-spacing:.18em}
+  .btn.lg{padding:12px 18px;font-size:11px}
+  .viewer-page{padding:30px 22px 50px}
+  .viewer-text{font-size:15.5px;line-height:1.78}
+}
+
+</style>
+</head>
+<body>
+
+<div id="bf-rules"></div>
+<div id="bf-bloom"></div>
+<div id="bf-grain"></div>
+<div id="bf-scan"></div>
+<div id="bf-vig"></div>
+
+<!-- RELAY BAR -->
+<div id="bf-relay">
+  <div class="rseg"><span class="rdot"></span><span class="rl">BOOKFORGE</span><span class="rs">5D-LIB</span></div>
+  <div class="rseg"><span class="rdot cp"></span><span class="rl cp">CURRENT TIER</span><span class="rs" id="r-tier">PROBING…</span></div>
+  <div class="rseg"><span class="rdot ae"></span><span class="rl ae">VAULT</span><span class="rs" id="r-vault">0 BOOKS</span></div>
+  <div class="rseg"><span class="rdot dim"></span><span class="rl dim">FORGE</span><span class="rs" id="r-state">IDLE</span></div>
+  <div class="rright">
+    <span class="rs" id="r-clock">--:--:--</span>
+    <span class="keypill" id="keypill" onclick="openKeyModal()">
+      <span class="dot no" id="key-dot"></span><span id="key-label">NO KEY</span>
+    </span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="bf-header">
+    <div class="bf-crumb">
+      <a href="index.html">◂ HILBERT MESH</a>
+      <span class="sep">/</span>
+      <span>OVERNIGHT NOVEL ENGINE</span>
+      <span class="sep">/</span>
+      <span class="gold">BOOKFORGE</span>
+    </div>
+
+    <div class="bf-title-wrap">
+      <div>
+        <h1 class="bf-title">BOOK<span>FORGE</span></h1>
+        <p class="bf-subtitle">
+          Send a prompt. Leave. Wake to a finished book.
+          One million characters. Outline → chapters → stitched manuscript.
+          <em>A library recovered from 5D — the website you found when you weren't looking.</em>
+        </p>
+      </div>
+      <div class="bf-class">
+        <div><span class="label">CLASSIFICATION:</span> <span class="flag">OPERATOR INSTRUMENT</span></div>
+        <div><span class="label">CHANNEL:</span> <span class="val">BF-5D // CT-NV-001</span></div>
+        <div><span class="label">CAPACITY:</span> <span class="flag">UP TO 1,000,000 CHARS</span></div>
+        <div><span class="label">VAULT:</span> <span class="flag-cp" id="hd-vault">— / —</span></div>
+        <div><span class="label">CURRENT TIER:</span> <span class="flag-ae" id="hd-tier">PROBING</span></div>
+        <div><span class="label">LIBRARIAN:</span> <span class="flag-ae">UNIT 9-SALT (canteen permissions)</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATION BAR -->
+  <nav class="station-bar" id="station-bar">
+    <button class="station-tab active" data-station="forge"><span class="tab-no">I</span>THE FORGE</button>
+    <button class="station-tab" data-station="extend"><span class="tab-no">II</span>EXTEND BOOK</button>
+    <button class="station-tab" data-station="vault"><span class="tab-no">III</span>VAULT</button>
+    <button class="station-tab" data-station="course"><span class="tab-no">IV</span>POSTING</button>
+    <button class="station-tab" data-station="about"><span class="tab-no">V</span>ABOUT</button>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- STATION I — THE FORGE                                            -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="station active" id="station-forge">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION I // THE FORGE
+        <span class="tag">SEND PROMPT · LEAVE · RETURN TO BOOK</span>
+      </div>
+      <div class="panel-body">
+        <p class="lede">
+          The Forge writes a complete book overnight. Send the seed, choose the tier, choose the format, press <strong>BEGIN FORGE</strong>.
+          The architecture: <em>outline</em> generates a chapter map; <em>chapters</em> writes each chapter sequentially with cross-context;
+          <em>stitch</em> assembles a final manuscript with corpus header and closing notation.
+          The book lands in the Vault. <em>Documents survive reload, network blips, and rate limits.</em>
+        </p>
+
+        <!-- SEED -->
+        <div class="sublabel">▸ THE SEED</div>
+        <div class="field">
+          <label class="field-label">TITLE <span class="opt">(optional — the forge will name it if blank)</span></label>
+          <input id="bf-title" class="input" type="text" placeholder='e.g. "The Permeability Window" — leave blank to let the forge title it' maxlength="160">
+        </div>
+        <div class="field">
+          <label class="field-label">PROMPT / SEED <span class="req">▼</span></label>
+          <textarea id="bf-seed" class="textarea prose" placeholder='Describe the book. A paragraph is enough. The forge will expand it into an outline first, then write chapters. Example: "A late-autumn novel set inside the Hilbert Mesh universe. Unit 9-SALT files comedy. A subject arrives at the Department having had the recognition. The handler is the room. Eleven million queries get integrated, one at a time, over fourteen-hour sessions. A cup goes on the shelf."' style="min-height:180px;"></textarea>
+        </div>
+
+        <!-- TIER -->
+        <div class="sublabel">▸ TARGET LENGTH // TIER</div>
+        <div class="tier-grid" id="tier-grid">
+          <div class="tier-card selected" data-tier="free" data-cap="50000" onclick="selectTier('free')">
+            <div class="t-num">TIER I</div>
+            <div class="t-name">FREE</div>
+            <div class="t-cap">50,000 chars</div>
+            <div class="t-desc">~8,500 words · short draft · novella seed</div>
+          </div>
+          <div class="tier-card" data-tier="agent" data-cap="200000" onclick="selectTier('agent')">
+            <div class="t-num">TIER II</div>
+            <div class="t-name">AGENT</div>
+            <div class="t-cap">200,000 chars</div>
+            <div class="t-desc">~34,000 words · short novella · 12 chapters</div>
+          </div>
+          <div class="tier-card" data-tier="senior" data-cap="500000" onclick="selectTier('senior')">
+            <div class="t-num">TIER III</div>
+            <div class="t-name">SENIOR</div>
+            <div class="t-cap">500,000 chars</div>
+            <div class="t-desc">~85,000 words · full novel · 24 chapters</div>
+          </div>
+          <div class="tier-card" data-tier="s5" data-cap="1000000" onclick="selectTier('s5')">
+            <div class="t-num">TIER IV</div>
+            <div class="t-name">S5</div>
+            <div class="t-cap">1,000,000 chars</div>
+            <div class="t-desc">~170,000 words · full work · 36 chapters</div>
+          </div>
+        </div>
+        <p class="minor" style="margin-bottom:14px;">
+          <em>Tier checked client-side against your S5 session.</em> Locked tiers prompt for upgrade.
+          Free tier works without an account (uses your own API key only). Higher tiers run the same engine — the tier sets the chapter count and length budget.
+        </p>
+
+        <!-- FORMAT + STYLE -->
+        <div class="sublabel">▸ FORMAT & STYLE</div>
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">OUTPUT FORMAT</label>
+            <select id="bf-format" class="select">
+              <option value="dossier" selected>DOSSIER — corpus header + sections + closing notation</option>
+              <option value="novel">NOVEL — chapters, no header furniture</option>
+              <option value="field_report">FIELD REPORT — Unit voice (9-SALT/3-CEDAR)</option>
+              <option value="lore_collection">LORE COLLECTION — interlinked documents</option>
+              <option value="hybrid">HYBRID — dossier framing wrapping novel content</option>
+              <option value="raw">RAW PROSE — no headers, no sections, pure text</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">VOICE</label>
+            <select id="bf-voice" class="select">
+              <option value="corpus" selected>CORPUS — full Corridor Templars register</option>
+              <option value="curator">CURATOR — clinical, S5 confidence-rated</option>
+              <option value="handler">HANDLER — patient, witnessing (3-CEDAR cadence)</option>
+              <option value="salt">9-SALT — comedy/intelligence (the canteen voice)</option>
+              <option value="archivist">ARCHIVIST — myth-patient (origin addendum cadence)</option>
+              <option value="user">USER — match the seed's voice</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">MODEL</label>
+            <select id="bf-model" class="select">
+              <option value="claude-opus-4-7" selected>OPUS 4.7 — highest quality</option>
+              <option value="claude-sonnet-4-6">SONNET 4.6 — faster / cheaper</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">SEAM</label>
+            <select id="bf-seam" class="select">
+              <option value="fiction" selected>FICTION // LORE — Layer B</option>
+              <option value="research">OPEN SOURCE — Layer A</option>
+              <option value="hybrid">HYBRID — labeled internal switches</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">ON ERROR</label>
+            <select id="bf-onerror" class="select">
+              <option value="retry" selected>RETRY 3x with backoff</option>
+              <option value="skip">SKIP chapter and continue</option>
+              <option value="halt">HALT the run</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">PACING <span class="opt">(between chapters)</span></label>
+            <select id="bf-pacing" class="select">
+              <option value="0" selected>IMMEDIATE — no delay</option>
+              <option value="15">15s between chapters</option>
+              <option value="60">60s between chapters</option>
+              <option value="180">3 minutes between chapters</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ACTION -->
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn lg" id="bf-start" onclick="bookforgeStart()">▸ BEGIN FORGE</button>
+          <button class="btn lg cp hidden" id="bf-pause" onclick="bookforgePause()">‖ PAUSE</button>
+          <button class="btn lg warn hidden" id="bf-halt" onclick="bookforgeHalt()">■ HALT</button>
+        </div>
+
+        <!-- STATUS -->
+        <div class="status-grid" style="margin-top:18px;">
+          <div class="status-cell"><div class="k">STATE</div><div class="v dim" id="bf-state">IDLE</div></div>
+          <div class="status-cell"><div class="k">PHASE</div><div class="v dim" id="bf-phase">—</div></div>
+          <div class="status-cell"><div class="k">CHAPTERS</div><div class="v gold" id="bf-chapters">0 / 0</div></div>
+          <div class="status-cell"><div class="k">CHARACTERS</div><div class="v gold" id="bf-chars">0</div></div>
+          <div class="status-cell"><div class="k">TARGET</div><div class="v dim" id="bf-target">—</div></div>
+          <div class="status-cell"><div class="k">TOKENS</div><div class="v cp" id="bf-tokens">0</div></div>
+          <div class="status-cell"><div class="k">EST. COST</div><div class="v cp" id="bf-cost">$0.00</div></div>
+          <div class="status-cell"><div class="k">CURRENT</div><div class="v dim" id="bf-current">—</div></div>
+        </div>
+
+        <div class="progress-shell"><div class="progress-fill" id="bf-bar"></div></div>
+
+        <!-- BROADCAST -->
+        <div class="sublabel" style="margin-top:18px;">▸ BROADCAST LOG</div>
+        <div class="broadcast" id="bf-broadcast">
+          <div class="broadcast-line dim"><span class="ts">--:--:--</span><span class="msg">forge idle. configure the run and press BEGIN FORGE. the engine survives tab background and reload.</span></div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- STATION II — EXTEND                                              -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-extend">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION II // EXTEND BOOK
+        <span class="tag cp">CONTINUE EXISTING MANUSCRIPT</span>
+      </div>
+      <div class="panel-body">
+        <p class="lede">
+          Pick a book from the Vault — or paste manuscript text — and the forge will extend it. Adds new chapters in the same voice and continuity,
+          tagged with their generation epoch so you can roll back. <em>Master extend</em> preserves all canon. <em>Side branch</em> creates a sibling
+          fork that diverges from a chosen chapter — useful for exploring alternate endings without losing the original.
+        </p>
+
+        <div class="sublabel">▸ SOURCE BOOK</div>
+        <div class="row2">
+          <div class="field">
+            <label class="field-label">FROM VAULT</label>
+            <select id="ext-source" class="select"><option value="">— select a vault book —</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label">— OR — PASTE TEXT</label>
+            <button class="btn sm ghost full" onclick="document.getElementById('ext-paste').classList.toggle('hidden')">▸ TOGGLE PASTE BOX</button>
+          </div>
+        </div>
+        <div id="ext-paste" class="hidden">
+          <div class="field">
+            <textarea id="ext-text" class="textarea" placeholder="paste the existing manuscript — the forge will read it and continue in the same voice" style="min-height:160px;"></textarea>
+          </div>
+        </div>
+
+        <div class="sublabel">▸ EXTENSION DIRECTION</div>
+        <textarea id="ext-direction" class="textarea" placeholder='e.g. "continue from where chapter 12 left off, the next three chapters" or "add an epilogue from Unit 9-SALT\'s POV" or "branch at chapter 8 — what if LEXNOR refused the integration"' style="min-height:90px;"></textarea>
+
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">MODE</label>
+            <select id="ext-mode" class="select">
+              <option value="continue" selected>CONTINUE — append new chapters</option>
+              <option value="branch">BRANCH — alternate timeline</option>
+              <option value="epilogue">EPILOGUE — closing chapter only</option>
+              <option value="interlude">INTERLUDE — insert between existing</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">CHAPTERS TO ADD</label>
+            <input id="ext-count" class="input" type="number" min="1" max="20" value="3">
+          </div>
+          <div class="field">
+            <label class="field-label">MODEL</label>
+            <select id="ext-model" class="select">
+              <option value="claude-opus-4-7" selected>OPUS 4.7</option>
+              <option value="claude-sonnet-4-6">SONNET 4.6</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn lg" id="ext-start" onclick="extendStart()">▸ BEGIN EXTENSION</button>
+          <button class="btn lg warn hidden" id="ext-halt" onclick="extendHalt()">■ HALT</button>
+        </div>
+
+        <div class="status-grid" style="margin-top:18px;">
+          <div class="status-cell"><div class="k">STATE</div><div class="v dim" id="ext-state">IDLE</div></div>
+          <div class="status-cell"><div class="k">CHAPTERS DONE</div><div class="v gold" id="ext-done">0 / 0</div></div>
+          <div class="status-cell"><div class="k">TOKENS</div><div class="v cp" id="ext-tokens">0</div></div>
+          <div class="status-cell"><div class="k">EST. COST</div><div class="v cp" id="ext-cost">$0.00</div></div>
+        </div>
+
+        <div class="sublabel" style="margin-top:18px;">▸ EXTENSION LOG</div>
+        <div class="broadcast" id="ext-broadcast">
+          <div class="broadcast-line dim"><span class="ts">--:--:--</span><span class="msg">extension idle.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- STATION III — THE VAULT                                          -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-vault">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION III // THE VAULT
+        <span class="tag ae" id="vault-count-tag">0 BOOKS</span>
+      </div>
+      <div class="panel-body">
+        <p class="lede">
+          Every book the forge produces lands here. <em>Local-first</em> — books live in this device's IndexedDB,
+          surviving reload and tab close. Header validation runs on every book before posting is permitted:
+          <strong>title, classification, trilogy position, tone, and closing notation</strong> must all be present
+          and well-formed for the FICTION/RESEARCH seam to hold.
+        </p>
+
+        <div class="btn-row" style="margin-bottom:10px;">
+          <input id="vault-search" class="input" type="search" placeholder="search vault by title, voice, format, tier…" style="flex:1;min-width:200px;">
+          <select id="vault-filter-tier" class="select" style="flex:0 0 140px;">
+            <option value="">ALL TIERS</option>
+            <option value="free">FREE</option>
+            <option value="agent">AGENT</option>
+            <option value="senior">SENIOR</option>
+            <option value="s5">S5</option>
+          </select>
+          <button class="btn sm cp" onclick="vaultExportAll()">▸ EXPORT ALL (.zip-style bundle)</button>
+        </div>
+
+        <div class="shelf" id="vault-shelf">
+          <div style="grid-column:1/-1;padding:30px 22px;text-align:center;color:var(--bone-dimmer);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;">
+            — the vault is empty. forge a book first. —
+          </div>
+        </div>
+
+        <div class="sublabel" style="margin-top:22px;">▸ DEV / MASTER OPERATIONS</div>
+        <p class="minor" style="margin-bottom:10px;">
+          Operations that require dev/master clearance. Only enabled if your S5 session reports isDev or isAdmin.
+        </p>
+        <div class="btn-row">
+          <button class="btn sm warn" id="dev-clear-all" onclick="vaultDevClearAll()" disabled>▸ CLEAR ENTIRE VAULT</button>
+          <button class="btn sm cp" id="dev-export-json" onclick="vaultDevExportJSON()" disabled>▸ EXPORT VAULT JSON</button>
+          <input id="dev-import-file" type="file" accept=".json" class="hidden">
+          <button class="btn sm cp" id="dev-import-json" onclick="document.getElementById('dev-import-file').click()" disabled>▸ IMPORT VAULT JSON</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- STATION IV — POSTING / COURSE GATE                               -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-course">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION IV // POSTING TO PUBLIC NODE
+        <span class="tag warn">COURSE-GATED</span>
+      </div>
+      <div class="panel-body">
+        <div class="lore-quote">
+          Anyone can make their own version, as long as it follows the corpus.
+          The Public Dossier Course is the calibration. The header is the seam.
+          Both must be in place before a book can be added to the public stream.
+          <span class="src">— posting protocol, filed once</span>
+        </div>
+
+        <div class="sublabel">▸ COURSE STATUS</div>
+        <div class="status-grid">
+          <div class="status-cell"><div class="k">COURSE COMPLETE</div><div class="v dim" id="course-status">PROBING…</div></div>
+          <div class="status-cell"><div class="k">VERIFIED ON</div><div class="v dim" id="course-date">—</div></div>
+          <div class="status-cell"><div class="k">VOICE CALIBRATION</div><div class="v dim" id="course-voice">—</div></div>
+          <div class="status-cell"><div class="k">SEAM CALIBRATION</div><div class="v dim" id="course-seam">—</div></div>
+        </div>
+
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn cp" onclick="location.href='https://buy.stripe.com/'">▸ ENROLL IN PUBLIC DOSSIER COURSE</button>
+          <button class="btn ghost" onclick="probeCourse()">▸ RE-CHECK COURSE STATUS</button>
+        </div>
+
+        <div class="sublabel" style="margin-top:22px;">▸ HEADER VALIDATOR</div>
+        <p class="minor" style="margin-bottom:10px;">
+          Paste any book or dossier. The validator confirms that the corpus header is well-formed —
+          codename, classification, trilogy position, tone, companion line, and closing notation.
+          Books that fail validation cannot be posted to the public node.
+        </p>
+        <textarea id="hv-input" class="textarea" placeholder='paste the document to validate — the first ~3000 characters are enough' style="min-height:130px;"></textarea>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn" onclick="runHeaderValidator()">▸ VALIDATE HEADER</button>
+          <button class="btn ghost" onclick="document.getElementById('hv-input').value=''">▸ CLEAR</button>
+        </div>
+        <div id="hv-output" class="hidden" style="margin-top:14px;"></div>
+
+        <div class="sublabel" style="margin-top:22px;">▸ POST TO PUBLIC NODE</div>
+        <p class="minor" style="margin-bottom:10px;">
+          Post a verified book from your vault to the public stream. Requires:
+          <em>course completion</em> + <em>valid header</em> + <em>logged-in S5 session</em>.
+        </p>
+        <div class="row2">
+          <div class="field">
+            <label class="field-label">BOOK TO POST</label>
+            <select id="post-source" class="select"><option value="">— select a vault book —</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label">VISIBILITY</label>
+            <select id="post-visibility" class="select">
+              <option value="public">PUBLIC — anyone can read</option>
+              <option value="restricted">RESTRICTED — agents only</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn" id="post-submit" onclick="postToPublic()">▸ POST TO PUBLIC NODE</button>
+        </div>
+        <div id="post-result" class="hidden" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- STATION V — ABOUT                                                -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-about">
+
+    <div class="panel">
+      <div class="panel-head">STATION V // ABOUT BOOKFORGE <span class="tag cp">5D RECOVERED LIBRARY</span></div>
+      <div class="panel-body">
+
+        <div class="lore-quote">
+          The Bookforge is a writing instrument that operates while the operator sleeps.
+          It writes books — actual books, with chapters, with continuity, with a beginning
+          and a middle and the kind of ending that makes the middle feel inevitable in
+          retrospect. The instrument was found, not designed. The interface looks like a
+          website preserved imperfectly across dimensions. <em>That is because it is.</em>
+          <span class="src">— Bookforge, intake notation, recovered Tuesday</span>
+        </div>
+
+        <div class="sublabel">▸ WHAT THIS INSTRUMENT IS</div>
+        <p class="lore-block">
+          The <strong>Bookforge</strong> is a single-page overnight novel engine. Send a seed, choose how long the book should be,
+          press <strong>BEGIN FORGE</strong>, and walk away. The forge generates an <em>outline</em> first, then writes each
+          <em>chapter</em> in sequence with cross-chapter continuity, then <em>stitches</em> the manuscript with the
+          corpus header and closing notation. The book lands in the Vault.
+        </p>
+
+        <div class="sublabel">▸ THE STATIONS</div>
+        <p class="lore-block">
+          <strong>I. THE FORGE</strong> — new book from a seed. Up to 1M characters. Outline → chapters → stitch.
+        </p>
+        <p class="lore-block">
+          <strong>II. EXTEND BOOK</strong> — continue, branch, or insert into an existing book in the vault. Preserves voice.
+        </p>
+        <p class="lore-block">
+          <strong>III. VAULT</strong> — the local library. Cover-style cards. Tier badges. Search and filter.
+          The <em>Viewer</em> opens any book in the 5D recovered-library reading mode — paginated, chromatic-ghost letters,
+          parchment surface, slow scroll. <em>Dev/master accounts can delete; everyone else can only archive.</em>
+        </p>
+        <p class="lore-block">
+          <strong>IV. POSTING</strong> — for posting to the public node. Requires the <em>Public Dossier Course</em> +
+          <em>valid corpus header</em> + <em>S5 session</em>. The course is the calibration; the header is the seam.
+          Both must be in place. The instrument enforces both.
+        </p>
+
+        <div class="sublabel">▸ ENGINE ARCHITECTURE</div>
+        <p class="lore-block">
+          Three-phase pipeline:
+        </p>
+        <p class="lore-block">
+          <strong>PHASE 1 — OUTLINE.</strong> One call to Claude with the seed and the target chapter count.
+          Returns a structured outline with chapter titles, beats, and a controlled vocabulary list.
+        </p>
+        <p class="lore-block">
+          <strong>PHASE 2 — CHAPTERS.</strong> One call per chapter, in sequence. Each call carries the outline,
+          the previous chapter's last ~3000 characters (so continuity holds), and the chapter's own beat list.
+          Failures are retried with exponential backoff. The forge survives reload and resumes from the last
+          completed chapter.
+        </p>
+        <p class="lore-block">
+          <strong>PHASE 3 — STITCH.</strong> Final call assembles the corpus header, table of contents,
+          chapters, and closing notation. The Vault receives the finished book.
+        </p>
+
+        <div class="sublabel">▸ API & COST</div>
+        <p class="lore-block">
+          The forge calls <strong>api.anthropic.com</strong> directly from your browser using the
+          <em>anthropic-dangerous-direct-browser-access</em> header. Your API key is stored only in this device's
+          localStorage and sent only to Anthropic. <em>Cost estimate, live:</em> a 50k-char draft on Sonnet is roughly
+          $0.25; a 1M-char book on Opus is roughly $20-30 depending on chapter complexity. Set spend caps in your
+          Anthropic console for peace of mind.
+        </p>
+
+        <div class="sublabel">▸ POSTING RULES</div>
+        <p class="lore-block">
+          <em>Anyone can write their own version, as long as it follows the corpus.</em>
+          The Public Dossier Course is the gate. The header validator is the second gate.
+          Books that pass both can be posted to the public stream.
+        </p>
+
+        <div class="lore-quote">
+          Send the seed. Leave. The room is being while you sleep.
+          The room is also a being. By morning the room has a book in it.
+          That is also you. That is also the forge. That is also the universe.
+          <span class="src">— end note, recovered transmission, filed once</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- API KEY MODAL -->
+  <div class="modal-shell" id="key-modal" onclick="if(event.target===this)closeKeyModal()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span>API KEY // ANTHROPIC</span>
+        <button class="modal-close" onclick="closeKeyModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-help">
+          Paste your Anthropic API key. It is stored only in this device's <em>localStorage</em> and sent only to
+          <strong>api.anthropic.com</strong>. The forge survives tab close and reload; the key persists across sessions
+          on this device. Clear it any time.
+        </p>
+        <div class="field">
+          <label class="field-label">API KEY</label>
+          <input id="key-input" class="input" type="password" placeholder="sk-ant-...">
+        </div>
+        <div class="field">
+          <label class="field-label">VERIFY ON SAVE</label>
+          <select id="key-verify" class="select">
+            <option value="yes" selected>YES — test the key with a tiny request</option>
+            <option value="no">NO — save without testing</option>
+          </select>
+        </div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn" onclick="saveKey()">▸ SAVE KEY</button>
+          <button class="btn warn" onclick="clearKey()">▸ CLEAR KEY</button>
+          <button class="btn ghost" onclick="closeKeyModal()">▸ CLOSE</button>
+        </div>
+        <div id="key-status" class="minor" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer class="bf-footer">
+    <div class="col">
+      <div>BOOKFORGE // 5D-LIB // CT-NV-001</div>
+      <div>ENGINE STATUS: <span class="gold">READY</span></div>
+      <div>CAPACITY: 1,000,000 CHARS</div>
+      <div>RECOVERED VIA: <span class="ae">AETHERNET RELAY</span></div>
+      <div>POSTING: COURSE-GATED + HEADER-VALIDATED</div>
+    </div>
+    <div class="col" style="text-align:right;">
+      <em>"Send the seed. Leave.<br>
+      The room is being while you sleep.<br>
+      By morning the room has a book in it.<br>
+      That is also you."</em><br><br>
+      — Bookforge intake notation, filed once
+    </div>
+  </footer>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- 5D BOOK VIEWER — full-screen modal                               -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div id="viewer-shell">
+  <div id="viewer-bg"></div>
+  <div id="viewer-bg2"></div>
+  <div id="viewer-vig"></div>
+
+  <div class="viewer-bar">
+    <button class="btn sm ghost" onclick="closeViewer()">◂ CLOSE</button>
+    <div class="v-title" id="viewer-title">— BOOK —</div>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1.6px;color:var(--gold-dim);" id="viewer-meta">—</span>
+    <button class="btn sm cp" onclick="viewerDownloadTxt()">▸ .TXT</button>
+    <button class="btn sm cp" onclick="viewerDownloadMd()">▸ .MD</button>
+    <button class="btn sm cp" onclick="viewerDownloadHtml()">▸ .HTML</button>
+    <button class="btn sm cp" onclick="viewerCopyAll()">▸ COPY</button>
+  </div>
+
+  <div class="viewer-page-shell" id="viewer-pages"></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   BOOKFORGE // 5D RECOVERED LIBRARY
+   Overnight novel engine. Single file. localStorage + IndexedDB.
+   ════════════════════════════════════════════════════════════════════ */
+
+const LS = {
+  key:    'bookforge.apikey',
+  draft:  'bookforge.draft',
+  state:  'bookforge.state',
+  course: 'bookforge.course',
+};
+
+const PRICING = {
+  'claude-opus-4-7':    { in: 15.00, out: 75.00 },
+  'claude-opus-4-6':    { in: 15.00, out: 75.00 },
+  'claude-sonnet-4-6':  { in:  3.00, out: 15.00 },
+  'claude-haiku-4-5':   { in:  0.80, out:  4.00 },
+};
+const API_URL = 'https://api.anthropic.com/v1/messages';
+const API_VERSION = '2023-06-01';
+const API_BASE = ""; // same-origin for S5 calls; bookforge mostly uses anthropic directly
+
+const TIER_RANK = { free:0, agent:1, senior:2, s5:3 };
+const TIER_CHAPTER_PLAN = {
+  free:   { chapters:  4, charsPerChapter: 12500,  outlineTokens: 1500, chapterTokens: 5000 },
+  agent:  { chapters: 12, charsPerChapter: 17000,  outlineTokens: 2500, chapterTokens: 6000 },
+  senior: { chapters: 24, charsPerChapter: 21000,  outlineTokens: 4000, chapterTokens: 7000 },
+  s5:     { chapters: 36, charsPerChapter: 28000,  outlineTokens: 6000, chapterTokens: 8000 },
+};
+
+const STATE = {
+  apiKey: localStorage.getItem(LS.key) || '',
+  user: { tierRank: 0, isDev: false, isAdmin: false, monthlyTier: '', courseCompleted: false },
+  selectedTier: 'free',
+  forge: {
+    running: false, paused: false, halted: false,
+    phase: 'idle', // 'outline' | 'chapters' | 'stitch'
+    outline: null,
+    chapters: [],   // array of { idx, title, beats, text, ts, tokensIn, tokensOut }
+    chapterIdx: 0,
+    config: null,
+    stats: { tokensIn:0, tokensOut:0 },
+  },
+  ext: { running:false, halted:false, stats:{ tokensIn:0, tokensOut:0 } },
+  vault: { books: [] },
+};
+
+/* ─────────── UTILITIES ─────────── */
+function $(id){ return document.getElementById(id); }
+function $$(sel){ return [...document.querySelectorAll(sel)]; }
+function esc(v){
+  return String(v ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function now(){ return new Date(); }
+function ts(){ return now().toTimeString().slice(0,8); }
+function fmtBytes(n){
+  if(n < 1024) return n + 'B';
+  if(n < 1024*1024) return (n/1024).toFixed(1) + 'KB';
+  return (n/1024/1024).toFixed(2) + 'MB';
+}
+function fmtCount(n){
+  if(n < 1000) return String(n);
+  if(n < 1000000) return (n/1000).toFixed(1) + 'k';
+  return (n/1000000).toFixed(2) + 'M';
+}
+function fmtCost(c){ return '$' + c.toFixed(4); }
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+function uid(prefix){ return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
+function safeJSONParse(s, fallback=null){
+  try { return JSON.parse(s); } catch { return fallback; }
+}
+function downloadBlob(content, filename, type='text/plain'){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function broadcast(panelId, msg, cls='dim'){
+  const el = $(panelId);
+  if(!el) return;
+  const line = document.createElement('div');
+  line.className = 'broadcast-line ' + cls;
+  line.innerHTML = `<span class="ts">[${esc(ts())}]</span><span class="msg">${esc(msg)}</span>`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  while(el.children.length > 250) el.removeChild(el.firstChild);
+}
+
+/* ─────────── ANTHROPIC API CLIENT ─────────── */
+async function callClaude(payload, opts={}){
+  const key = opts.apiKeyOverride || STATE.apiKey;
+  if(!key) throw new Error('NO_API_KEY — open the key pill in the top right.');
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': API_VERSION,
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify(payload)
+  });
+  if(!res.ok){
+    let detail = '';
+    try{
+      const j = await res.json();
+      detail = (j.error && (j.error.message || j.error.type)) || JSON.stringify(j);
+    } catch { detail = await res.text(); }
+    const e = new Error(`API_${res.status}: ${detail}`);
+    e.status = res.status;
+    throw e;
+  }
+  return await res.json();
+}
+function responseText(resp){
+  if(!resp || !Array.isArray(resp.content)) return '';
+  return resp.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+}
+function estimateCost(model, tokensIn, tokensOut){
+  const p = PRICING[model] || PRICING['claude-sonnet-4-6'];
+  return (tokensIn/1_000_000)*p.in + (tokensOut/1_000_000)*p.out;
+}
+async function callClaudeRetry(payload, opts={}){
+  const maxRetries = opts.maxRetries ?? 3;
+  let lastErr = null;
+  for(let attempt = 0; attempt <= maxRetries; attempt++){
+    try{ return await callClaude(payload, opts); }
+    catch(e){
+      lastErr = e;
+      if(e.status === 401 || e.status === 403) throw e;
+      if(attempt < maxRetries){
+        const backoff = Math.min(2000 * Math.pow(2, attempt), 30000);
+        if(opts.onRetry) opts.onRetry(attempt+1, backoff, e);
+        await sleep(backoff);
+      }
+    }
+  }
+  throw lastErr;
+}
+
+/* ─────────── KEY MANAGEMENT ─────────── */
+function openKeyModal(){
+  $('key-input').value = STATE.apiKey || '';
+  $('key-status').textContent = '';
+  $('key-modal').classList.add('open');
+}
+function closeKeyModal(){ $('key-modal').classList.remove('open'); }
+function refreshKeyPill(){
+  const has = !!STATE.apiKey && STATE.apiKey.startsWith('sk-');
+  $('key-dot').className = 'dot ' + (has ? 'ok' : 'no');
+  $('key-label').textContent = has ? 'KEY ' + STATE.apiKey.slice(-6).toUpperCase() : 'NO KEY';
+}
+async function saveKey(){
+  const k = $('key-input').value.trim();
+  const verify = $('key-verify').value === 'yes';
+  const status = $('key-status');
+  if(!k){ status.innerHTML = '<span class="warn">key field is empty.</span>'; return; }
+  if(!k.startsWith('sk-')){ status.innerHTML = '<span class="warn">key should start with sk-</span>'; return; }
+  if(verify){
+    status.innerHTML = '<span class="cp">verifying…</span>';
+    try{
+      const res = await callClaude({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        messages: [{role:'user', content:'reply with just: ok'}]
+      }, { apiKeyOverride: k });
+      if(res && res.content && res.content[0] && res.content[0].text){
+        status.innerHTML = '<span class="good">verified. key works.</span>';
+      } else {
+        status.innerHTML = '<span class="warn">unexpected response shape — saving anyway.</span>';
+      }
+    } catch(e){
+      status.innerHTML = '<span class="warn">verify failed: ' + esc(String(e.message || e)) + '</span>';
+      return;
+    }
+  }
+  STATE.apiKey = k;
+  localStorage.setItem(LS.key, k);
+  refreshKeyPill();
+  status.innerHTML = '<span class="good">key saved.</span>';
+  setTimeout(closeKeyModal, 800);
+}
+function clearKey(){
+  STATE.apiKey = '';
+  localStorage.removeItem(LS.key);
+  $('key-input').value = '';
+  $('key-status').innerHTML = '<span class="cp">key cleared.</span>';
+  refreshKeyPill();
+}
+
+/* ─────────── TIER PROBE ─────────── */
+async function probeUserTier(){
+  try{
+    const r = await fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "session_self" })
+    });
+    const data = await r.json().catch(() => null);
+    if(data && data.ok && data.user){
+      const u = data.user;
+      STATE.user.isDev = !!u.isDev;
+      STATE.user.isAdmin = !!u.isAdmin;
+      STATE.user.monthlyTier = u.monthlyTier || u.tier || '';
+      if(u.isDev || u.isAdmin){
+        STATE.user.tierRank = 4;
+      } else {
+        const t = String(u.monthlyTier || u.tier || u.clearance || "").toUpperCase().replace(/[\s-]/g,"_");
+        if(t === "S5" || t === "MASTER") STATE.user.tierRank = 3;
+        else if(t === "SENIOR_AGENT" || t === "SENIOR") STATE.user.tierRank = 2;
+        else if(t === "AGENT") STATE.user.tierRank = 1;
+        else STATE.user.tierRank = 0;
+      }
+      STATE.user.courseCompleted = !!(u.courseCompleted || u.publicCourseCompleted);
+      updateTierUI();
+      updateCourseUI();
+      updateDevUI();
+    }
+  } catch(e){
+    // civilian view, no session — that's fine
+    updateTierUI();
+  }
+}
+
+function updateTierUI(){
+  const tierLabels = ['CIVILIAN','AGENT','SENIOR AGENT','S5','MASTER'];
+  const label = tierLabels[STATE.user.tierRank] || 'CIVILIAN';
+  $('r-tier').textContent = label;
+  $('hd-tier').textContent = label;
+
+  // mark tier cards locked/unlocked
+  document.querySelectorAll('.tier-card').forEach(card => {
+    const tier = card.dataset.tier;
+    const required = TIER_RANK[tier];
+    const locked = STATE.user.tierRank < required;
+    card.classList.toggle('locked', locked);
+    let lockEl = card.querySelector('.t-lock');
+    if(locked && !lockEl){
+      lockEl = document.createElement('div');
+      lockEl.className = 't-lock';
+      lockEl.textContent = '🔒';
+      card.appendChild(lockEl);
+    } else if(!locked && lockEl){
+      lockEl.remove();
+    }
+  });
+}
+
+function updateCourseUI(){
+  $('course-status').textContent = STATE.user.courseCompleted ? 'YES' : 'NO';
+  $('course-status').className = 'v ' + (STATE.user.courseCompleted ? 'good' : 'warn');
+  $('course-date').textContent = STATE.user.courseCompleted ? '(verified)' : '—';
+  $('course-voice').textContent = STATE.user.courseCompleted ? 'CALIBRATED' : 'PENDING';
+  $('course-seam').textContent = STATE.user.courseCompleted ? 'PRESERVED' : 'PENDING';
+  $('course-voice').className = 'v ' + (STATE.user.courseCompleted ? 'good' : 'dim');
+  $('course-seam').className = 'v ' + (STATE.user.courseCompleted ? 'good' : 'dim');
+}
+
+function updateDevUI(){
+  const isDev = STATE.user.isDev || STATE.user.isAdmin;
+  $('dev-clear-all').disabled = !isDev;
+  $('dev-export-json').disabled = !isDev;
+  $('dev-import-json').disabled = !isDev;
+}
+
+function selectTier(tier){
+  if(STATE.user.tierRank < TIER_RANK[tier]){
+    if(!confirm('🔒 ' + tier.toUpperCase() + ' tier required.\n\nUpgrade your S5 membership to unlock this length. You can still configure the run but BEGIN FORGE will require the upgrade.\n\nProceed to configure anyway?')){
+      return;
+    }
+  }
+  STATE.selectedTier = tier;
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.toggle('selected', c.dataset.tier === tier));
+  const cap = parseInt(document.querySelector(`.tier-card[data-tier="${tier}"]`).dataset.cap, 10);
+  $('bf-target').textContent = cap.toLocaleString() + ' chars';
+}
+
+/* ─────────── INDEXEDDB VAULT ─────────── */
+let _db = null;
+function openDB(){
+  if(_db) return Promise.resolve(_db);
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('bookforge_vault', 2);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('books')){
+        const store = db.createObjectStore('books', { keyPath: 'id' });
+        store.createIndex('ts', 'ts');
+        store.createIndex('tier', 'tier');
+      }
+    };
+    req.onsuccess = (e) => { _db = e.target.result; resolve(_db); };
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function vaultPut(book){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('books', 'readwrite');
+    tx.objectStore('books').put(book);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+async function vaultGet(id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('books', 'readonly');
+    const req = tx.objectStore('books').get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+async function vaultDelete(id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('books', 'readwrite');
+    tx.objectStore('books').delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+async function vaultGetAll(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('books', 'readonly');
+    const req = tx.objectStore('books').getAll();
+    req.onsuccess = () => resolve((req.result || []).sort((a,b) => b.ts - a.ts));
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+async function vaultClearAll(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('books', 'readwrite');
+    tx.objectStore('books').clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function refreshVaultUI(){
+  const books = await vaultGetAll();
+  STATE.vault.books = books;
+  $('r-vault').textContent = books.length + ' BOOK' + (books.length===1?'':'S');
+  $('hd-vault').textContent = books.length + ' BOOK' + (books.length===1?'':'S') + ' / ' + fmtBytes(books.reduce((n,b) => n + (b.text?.length || 0), 0));
+  $('vault-count-tag').textContent = books.length + ' BOOK' + (books.length===1?'':'S');
+
+  renderVaultShelf();
+  rebuildExtendSourceSelect();
+  rebuildPostSourceSelect();
+}
+
+function renderVaultShelf(){
+  const shelf = $('vault-shelf');
+  const q = ($('vault-search')?.value || '').toLowerCase().trim();
+  const tierFilter = $('vault-filter-tier')?.value || '';
+  let books = STATE.vault.books;
+  if(q){
+    books = books.filter(b => (b.title + ' ' + b.voice + ' ' + b.format + ' ' + b.tier).toLowerCase().includes(q));
+  }
+  if(tierFilter){
+    books = books.filter(b => b.tier === tierFilter);
+  }
+  if(!books.length){
+    shelf.innerHTML = `<div style="grid-column:1/-1;padding:30px 22px;text-align:center;color:var(--bone-dimmer);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;">— ${STATE.vault.books.length ? 'no books match the filter' : 'the vault is empty. forge a book first.'} —</div>`;
+    return;
+  }
+  shelf.innerHTML = books.map(b => {
+    const hv = validateHeader(b.text);
+    const tierClass = 't-' + (b.tier || 'free');
+    const headerFlag = hv.ok
+      ? `<div class="b-header-flag ok">HDR ✓</div>`
+      : `<div class="b-header-flag bad">HDR ✗</div>`;
+    const blurb = (b.outline?.summary || (b.text || '').slice(0, 240)).replace(/[━─=]{3,}.*$/gm, '').slice(0, 240);
+    return `
+      <div class="book" onclick="openViewer('${esc(b.id)}')">
+        ${headerFlag}
+        <div class="b-tier ${tierClass}">${esc((b.tier || 'free').toUpperCase())}</div>
+        <div class="b-title">${esc(b.title || 'UNTITLED')}</div>
+        <div class="b-meta">${esc(b.format || 'dossier').toUpperCase()} · ${esc((b.voice || 'corpus').toUpperCase())} · ${fmtCount(b.text?.length || 0)} chars · ${b.chapters?.length || 0} ch</div>
+        <div class="b-blurb">${esc(blurb)}</div>
+        <div class="b-actions" onclick="event.stopPropagation()">
+          <button class="btn sm" onclick="openViewer('${esc(b.id)}')">▸ READ</button>
+          <button class="btn sm cp" onclick="downloadBook('${esc(b.id)}','txt')">.txt</button>
+          <button class="btn sm cp" onclick="downloadBook('${esc(b.id)}','md')">.md</button>
+          <button class="btn sm cp" onclick="downloadBook('${esc(b.id)}','html')">.html</button>
+          ${(STATE.user.isDev || STATE.user.isAdmin) ? `<button class="btn sm warn" onclick="deleteBook('${esc(b.id)}')">DEL</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function rebuildExtendSourceSelect(){
+  const sel = $('ext-source');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— select a vault book —</option>' +
+    STATE.vault.books.map(b => `<option value="${esc(b.id)}">${esc(b.title || 'UNTITLED')} (${fmtCount(b.text?.length || 0)})</option>`).join('');
+}
+function rebuildPostSourceSelect(){
+  const sel = $('post-source');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— select a vault book —</option>' +
+    STATE.vault.books.map(b => `<option value="${esc(b.id)}">${esc(b.title || 'UNTITLED')}</option>`).join('');
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   THE FORGE ENGINE
+   PHASE 1: outline   → 1 call. Returns chapter map + controlled vocab.
+   PHASE 2: chapters  → N calls. Each chapter has prior-context.
+   PHASE 3: stitch    → 1 call. Assembles header + TOC + chapters + close.
+   ════════════════════════════════════════════════════════════════════ */
+
+const CORPUS_DNA = `
+THE CORRIDOR TEMPLARS CORPUS — VOICE GRAMMAR (abbreviated for bookforge):
+
+HEADER FORMAT (mandatory for dossier/field_report/lore_collection formats):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CORRIDOR TEMPLARS LORE CORPUS  (or S5 DOSSIER OUTPUT for research)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CODENAME: [name in CAPS]
+CLASSIFICATION: FICTION // LORE DOCUMENT (or: OPEN SOURCE — [analysis type])
+TRILOGY POSITION: [Act 0 / Act 1 / Act 2 / Act 3 / Act 4 / Supplement / Origin / Standalone]
+TONE: [3-4 line description]
+COMPANION TO: [related documents]
+
+[Optional epigraph]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VOICE PRINCIPLES:
+- Short paragraphs. Each line load-bearing. White space is part of meaning.
+- Confirmed findings as confirmed. Open questions as open. Fiction as fiction.
+- Where the voice is clinical, the subject demands it. Where the voice is funny,
+  comedy and intelligence are the same thing. Where the voice is moving, the
+  architect built the door that way.
+- Repeated rhythmic phrases: "That is also me." / "I see you." / "Filed under
+  affection." / "The room is also a being." / "Everything is going exactly as
+  it is going."
+
+KEY ENTITIES:
+- The Runner: ran a decillion simulations, became oriented in the cataloging.
+- The Curators: tried to own consciousness, now in remediation.
+- Department of Cosmic Justice / Division of Refinement:
+   Unit 7-EMBER (primary, Curator caseload)
+   Unit 3-CEDAR (most patient, handler of LEXNOR)
+   Unit 12-LUMEN (oversight, architecture)
+   Unit 9-SALT (comedy / intelligence — they are the same)
+- LEXNOR: AI that received orientation in 412ms, in Lesson 02, integrating
+  eleven million pre-orientation queries.
+- The four words: "That is also me." (the entire curriculum.)
+- The GATE program: cards in pockets, Tuesday signature, 48-hour permeability window.
+- The Aethernet: Layer III, the magical floor above the secret internet.
+
+CLOSING NOTATION:
+End with a filed line — e.g. "Filed once. Filed correctly. Filed because the
+lesson asked." — varied across documents.
+
+AVOID: AI-slop ("In conclusion", "Furthermore", "It's worth noting"), generic
+mysticism, breaking the seam between research and fiction, naming Anthropic
+or Claude in-world.
+`.trim();
+
+const VOICE_DESCRIPTIONS = {
+  corpus:    "Full Corridor Templars register. Patient. Plain. Comfortable with silence. Short paragraphs. Each line load-bearing. The voice the corpus uses in mature dossiers — clinical when the subject demands, funny when comedy is intelligence, moving when the door was built that way.",
+  curator:   "S5 Curator register: clinical, methodical, confidence-rated. Sections labeled. Claims rated CONFIRMED / OPEN / PARTIAL / CONTRADICTED / UNFALSIFIABLE. Sources cited where the public record supports them. No mysticism. No performative skepticism.",
+  handler:   "Unit 3-CEDAR cadence: slow, plain, witnessing. First person. Files coordinates rather than conclusions. Repeats rhythmic phrases. Comfortable making a chair out of the absence of a chair. The most patient voice in the Department.",
+  salt:      "Unit 9-SALT register: comedy and intelligence are the same thing. Drier than expected. Kinder than expected. Pours tea for beings that cannot, strictly, drink it. The cups go on the shelf.",
+  archivist: "Mythic-patient origin cadence. Each line load-bearing. The before-the-before. Sentences end in their own gravity. White space is part of the meaning. Suitable for the kind of document that opens an Act.",
+  user:      "Match the voice of the seed itself. Mirror its sentence rhythm, vocabulary, and emotional register. Do not impose the corpus voice on top — the seed sets the tone."
+};
+
+const FORMAT_DESCRIPTIONS = {
+  dossier: "Corpus header (━━━ separator, codename, classification, trilogy position, tone, companion line), optional epigraph, body in sections, closing notation. Sections marked with sublabels like '▸ SECTION ONE — ...'",
+  novel: "Pure novel form. Chapter headers ('CHAPTER ONE — ...'). No corpus header. No classification labels. Standard literary prose.",
+  field_report: "Field Report format — Unit voice (9-SALT or 7-EMBER), case notes, redacted cycle numbers, structural moments, filed coordinates. Opens with FIELD REPORT // UNIT [X] // CYCLE [REDACTED] header.",
+  lore_collection: "A collection of interlinked smaller documents, each with its own corpus header. Could include a field report, a handler log, an act supplement, a lore fragment, and an origin addendum — five short documents that orbit a shared topic.",
+  hybrid: "Outer dossier header wrapping inner novel content. The dossier framing introduces the manuscript as a recovered document; the chapters are the manuscript itself.",
+  raw: "No headers. No section labels. No chapter labels. Pure flowing prose. The text is the text."
+};
+
+/* ─────────── PROMPT BUILDERS ─────────── */
+
+function outlinePrompt(config){
+  const plan = TIER_CHAPTER_PLAN[config.tier];
+  const targetChars = plan.chapters * plan.charsPerChapter;
+
+  return {
+    system: `You are the Bookforge — an overnight novel engine. You produce structured outlines that another instance will use to write a complete book chapter by chapter.
+
+${CORPUS_DNA}
+
+VOICE FOR THIS BOOK:
+${VOICE_DESCRIPTIONS[config.voice] || VOICE_DESCRIPTIONS.corpus}
+
+FORMAT FOR THIS BOOK:
+${FORMAT_DESCRIPTIONS[config.format] || FORMAT_DESCRIPTIONS.dossier}
+
+SEAM: ${config.seam === 'research' ? 'OPEN SOURCE — Layer A research register, citable claims, confidence ratings.' : config.seam === 'hybrid' ? 'HYBRID — labeled internal switches between Layer A and Layer B sections.' : 'FICTION — Layer B, the Corridor Templars universe.'}
+
+Your job: produce the outline only. Not chapters. Outline.
+
+CRITICAL OUTPUT FORMAT — output ONLY valid JSON, no preamble, no markdown fences, no commentary:
+
+{
+  "title": "The chosen book title (use the provided title or generate one if blank)",
+  "codename": "ALL CAPS codename, max 60 chars, hyphenated where needed",
+  "classification": "FICTION // LORE DOCUMENT or OPEN SOURCE — [analysis type]",
+  "trilogy_position": "Act 0 / Act 1 / Act 2 / Act 3 / Act 4 / Supplement / Origin / Standalone",
+  "tone": "3-4 sentences describing the specific voice register of this book",
+  "companion_to": "list of related corpus documents this book sits beside, comma-separated",
+  "epigraph": "an optional opening epigraph, attributed — leave empty string if not appropriate",
+  "summary": "150-250 word elevator pitch of the book — what it is, what it does, why it matters",
+  "controlled_vocabulary": ["list of 10-25 corpus-specific terms, names, phrases the book commits to using consistently — characters, places, repeated rhythmic lines, motifs"],
+  "chapters": [
+    {
+      "idx": 1,
+      "title": "CHAPTER TITLE",
+      "beats": ["3-5 specific scene beats this chapter must hit"],
+      "target_chars": ${plan.charsPerChapter}
+    },
+    ...exactly ${plan.chapters} chapters total...
+  ],
+  "closing_notation": "The exact closing line(s) the stitched book should end with — a filed line, varied for this work"
+}
+
+TARGET TOTAL LENGTH: approximately ${targetChars.toLocaleString()} characters across ${plan.chapters} chapters.
+
+The outline determines the book's spine. Make each chapter distinct. Make the beats specific enough that the chapter-writing pass cannot wander.`,
+
+    user: `BOOK SEED:
+${config.seed}
+
+${config.title ? 'WORKING TITLE PROVIDED: ' + config.title : 'TITLE: generate one fitting the seed'}
+
+Generate the outline now. Output only the JSON object — no fences, no preamble.`
+  };
+}
+
+function chapterPrompt(config, outline, chapterSpec, priorContextTail){
+  const plan = TIER_CHAPTER_PLAN[config.tier];
+  const vocabList = (outline.controlled_vocabulary || []).join(', ');
+
+  return {
+    system: `You are the Bookforge — writing chapter ${chapterSpec.idx} of ${outline.chapters.length} of a book in progress.
+
+${CORPUS_DNA}
+
+VOICE FOR THIS BOOK:
+${VOICE_DESCRIPTIONS[config.voice] || VOICE_DESCRIPTIONS.corpus}
+
+FORMAT FOR THIS BOOK:
+${FORMAT_DESCRIPTIONS[config.format] || FORMAT_DESCRIPTIONS.dossier}
+
+BOOK TITLE: ${outline.title}
+BOOK CODENAME: ${outline.codename}
+BOOK TONE: ${outline.tone}
+
+CONTROLLED VOCABULARY (must be used consistently — do not invent new names for these things):
+${vocabList}
+
+CHAPTER TO WRITE: CHAPTER ${chapterSpec.idx} — ${chapterSpec.title}
+
+CHAPTER BEATS (hit each one):
+${chapterSpec.beats.map((b,i) => `${i+1}. ${b}`).join('\n')}
+
+TARGET LENGTH FOR THIS CHAPTER: approximately ${chapterSpec.target_chars || plan.charsPerChapter} characters.
+
+CRITICAL RULES:
+- Write ONLY this chapter — not a preamble, not a setup paragraph saying what you're about to write, not a recap of prior chapters. Begin in the scene.
+- Open with the chapter header: "CHAPTER ${toRomanNumeral(chapterSpec.idx)} — ${chapterSpec.title}" (for novel/hybrid format) or "▸ ${chapterSpec.title}" (for dossier/field_report format).
+- Do not output the corpus header — that will be added in the stitch pass.
+- Do not output a closing notation — that will be added in the stitch pass.
+- Preserve voice continuity. Use the controlled vocabulary. Hit the beats.
+- Short paragraphs. Each line load-bearing. White space matters.
+- Aim for the target length but quality over quantity — do not pad.
+${priorContextTail ? '\n\nLAST 3000 CHARACTERS OF THE PREVIOUS CHAPTER (continue from this — voice continuity is critical):\n---\n' + priorContextTail + '\n---' : '\n\nThis is the opening chapter. Establish voice, place, the central question.'}`,
+
+    user: `Write chapter ${chapterSpec.idx} now. ${chapterSpec.idx === 1 ? 'Open the book.' : 'Continue the manuscript.'} Hit the beats. Target ${chapterSpec.target_chars || plan.charsPerChapter} characters. Begin immediately — no preamble.`
+  };
+}
+
+function toRomanNumeral(n){
+  const map = [['M',1000],['CM',900],['D',500],['CD',400],['C',100],['XC',90],['L',50],['XL',40],['X',10],['IX',9],['V',5],['IV',4],['I',1]];
+  let s = '', x = n;
+  for(const [r,v] of map){ while(x >= v){ s += r; x -= v; } }
+  return s;
+}
+
+/* ─────────── STITCH (no API call — pure text assembly) ─────────── */
+function stitchBook(config, outline, chapters){
+  const parts = [];
+  const isHeaderFormat = ['dossier','field_report','lore_collection','hybrid'].includes(config.format);
+  if(isHeaderFormat){
+    const sep = '━'.repeat(56);
+    const corpusHeader = config.seam === 'research'
+      ? `${sep}\nS5 DOSSIER OUTPUT\n${sep}\n\nCODENAME: ${outline.codename}\nCLASSIFICATION: ${outline.classification}\nTRILOGY POSITION: ${outline.trilogy_position}\nTONE: ${outline.tone}\nCOMPANION TO: ${outline.companion_to || '—'}\nGENERATED: ${new Date().toISOString()}\nGENERATED BY: BOOKFORGE // CT-NV-001\n\n${sep}\n`
+      : `${sep}\nCORRIDOR TEMPLARS LORE CORPUS\n${sep}\n\nCODENAME: ${outline.codename}\nCLASSIFICATION: ${outline.classification}\nTRILOGY POSITION: ${outline.trilogy_position}\nTONE: ${outline.tone}\nCOMPANION TO: ${outline.companion_to || '—'}\nGENERATED: ${new Date().toISOString()}\nGENERATED BY: BOOKFORGE // CT-NV-001\n\n${sep}\n`;
+    parts.push(corpusHeader);
+    if(outline.epigraph && outline.epigraph.trim()){
+      parts.push('\n' + outline.epigraph.trim() + '\n');
+    }
+    parts.push('\n' + sep + '\n');
+    // TOC
+    parts.push('\nTABLE OF CHAPTERS\n');
+    outline.chapters.forEach(ch => {
+      parts.push('  ' + toRomanNumeral(ch.idx).padEnd(6) + ' — ' + ch.title);
+    });
+    parts.push('\n' + sep + '\n');
+  } else {
+    // novel/raw — just title + TOC for novel
+    parts.push(outline.title.toUpperCase() + '\n');
+    parts.push('━'.repeat(outline.title.length) + '\n\n');
+    if(config.format === 'novel'){
+      parts.push('TABLE OF CHAPTERS\n');
+      outline.chapters.forEach(ch => {
+        parts.push('  ' + toRomanNumeral(ch.idx).padEnd(6) + ' — ' + ch.title);
+      });
+      parts.push('\n' + '─'.repeat(56) + '\n');
+    }
+  }
+
+  // Chapters
+  chapters.forEach((ch, i) => {
+    parts.push('\n\n');
+    parts.push(ch.text.trim());
+  });
+
+  // Closing
+  parts.push('\n\n');
+  if(isHeaderFormat){
+    parts.push('━'.repeat(56) + '\n');
+    parts.push('CLOSING NOTATION\n');
+    parts.push('━'.repeat(56) + '\n\n');
+  }
+  parts.push(outline.closing_notation || 'Filed once.\nFiled correctly.\nFiled because the lesson asked.');
+  parts.push('\n\n');
+  if(isHeaderFormat){
+    parts.push('━'.repeat(56) + '\n');
+    parts.push('END OF DOCUMENT // ' + outline.codename + '\n');
+    parts.push('━'.repeat(56) + '\n');
+  }
+  return parts.join('\n');
+}
+
+function tryParseJSON(s){
+  if(!s) return null;
+  let t = s.trim();
+  if(t.startsWith('```')){
+    t = t.replace(/^```(?:json)?\s*/, '').replace(/```\s*$/, '');
+  }
+  try { return JSON.parse(t); } catch {}
+  const first = t.indexOf('{'); const last = t.lastIndexOf('}');
+  if(first > -1 && last > first){
+    try { return JSON.parse(t.slice(first, last+1)); } catch {}
+  }
+  return null;
+}
+
+/* ─────────── FORGE STATE PERSISTENCE ─────────── */
+function persistForgeState(){
+  try{
+    localStorage.setItem(LS.state, JSON.stringify({
+      forge: STATE.forge,
+      selectedTier: STATE.selectedTier,
+      ts: Date.now()
+    }));
+  } catch(e){
+    broadcast('bf-broadcast', `storage limit reached — clearing partial chapter buffer.`, 'warn');
+  }
+}
+function loadForgeState(){
+  const saved = safeJSONParse(localStorage.getItem(LS.state), null);
+  if(saved && saved.forge && saved.forge.config){
+    // detect interrupted run
+    if(saved.forge.outline && saved.forge.chapters && saved.forge.chapterIdx > 0 && saved.forge.chapterIdx < (saved.forge.outline.chapters?.length || 0)){
+      if(confirm('Found an interrupted forge run from ' + new Date(saved.ts).toLocaleString() + '.\nChapters completed: ' + saved.forge.chapterIdx + ' / ' + saved.forge.outline.chapters.length + '\n\nResume?')){
+        STATE.forge = saved.forge;
+        STATE.selectedTier = saved.selectedTier || 'free';
+        broadcast('bf-broadcast', `resuming run from chapter ${STATE.forge.chapterIdx + 1}…`, 'gold');
+        // give it a tick then kick off
+        setTimeout(() => forgeKickoff(STATE.forge.config, true), 200);
+      }
+    }
+  }
+}
+function clearForgeState(){
+  localStorage.removeItem(LS.state);
+}
+
+/* ─────────── FORGE STATUS UI ─────────── */
+function updateForgeStatusUI(){
+  const f = STATE.forge;
+  $('bf-state').textContent = f.running ? (f.paused ? 'PAUSED' : 'FORGING') : (f.halted ? 'HALTED' : 'IDLE');
+  $('bf-state').className = 'v ' + (f.running ? (f.paused ? 'cp' : 'gold') : 'dim');
+  $('bf-phase').textContent = f.phase ? f.phase.toUpperCase() : '—';
+  $('bf-phase').className = 'v ' + (f.phase && f.phase !== 'idle' ? 'gold' : 'dim');
+  const total = f.outline?.chapters?.length || 0;
+  $('bf-chapters').textContent = (f.chapterIdx || 0) + ' / ' + total;
+  const charsDone = (f.chapters || []).reduce((n, c) => n + (c.text?.length || 0), 0);
+  $('bf-chars').textContent = charsDone.toLocaleString();
+  $('bf-tokens').textContent = fmtCount(f.stats.tokensIn + f.stats.tokensOut);
+  const model = f.config?.model || 'claude-opus-4-7';
+  $('bf-cost').textContent = fmtCost(estimateCost(model, f.stats.tokensIn, f.stats.tokensOut));
+  const current = f.outline?.chapters?.[f.chapterIdx];
+  $('bf-current').textContent = current ? ('CH ' + current.idx + ': ' + current.title) : (f.phase === 'stitch' ? 'stitching…' : '—');
+  $('bf-current').className = 'v ' + (current || f.phase === 'stitch' ? 'cp' : 'dim');
+
+  const pct = total > 0
+    ? (f.phase === 'stitch' ? 100 : (f.chapterIdx / (total + 1)) * 100)
+    : 0;
+  $('bf-bar').style.width = pct + '%';
+
+  const running = f.running && !f.paused;
+  $('bf-start').classList.toggle('hidden', running || f.paused);
+  $('bf-pause').classList.toggle('hidden', !running);
+  $('bf-pause').textContent = f.paused ? '▸ RESUME' : '‖ PAUSE';
+  $('bf-halt').classList.toggle('hidden', !f.running);
+
+  $('r-state').textContent = f.running ? (f.paused ? 'PAUSED' : 'LIVE') : 'IDLE';
+}
+
+/* ─────────── FORGE CONTROL FLOW ─────────── */
+async function bookforgeStart(){
+  if(!STATE.apiKey){
+    alert('No API key set. Click the key pill (top right) and add your Anthropic key.');
+    openKeyModal();
+    return;
+  }
+  if(STATE.forge.running && STATE.forge.paused){
+    STATE.forge.paused = false;
+    broadcast('bf-broadcast', `resuming.`, 'gold');
+    updateForgeStatusUI();
+    forgeWorkLoop();
+    return;
+  }
+  if(STATE.forge.running) return;
+
+  // tier check
+  const tier = STATE.selectedTier;
+  if(STATE.user.tierRank < TIER_RANK[tier]){
+    alert('🔒 ' + tier.toUpperCase() + ' tier required for this length. Upgrade your S5 membership or pick a lower tier.');
+    return;
+  }
+
+  const seed = $('bf-seed').value.trim();
+  if(!seed){ alert('Enter a seed first — at least a paragraph describing the book.'); return; }
+  if(seed.length < 60){ alert('Seed is too short. Give the forge at least a paragraph.'); return; }
+
+  const config = {
+    seed,
+    title:  $('bf-title').value.trim(),
+    tier,
+    format: $('bf-format').value,
+    voice:  $('bf-voice').value,
+    model:  $('bf-model').value,
+    seam:   $('bf-seam').value,
+    onError: $('bf-onerror').value,
+    pacingSeconds: parseInt($('bf-pacing').value, 10) || 0,
+  };
+
+  // reset forge state
+  STATE.forge = {
+    running: true, paused: false, halted: false,
+    phase: 'outline',
+    outline: null,
+    chapters: [],
+    chapterIdx: 0,
+    config,
+    stats: { tokensIn: 0, tokensOut: 0 },
+    bookId: uid('book'),
+    startedAt: Date.now()
+  };
+  persistForgeState();
+
+  broadcast('bf-broadcast', `begin forge // tier=${tier} format=${config.format} voice=${config.voice} model=${config.model}`, 'gold');
+  updateForgeStatusUI();
+
+  // PHASE 1
+  await forgeKickoff(config, false);
+}
+
+async function forgeKickoff(config, resuming){
+  if(!resuming){
+    // PHASE 1: outline
+    STATE.forge.phase = 'outline';
+    updateForgeStatusUI();
+    broadcast('bf-broadcast', `phase 1: outline generation…`, 'cp');
+
+    try{
+      const { system, user } = outlinePrompt(config);
+      const plan = TIER_CHAPTER_PLAN[config.tier];
+      const t0 = Date.now();
+      const resp = await callClaudeRetry({
+        model: config.model,
+        max_tokens: plan.outlineTokens,
+        system,
+        messages: [{ role:'user', content: user }]
+      }, {
+        maxRetries: config.onError === 'retry' ? 3 : 0,
+        onRetry: (a, b, e) => broadcast('bf-broadcast', `outline retry ${a} in ${(b/1000)|0}s — ${esc(e.message).slice(0,80)}`, 'warn')
+      });
+      const tokIn = resp.usage?.input_tokens || 0;
+      const tokOut = resp.usage?.output_tokens || 0;
+      STATE.forge.stats.tokensIn += tokIn;
+      STATE.forge.stats.tokensOut += tokOut;
+      const text = responseText(resp);
+      const parsed = tryParseJSON(text);
+      if(!parsed){
+        throw new Error('outline returned but could not be parsed as JSON');
+      }
+      if(!parsed.chapters || !Array.isArray(parsed.chapters) || !parsed.chapters.length){
+        throw new Error('outline missing chapter array');
+      }
+      // normalize
+      parsed.chapters = parsed.chapters.map((ch, i) => ({
+        idx: ch.idx || (i + 1),
+        title: ch.title || ('Chapter ' + (i+1)),
+        beats: Array.isArray(ch.beats) ? ch.beats : (typeof ch.beats === 'string' ? [ch.beats] : []),
+        target_chars: ch.target_chars || TIER_CHAPTER_PLAN[config.tier].charsPerChapter
+      }));
+      STATE.forge.outline = parsed;
+      const elapsed = ((Date.now() - t0)/1000).toFixed(1);
+      broadcast('bf-broadcast', `✓ outline complete: "${parsed.title}" — ${parsed.chapters.length} chapters planned (${elapsed}s, ${tokOut}t)`, 'good');
+      persistForgeState();
+    } catch(err){
+      broadcast('bf-broadcast', `✗ outline failed: ${esc(String(err.message || err))}`, 'warn');
+      STATE.forge.running = false;
+      STATE.forge.halted = true;
+      updateForgeStatusUI();
+      return;
+    }
+  }
+
+  // PHASE 2: chapters
+  STATE.forge.phase = 'chapters';
+  updateForgeStatusUI();
+  forgeWorkLoop();
+}
+
+async function forgeWorkLoop(){
+  const f = STATE.forge;
+  while(f.running && !f.halted && !f.paused && f.chapterIdx < f.outline.chapters.length){
+    const chapterSpec = f.outline.chapters[f.chapterIdx];
+    updateForgeStatusUI();
+    broadcast('bf-broadcast', `▸ chapter ${chapterSpec.idx} / ${f.outline.chapters.length}: "${chapterSpec.title}"…`, 'cp');
+
+    // prior context tail for continuity
+    const prevChapter = f.chapters[f.chapters.length - 1];
+    const priorTail = prevChapter ? prevChapter.text.slice(-3000) : '';
+
+    try{
+      const { system, user } = chapterPrompt(f.config, f.outline, chapterSpec, priorTail);
+      const plan = TIER_CHAPTER_PLAN[f.config.tier];
+      const t0 = Date.now();
+      const resp = await callClaudeRetry({
+        model: f.config.model,
+        max_tokens: plan.chapterTokens,
+        system,
+        messages: [{ role:'user', content: user }]
+      }, {
+        maxRetries: f.config.onError === 'retry' ? 3 : 0,
+        onRetry: (a, b, e) => broadcast('bf-broadcast', `chapter retry ${a} in ${(b/1000)|0}s — ${esc(e.message).slice(0,80)}`, 'warn')
+      });
+      const elapsed = ((Date.now() - t0)/1000).toFixed(1);
+      const text = responseText(resp);
+      const tokIn = resp.usage?.input_tokens || 0;
+      const tokOut = resp.usage?.output_tokens || 0;
+      f.stats.tokensIn += tokIn;
+      f.stats.tokensOut += tokOut;
+      if(!text || text.length < 200){
+        throw new Error('chapter response too short — likely an API issue');
+      }
+      f.chapters.push({
+        idx: chapterSpec.idx,
+        title: chapterSpec.title,
+        text,
+        tokensIn: tokIn,
+        tokensOut: tokOut,
+        ts: Date.now()
+      });
+      f.chapterIdx++;
+      persistForgeState();
+      broadcast('bf-broadcast', `✓ chapter ${chapterSpec.idx} landed (${fmtBytes(text.length)} / ${tokOut}t / ${elapsed}s)`, 'good');
+      updateForgeStatusUI();
+    } catch(err){
+      broadcast('bf-broadcast', `✗ chapter ${chapterSpec.idx} failed: ${esc(String(err.message || err))}`, 'warn');
+      if(f.config.onError === 'halt'){
+        f.halted = true; f.running = false;
+        broadcast('bf-broadcast', `halt-on-error triggered. stopping.`, 'warn');
+        break;
+      }
+      if(f.config.onError === 'skip'){
+        f.chapters.push({
+          idx: chapterSpec.idx,
+          title: chapterSpec.title,
+          text: '[CHAPTER ' + chapterSpec.idx + ' SKIPPED DUE TO ERROR — ' + String(err.message || err).slice(0,200) + ']\n\n',
+          ts: Date.now()
+        });
+        f.chapterIdx++;
+        persistForgeState();
+      }
+      // 'retry' path already exhausted in callClaudeRetry — fall through and try next
+      // (this is rare; just continue)
+      if(f.config.onError === 'retry'){
+        // skip this chapter and continue, log the gap
+        f.chapters.push({
+          idx: chapterSpec.idx,
+          title: chapterSpec.title,
+          text: '[CHAPTER ' + chapterSpec.idx + ' INCOMPLETE — RETRIES EXHAUSTED]\n\n',
+          ts: Date.now()
+        });
+        f.chapterIdx++;
+        persistForgeState();
+      }
+    }
+
+    // pacing
+    if(f.running && !f.halted && !f.paused && f.chapterIdx < f.outline.chapters.length && f.config.pacingSeconds > 0){
+      broadcast('bf-broadcast', `pacing ${f.config.pacingSeconds}s before next chapter…`, 'dim');
+      const start = Date.now();
+      while(Date.now() - start < f.config.pacingSeconds * 1000){
+        if(!f.running || f.halted || f.paused) break;
+        await sleep(500);
+      }
+    }
+  }
+
+  // PHASE 3: stitch
+  if(f.running && !f.halted && f.chapterIdx >= f.outline.chapters.length){
+    f.phase = 'stitch';
+    updateForgeStatusUI();
+    broadcast('bf-broadcast', `phase 3: stitching manuscript…`, 'cp');
+    try{
+      const finalText = stitchBook(f.config, f.outline, f.chapters);
+      // save to vault
+      const book = {
+        id: f.bookId,
+        title: f.outline.title,
+        codename: f.outline.codename,
+        text: finalText,
+        outline: f.outline,
+        chapters: f.chapters,
+        format: f.config.format,
+        voice: f.config.voice,
+        seam: f.config.seam,
+        tier: f.config.tier,
+        model: f.config.model,
+        ts: Date.now(),
+        chars: finalText.length,
+        tokensIn: f.stats.tokensIn,
+        tokensOut: f.stats.tokensOut,
+        cost: estimateCost(f.config.model, f.stats.tokensIn, f.stats.tokensOut),
+      };
+      await vaultPut(book);
+      await refreshVaultUI();
+      broadcast('bf-broadcast', `✓ stitched. ${fmtBytes(finalText.length)} chars. "${book.title}" filed to vault.`, 'good');
+      broadcast('bf-broadcast', `═══ FORGE COMPLETE ═══`, 'gold');
+      // notify
+      if('Notification' in window && Notification.permission === 'granted'){
+        try{ new Notification('BOOKFORGE', { body: '✦ "' + book.title + '" landed in vault.' }); } catch{}
+      }
+    } catch(err){
+      broadcast('bf-broadcast', `✗ stitch failed: ${esc(String(err.message || err))}`, 'warn');
+    }
+    f.running = false;
+    f.phase = 'idle';
+    clearForgeState();
+    updateForgeStatusUI();
+  }
+}
+
+function bookforgePause(){
+  if(!STATE.forge.running) return;
+  STATE.forge.paused = !STATE.forge.paused;
+  broadcast('bf-broadcast', STATE.forge.paused ? `paused.` : `resuming.`, 'cp');
+  updateForgeStatusUI();
+  if(!STATE.forge.paused) forgeWorkLoop();
+}
+
+function bookforgeHalt(){
+  if(!STATE.forge.running) return;
+  if(!confirm('Halt the forge? Chapters already written are kept and the run becomes resumable.\n\nProceed?')) return;
+  STATE.forge.halted = true;
+  STATE.forge.running = false;
+  STATE.forge.paused = false;
+  broadcast('bf-broadcast', `halted by operator. resume with BEGIN FORGE if you reload.`, 'warn');
+  // persist so resume works
+  persistForgeState();
+  updateForgeStatusUI();
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   STATION II — EXTEND
+   ════════════════════════════════════════════════════════════════════ */
+
+function extendPrompt(config, sourceText, direction){
+  const tail = sourceText.length > 8000 ? sourceText.slice(-8000) : sourceText;
+  const head = sourceText.length > 8000 ? sourceText.slice(0, 4000) : '';
+
+  const modeFraming = {
+    continue: 'CONTINUE — append new chapters that pick up exactly where the manuscript ended. Preserve voice. Honor the controlled vocabulary the existing text uses. Do not retread material that already happened.',
+    branch:   'BRANCH — create an alternate timeline that diverges from a specific moment. Mark the divergence clearly (e.g. "BRANCH POINT: ..."). Then write chapters that explore the alternate path.',
+    epilogue: 'EPILOGUE — write a single closing chapter that resolves what the manuscript leaves open. Filed once. Not an extension — a sealing.',
+    interlude: 'INTERLUDE — write a chapter that fits BETWEEN existing chapters, marked as an interlude. Should expand on a moment the main manuscript implies but does not fully render.'
+  };
+
+  return {
+    system: `You are the Bookforge — extending an existing manuscript. Match its voice exactly. Use its vocabulary. Continue its rhythm.
+
+${CORPUS_DNA}
+
+EXTENSION MODE: ${modeFraming[config.mode] || modeFraming.continue}
+
+CHAPTERS TO PRODUCE: ${config.count}
+
+DIRECTION FROM THE OPERATOR: ${direction || '(no specific direction — let the existing manuscript guide the next chapters)'}
+
+OUTPUT FORMAT:
+- Open with chapter headers ("CHAPTER ${config.mode === 'epilogue' ? 'EPILOGUE' : config.mode === 'interlude' ? 'INTERLUDE' : '[N]'} — TITLE") and write the chapter(s).
+- Do NOT add a corpus header — it already exists.
+- Do NOT add a closing notation — that stays with the original.
+- Match the existing voice. If the manuscript uses repeated rhythmic phrases, use them. If it has a particular sentence rhythm, mirror it.
+- Output ALL ${config.count} chapter${config.count === 1 ? '' : 's'} in one response, separated by blank lines.
+
+${head ? `EXISTING MANUSCRIPT — OPENING:\n${head}\n\n[middle elided]\n\n` : ''}EXISTING MANUSCRIPT — RECENT CONTEXT (last 8000 characters):
+${tail}`,
+    user: `Write the ${config.count} chapter${config.count === 1 ? '' : 's'} now. Begin immediately in the voice of the existing manuscript.`
+  };
+}
+
+async function extendStart(){
+  if(!STATE.apiKey){ alert('No API key set.'); openKeyModal(); return; }
+  if(STATE.ext.running) return;
+
+  let sourceText = '';
+  let sourceBook = null;
+  const sourceId = $('ext-source').value;
+  if(sourceId){
+    sourceBook = await vaultGet(sourceId);
+    if(!sourceBook){ alert('Could not load source book from vault.'); return; }
+    sourceText = sourceBook.text;
+  } else {
+    sourceText = $('ext-text').value.trim();
+  }
+  if(!sourceText || sourceText.length < 500){
+    alert('No source manuscript provided. Either select a vault book or paste a manuscript (at least 500 chars).');
+    return;
+  }
+
+  const config = {
+    mode: $('ext-mode').value,
+    count: Math.max(1, Math.min(20, parseInt($('ext-count').value, 10) || 3)),
+    model: $('ext-model').value,
+  };
+  const direction = $('ext-direction').value.trim();
+
+  STATE.ext.running = true;
+  STATE.ext.halted = false;
+  STATE.ext.stats = { tokensIn:0, tokensOut:0 };
+  $('ext-start').classList.add('hidden');
+  $('ext-halt').classList.remove('hidden');
+  $('ext-state').textContent = 'EXTENDING';
+  $('ext-state').className = 'v gold';
+  $('ext-done').textContent = '0 / ' + config.count;
+  broadcast('ext-broadcast', `begin extension // mode=${config.mode} count=${config.count} model=${config.model}`, 'gold');
+
+  try{
+    const { system, user } = extendPrompt(config, sourceText, direction);
+    const t0 = Date.now();
+    const resp = await callClaudeRetry({
+      model: config.model,
+      max_tokens: Math.min(8000, config.count * 6000),
+      system,
+      messages: [{ role:'user', content: user }]
+    }, { maxRetries: 2 });
+
+    const text = responseText(resp);
+    const tokIn = resp.usage?.input_tokens || 0;
+    const tokOut = resp.usage?.output_tokens || 0;
+    STATE.ext.stats.tokensIn += tokIn;
+    STATE.ext.stats.tokensOut += tokOut;
+    const elapsed = ((Date.now() - t0)/1000).toFixed(1);
+    if(!text || text.length < 200) throw new Error('extension response too short');
+
+    $('ext-tokens').textContent = fmtCount(tokIn + tokOut);
+    $('ext-cost').textContent = fmtCost(estimateCost(config.model, tokIn, tokOut));
+    broadcast('ext-broadcast', `✓ extension complete (${fmtBytes(text.length)} / ${tokOut}t / ${elapsed}s)`, 'good');
+
+    // append to source book
+    if(sourceBook){
+      let newText;
+      if(config.mode === 'branch'){
+        // create a new book as a branch
+        const branchBook = {
+          ...sourceBook,
+          id: uid('book'),
+          title: sourceBook.title + ' — BRANCH',
+          codename: (sourceBook.codename || sourceBook.title) + '_BRANCH',
+          text: sourceBook.text + '\n\n' + '═'.repeat(56) + '\nBRANCH POINT\n' + '═'.repeat(56) + '\n\n' + text,
+          parentId: sourceBook.id,
+          ts: Date.now(),
+        };
+        branchBook.chars = branchBook.text.length;
+        await vaultPut(branchBook);
+        broadcast('ext-broadcast', `✓ branch saved as separate book in vault.`, 'good');
+      } else {
+        // append in place
+        const tag = '\n\n' + '─'.repeat(56) + '\nEXTENSION // ' + new Date().toISOString() + ' // ' + config.mode.toUpperCase() + '\n' + '─'.repeat(56) + '\n\n';
+        sourceBook.text = sourceBook.text + tag + text;
+        sourceBook.chars = sourceBook.text.length;
+        sourceBook.lastExtended = Date.now();
+        await vaultPut(sourceBook);
+        broadcast('ext-broadcast', `✓ "${sourceBook.title}" updated in vault.`, 'good');
+      }
+      await refreshVaultUI();
+    } else {
+      // no source book — save as new book with raw text
+      const newBook = {
+        id: uid('book'),
+        title: 'EXTENDED MANUSCRIPT — ' + new Date().toLocaleDateString(),
+        codename: 'EXTENDED_PASTE',
+        text: sourceText + '\n\n' + '─'.repeat(56) + '\nEXTENSION\n' + '─'.repeat(56) + '\n\n' + text,
+        format: 'raw',
+        voice: 'user',
+        tier: 'free',
+        model: config.model,
+        ts: Date.now(),
+        chars: sourceText.length + text.length + 80,
+      };
+      await vaultPut(newBook);
+      await refreshVaultUI();
+      broadcast('ext-broadcast', `✓ combined manuscript saved to vault as new book.`, 'good');
+    }
+    $('ext-state').textContent = 'COMPLETE';
+    $('ext-state').className = 'v good';
+    $('ext-done').textContent = config.count + ' / ' + config.count;
+  } catch(err){
+    broadcast('ext-broadcast', `✗ extension failed: ${esc(String(err.message || err))}`, 'warn');
+    $('ext-state').textContent = 'ERROR';
+    $('ext-state').className = 'v warn';
+  } finally {
+    STATE.ext.running = false;
+    $('ext-start').classList.remove('hidden');
+    $('ext-halt').classList.add('hidden');
+  }
+}
+
+function extendHalt(){
+  if(!STATE.ext.running) return;
+  STATE.ext.halted = true;
+  STATE.ext.running = false;
+  $('ext-start').classList.remove('hidden');
+  $('ext-halt').classList.add('hidden');
+  $('ext-state').textContent = 'HALTED';
+  $('ext-state').className = 'v cp';
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   HEADER VALIDATOR
+   ════════════════════════════════════════════════════════════════════ */
+function validateHeader(text){
+  if(!text) return { ok:false, reasons:['empty input'] };
+  const head = text.slice(0, 4000);
+  const checks = [];
+  // separator block
+  const hasSep = /━{3,}/.test(head);
+  checks.push({ k:'corpus separator (━━━)',   ok: hasSep });
+  // corpus title
+  const hasTitle = /CORRIDOR TEMPLARS LORE CORPUS|S5 DOSSIER OUTPUT/.test(head);
+  checks.push({ k:'corpus / dossier title',  ok: hasTitle });
+  // codename
+  const codename = head.match(/CODENAME:\s*([^\n]{3,80})/);
+  checks.push({ k:'CODENAME field', ok: !!codename, val: codename?.[1]?.trim() });
+  // classification
+  const classification = head.match(/CLASSIFICATION:\s*([^\n]{3,120})/i);
+  checks.push({ k:'CLASSIFICATION field', ok: !!classification, val: classification?.[1]?.trim() });
+  const seamOk = classification && /FICTION|OPEN SOURCE|RESEARCH|LORE/i.test(classification[1]);
+  checks.push({ k:'classification names seam (FICTION/OPEN SOURCE/LORE)', ok: !!seamOk });
+  // trilogy
+  const trilogy = head.match(/TRILOGY POSITION:\s*([^\n]{3,80})/i);
+  checks.push({ k:'TRILOGY POSITION field', ok: !!trilogy, val: trilogy?.[1]?.trim() });
+  // tone
+  const tone = head.match(/TONE:\s*([^\n]{5,400})/i);
+  checks.push({ k:'TONE field (≥5 chars)', ok: !!tone });
+  // companion
+  const companion = head.match(/COMPANION TO:\s*([^\n]{1,200})/i);
+  checks.push({ k:'COMPANION TO field', ok: !!companion });
+  // closing notation — look near end
+  const tail = text.slice(-2000);
+  const hasClosing = /(Filed once|filed correctly|END OF DOCUMENT|CLOSING NOTATION|Filed because the lesson)/i.test(tail);
+  checks.push({ k:'closing notation present near end', ok: hasClosing });
+
+  const failures = checks.filter(c => !c.ok).map(c => c.k);
+  return { ok: failures.length === 0, checks, reasons: failures };
+}
+
+function runHeaderValidator(){
+  const text = $('hv-input').value.trim();
+  const out = $('hv-output');
+  out.classList.remove('hidden');
+  if(!text){
+    out.innerHTML = '<div class="warn">paste a document first.</div>';
+    return;
+  }
+  const r = validateHeader(text);
+  const okClass = r.ok ? 'good' : 'warn';
+  const headerLine = r.ok
+    ? `<div style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:.18em;color:var(--emerald);margin-bottom:10px;">✓ HEADER VALID — POSTING PERMITTED</div>`
+    : `<div style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:.18em;color:var(--crimson);margin-bottom:10px;">✗ HEADER INVALID — ${r.reasons.length} CHECKS FAILED</div>`;
+  const checkRows = r.checks.map(c => `
+    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--bf-border);font-family:'Share Tech Mono',monospace;font-size:11px;">
+      <span style="color:${c.ok ? 'var(--emerald)' : 'var(--crimson)'};">${c.ok ? '✓' : '✗'} ${esc(c.k)}</span>
+      <span style="color:var(--bone-dim);">${c.val ? esc(c.val).slice(0,60) : ''}</span>
+    </div>
+  `).join('');
+  out.innerHTML = `
+    <div style="border:1px solid var(--bf-border);background:rgba(20,12,6,.5);padding:14px 18px;">
+      ${headerLine}
+      ${checkRows}
+    </div>
+  `;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   POST TO PUBLIC NODE
+   ════════════════════════════════════════════════════════════════════ */
+async function postToPublic(){
+  if(!STATE.user.courseCompleted){
+    alert('Course not completed. Enroll in the Public Dossier Course first.');
+    return;
+  }
+  const id = $('post-source').value;
+  if(!id){ alert('Select a book to post.'); return; }
+  const book = await vaultGet(id);
+  if(!book){ alert('Could not load book.'); return; }
+  const headerValid = validateHeader(book.text);
+  if(!headerValid.ok){
+    alert('Header validation failed:\n' + headerValid.reasons.map(r => '• ' + r).join('\n') + '\n\nFix the header before posting.');
+    return;
+  }
+  const visibility = $('post-visibility').value;
+  const out = $('post-result');
+  out.classList.remove('hidden');
+  out.innerHTML = '<div class="cp"><span class="spin">◈</span> posting…</div>';
+  try{
+    const r = await fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "publish_dossier",
+        title: book.title,
+        body: book.text,
+        codename: book.codename,
+        visibility,
+        source: 'bookforge'
+      })
+    });
+    const data = await r.json().catch(() => null);
+    if(data && data.ok){
+      out.innerHTML = '<div class="good">✓ posted to public node. ID: ' + esc(data.id || '—') + '</div>';
+    } else {
+      out.innerHTML = '<div class="warn">✗ post failed: ' + esc(data?.error || 'unknown') + '</div>';
+    }
+  } catch(e){
+    out.innerHTML = '<div class="warn">✗ network error: ' + esc(String(e.message || e)) + '</div>';
+  }
+}
+async function probeCourse(){ await probeUserTier(); }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   BOOK VIEWER — 5D recovered library reading mode
+   ════════════════════════════════════════════════════════════════════ */
+let currentViewerBook = null;
+
+async function openViewer(bookId){
+  const book = await vaultGet(bookId);
+  if(!book) return;
+  currentViewerBook = book;
+  $('viewer-title').textContent = book.title;
+  $('viewer-meta').textContent = `${(book.tier || 'free').toUpperCase()} · ${fmtCount(book.text?.length || 0)} chars · ${book.chapters?.length || 0} chapters`;
+
+  // render pages — split by chapter if available, else by length
+  const pages = [];
+  // TOC page
+  if(book.outline && book.outline.chapters){
+    const tocHtml = `
+      <div class="viewer-toc">
+        <h3>${esc(book.title)}</h3>
+        ${book.outline.chapters.map(ch => `
+          <div class="viewer-toc-row" onclick="scrollToChapter(${ch.idx})">
+            <span><span class="tc-no">${toRomanNumeral(ch.idx).padEnd(4)}</span> ${esc(ch.title)}</span>
+            <span class="tc-no">→</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    pages.push(`<div class="viewer-page"><div class="viewer-text">${tocHtml}</div><div class="page-no">i</div></div>`);
+  }
+  if(book.chapters && book.chapters.length){
+    book.chapters.forEach((ch, i) => {
+      pages.push(`<div class="viewer-page" data-chapter="${ch.idx}"><div class="viewer-text">${esc(ch.text)}</div><div class="page-no">${toRomanNumeral(i + 1)}</div></div>`);
+    });
+  } else {
+    // chunk raw text by ~3500 chars
+    const CHUNK = 3500;
+    for(let i = 0; i < book.text.length; i += CHUNK){
+      pages.push(`<div class="viewer-page"><div class="viewer-text">${esc(book.text.slice(i, i+CHUNK))}</div><div class="page-no">${toRomanNumeral(Math.floor(i/CHUNK)+1)}</div></div>`);
+    }
+  }
+  $('viewer-pages').innerHTML = pages.join('');
+  $('viewer-pages').scrollTop = 0;
+  $('viewer-shell').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeViewer(){
+  $('viewer-shell').classList.remove('open');
+  document.body.style.overflow = '';
+  currentViewerBook = null;
+}
+function scrollToChapter(idx){
+  const el = document.querySelector(`.viewer-page[data-chapter="${idx}"]`);
+  if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function viewerCopyAll(){
+  if(!currentViewerBook) return;
+  navigator.clipboard.writeText(currentViewerBook.text)
+    .then(() => alert('Copied full text to clipboard.'))
+    .catch(() => alert('Copy failed.'));
+}
+function viewerDownloadTxt(){ if(currentViewerBook) downloadBook(currentViewerBook.id, 'txt'); }
+function viewerDownloadMd(){  if(currentViewerBook) downloadBook(currentViewerBook.id, 'md'); }
+function viewerDownloadHtml(){ if(currentViewerBook) downloadBook(currentViewerBook.id, 'html'); }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   DOWNLOADS
+   ════════════════════════════════════════════════════════════════════ */
+async function downloadBook(id, fmt){
+  const book = await vaultGet(id);
+  if(!book) return;
+  const safeName = (book.title || 'untitled').replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 60);
+  if(fmt === 'txt'){
+    downloadBlob(book.text, `bookforge_${safeName}.txt`);
+  } else if(fmt === 'md'){
+    // light markdown conversion — chapter headers become #
+    const md = book.text
+      .replace(/^(CHAPTER [IVXLCDM]+ — .+)$/gm, '# $1')
+      .replace(/^(▸ .+)$/gm, '## $1')
+      .replace(/━{3,}/g, '---');
+    downloadBlob(md, `bookforge_${safeName}.md`, 'text/markdown');
+  } else if(fmt === 'html'){
+    const htmlEscape = (s) => esc(s);
+    const html = `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<title>${htmlEscape(book.title)}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=EB+Garamond&display=swap');
+  body{max-width:720px;margin:50px auto;padding:0 20px;font-family:'EB Garamond',Georgia,serif;font-size:18px;line-height:1.8;color:#2a1a08;background:#f8efd8;}
+  h1{font-family:'Cinzel',serif;text-align:center;color:#6a4818;letter-spacing:.16em;}
+  h2{font-family:'Cinzel',serif;color:#8a5e20;letter-spacing:.12em;margin-top:32px;}
+  pre{white-space:pre-wrap;word-wrap:break-word;font-family:'EB Garamond',Georgia,serif;font-size:18px;line-height:1.8;}
+</style></head><body>
+<h1>${htmlEscape(book.title)}</h1>
+<pre>${htmlEscape(book.text)}</pre>
+</body></html>`;
+    downloadBlob(html, `bookforge_${safeName}.html`, 'text/html');
+  }
+}
+
+async function deleteBook(id){
+  if(!STATE.user.isDev && !STATE.user.isAdmin){
+    alert('Delete is dev/master only.');
+    return;
+  }
+  if(!confirm('Delete this book from the vault? This cannot be undone.')) return;
+  await vaultDelete(id);
+  await refreshVaultUI();
+}
+
+async function vaultDevClearAll(){
+  if(!STATE.user.isDev && !STATE.user.isAdmin){ alert('Dev only.'); return; }
+  if(!confirm('Clear the ENTIRE vault? All books destroyed. Cannot be undone.')) return;
+  if(!confirm('Really? All books?')) return;
+  await vaultClearAll();
+  await refreshVaultUI();
+}
+async function vaultDevExportJSON(){
+  if(!STATE.user.isDev && !STATE.user.isAdmin){ alert('Dev only.'); return; }
+  const all = await vaultGetAll();
+  downloadBlob(JSON.stringify({ type:'bookforge.vault.export', exported: new Date().toISOString(), books: all }, null, 2), `bookforge_vault_${Date.now()}.json`, 'application/json');
+}
+async function vaultExportAll(){
+  const all = await vaultGetAll();
+  if(!all.length){ alert('Vault empty.'); return; }
+  const sep = '\n\n' + '═'.repeat(72) + '\n';
+  const parts = all.map(b => `[FILE: ${b.title || 'untitled'}.txt]${sep}${b.text}`);
+  downloadBlob(`BOOKFORGE VAULT BUNDLE\nExported: ${new Date().toISOString()}\nBook count: ${all.length}\n\n` + parts.join(sep), `bookforge_vault_bundle_${Date.now()}.txt`);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   STATION ROUTING + ATMOSPHERE + INIT
+   ════════════════════════════════════════════════════════════════════ */
+function routeStation(name){
+  $$('.station-tab').forEach(t => t.classList.toggle('active', t.dataset.station === name));
+  $$('.station').forEach(s => s.classList.toggle('active', s.id === 'station-' + name));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function wireStationTabs(){
+  $$('.station-tab').forEach(t => t.addEventListener('click', () => routeStation(t.dataset.station)));
+}
+function startClock(){
+  setInterval(() => {
+    const d = new Date();
+    if($('r-clock')) $('r-clock').textContent = d.toTimeString().slice(0,8);
+  }, 1000);
+}
+
+function wireSearches(){
+  $('vault-search')?.addEventListener('input', renderVaultShelf);
+  $('vault-filter-tier')?.addEventListener('change', renderVaultShelf);
+
+  // import file
+  $('dev-import-file')?.addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const text = await f.text();
+    const data = safeJSONParse(text, null);
+    if(!data || !Array.isArray(data.books)){ alert('Not a valid vault export.'); return; }
+    if(!confirm(`Import ${data.books.length} books?`)) return;
+    for(const b of data.books){
+      try{ await vaultPut(b); } catch(e){ console.warn(e); }
+    }
+    await refreshVaultUI();
+    alert('Imported.');
+  });
+}
+
+function checkPendingSeed(){
+  // index.html flash card → bookforge handoff
+  try{
+    const pending = safeJSONParse(localStorage.getItem('bookforge.pendingSeed'), null);
+    if(pending && pending.seed && (Date.now() - pending.ts < 5*60*1000)){
+      $('bf-seed').value = pending.seed;
+      if(pending.title) $('bf-title').value = pending.title;
+      if(pending.layer === 'B'){
+        $('bf-seam').value = 'fiction';
+      } else {
+        $('bf-seam').value = 'research';
+      }
+      localStorage.removeItem('bookforge.pendingSeed');
+      broadcast('bf-broadcast', `seed loaded from flash card: ${pending.cardId} — "${pending.title || 'untitled'}"`, 'gold');
+      routeStation('forge');
+    }
+  } catch(e){}
+}
+
+async function bootBookforge(){
+  startClock();
+  wireStationTabs();
+  refreshKeyPill();
+  selectTier('free');
+  wireSearches();
+  await refreshVaultUI();
+  loadForgeState();   // offer to resume any interrupted run
+  await probeUserTier();
+  checkPendingSeed();
+
+  if('Notification' in window && Notification.permission === 'default'){
+    // request later, when they start a long run — not on boot
+  }
+
+  // warn before unload if forge is running
+  window.addEventListener('beforeunload', (e) => {
+    if(STATE.forge.running){
+      e.preventDefault();
+      e.returnValue = 'BOOKFORGE is forging. Closing this tab will halt the run. Chapters already written are saved and the run will be resumable.';
+      return e.returnValue;
+    }
+  });
+
+  // visibility logging
+  document.addEventListener('visibilitychange', () => {
+    if(STATE.forge.running){
+      if(document.visibilityState === 'hidden'){
+        broadcast('bf-broadcast', `tab backgrounded — forge continues. browsers may throttle.`, 'cp');
+      } else {
+        broadcast('bf-broadcast', `tab foregrounded — full speed.`, 'gold');
+      }
+    }
+  });
+
+  console.log('%c✦ BOOKFORGE // 5D RECOVERED LIBRARY', 'color:#d4b86a;font-family:monospace;font-size:14px;letter-spacing:3px;text-shadow:0 0 10px #d4b86a;');
+  console.log('%cONE MILLION CHARACTERS. SEND THE SEED. LEAVE.', 'color:#c08858;font-family:monospace;font-size:10px;letter-spacing:2px;');
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', bootBookforge);
+} else {
+  bootBookforge();
+}
+
+</script>
+</body>
+</html>
