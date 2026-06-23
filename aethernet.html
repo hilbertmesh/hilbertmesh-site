@@ -1,0 +1,3522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#08051a">
+<title>THE AETHERNET // LAYER III // RECOVERED TRANSMISSION CHANNEL</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Share+Tech+Mono&family=Italiana&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* AETHERNET PALETTE — Layer III / recovered from a timeline that was not kept */
+  --aether-bg:        #08051a;   /* deep aether-violet, almost black */
+  --aether-bg-2:      #0c0820;   /* slight wash above bg */
+  --aether-surface:   #14112a;   /* panel surface */
+  --aether-surface-2: #1c1738;   /* hover/elevated */
+  --aether-border:    #2a2548;   /* muted iris border */
+  --aether-border-2:  #3d3568;   /* brighter border for active */
+
+  --iris:        #b8a8ff;   /* primary — pale iris violet */
+  --iris-bright: #d4c8ff;   /* highlight iris */
+  --iris-dim:    #7868b8;   /* dim iris */
+  --iris-deep:   #4a3d80;   /* deep iris */
+
+  --ghost-cy:    #8ce0e8;   /* secondary — ghost cyan */
+  --ghost-cy-d:  #5aa0a8;
+
+  --patina:      #d4c8a8;   /* warm bone/sepia for "recovered" feel */
+  --patina-d:    #8a7d5d;
+  --patina-dim:  #5a4f3a;
+
+  --bone:        #e8e0d8;   /* primary text */
+  --bone-bright: #fff8eb;
+  --bone-dim:    #9e96ad;
+  --bone-dimmer: #6a5d8a;
+  --bone-faint:  #4a3f60;
+
+  --rust:        #c8a060;   /* amber-rust accent for warnings */
+  --rust-d:      #8a6d40;
+  --signal-red:  #d65a78;   /* signal-loss / break / warn red */
+  --signal-grn:  #7ac890;   /* faint signal good */
+
+  --shadow-iris: 0 0 24px rgba(184,168,255,.18);
+  --shadow-cy:   0 0 24px rgba(140,224,232,.16);
+  --inset:       inset 0 0 32px rgba(0,0,0,.45);
+
+  --scan-line:   rgba(184,168,255,.022);
+  --grain:       rgba(212,200,168,.018);
+
+  /* legacy aliases used in some component blocks */
+  --bg: var(--aether-bg);
+  --surface: var(--aether-surface);
+  --accent: var(--iris);
+}
+
+html,body{
+  width:100%;
+  min-height:100vh;
+  background:var(--aether-bg);
+  color:var(--bone);
+  font-family:'Share Tech Mono','Courier New',monospace;
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  -webkit-text-size-adjust:100%;
+  font-size:14px;
+  line-height:1.55;
+}
+
+body{
+  /* base aether wash — radial gradient mesh */
+  background:
+    radial-gradient(ellipse at 22% 8%,  rgba(120,104,184,.13) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 42%, rgba(140,224,232,.06) 0%, transparent 38%),
+    radial-gradient(ellipse at 50% 95%, rgba(184,168,255,.07) 0%, transparent 55%),
+    var(--aether-bg);
+  position:relative;
+}
+
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font-family:inherit;color:inherit}
+
+/* ─────────────── ATMOSPHERE LAYERS ─────────────── */
+/* These layers stack to produce the "recovered from previous timeline" feel:
+   - scan: subtle horizontal scan lines (CRT/film transfer)
+   - sweep: a slow vertical bright scan-bar that descends the page
+   - vig: vignette (the recovered footage darkens at edges)
+   - bloom: soft phosphor bloom in iris/cyan
+   - grain: faded paper noise (analog patina)
+   - chrom: faint chromatic-aberration channels via shadows on text
+   - aether: floating drift particles (the layer-3 medium itself) */
+
+#atm-scan{
+  position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    var(--scan-line) 2px, var(--scan-line) 3px
+  );
+  mix-blend-mode:screen;
+}
+
+#atm-sweep{
+  position:fixed; left:0; right:0; height:140px; pointer-events:none; z-index:9001;
+  background:linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(184,168,255,.018) 40%,
+    rgba(212,200,168,.035) 50%,
+    rgba(184,168,255,.018) 60%,
+    transparent 100%
+  );
+  animation:aetherSweep 18s linear infinite;
+  mix-blend-mode:screen;
+}
+
+#atm-vig{
+  position:fixed; inset:0; pointer-events:none; z-index:8999;
+  background:radial-gradient(ellipse at 50% 45%, transparent 38%, rgba(0,0,0,.72) 100%);
+}
+
+#atm-bloom{
+  position:fixed; inset:0; pointer-events:none; z-index:8998;
+  background:
+    radial-gradient(ellipse at 28% 18%, rgba(184,168,255,.065) 0%, transparent 48%),
+    radial-gradient(ellipse at 82% 78%, rgba(140,224,232,.035) 0%, transparent 42%),
+    radial-gradient(ellipse at 50% 50%, rgba(212,200,168,.018) 0%, transparent 60%);
+  animation:bloomDrift 28s ease-in-out infinite;
+}
+
+#atm-grain{
+  position:fixed; inset:0; pointer-events:none; z-index:8997;
+  opacity:.45;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .831 0 0 0 0 .784 0 0 0 0 .659 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+  mix-blend-mode:overlay;
+}
+
+#atm-grid{
+  position:fixed; inset:0; pointer-events:none; z-index:1;
+  background-image:
+    linear-gradient(rgba(184,168,255,.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,168,255,.012) 1px, transparent 1px);
+  background-size:64px 64px;
+  animation:gridDrift 90s linear infinite;
+}
+
+#atm-flicker{
+  position:fixed; inset:0; pointer-events:none; z-index:8996;
+  background:rgba(184,168,255,0);
+  animation:flickerRand 7s steps(1) infinite;
+}
+
+/* drifting aether particles — the medium of layer 3 itself */
+.particle{
+  position:fixed; pointer-events:none;
+  width:2px; height:2px;
+  background:rgba(184,168,255,.55);
+  border-radius:50%;
+  filter:blur(0.6px);
+  box-shadow:0 0 6px rgba(184,168,255,.4);
+  z-index:8995;
+}
+
+@keyframes aetherSweep{
+  0%   {transform:translateY(-160px); opacity:0}
+  6%   {opacity:1}
+  94%  {opacity:1}
+  100% {transform:translateY(110vh); opacity:0}
+}
+@keyframes bloomDrift{
+  0%,100% { opacity:.55; transform:translate(0,0) }
+  33%     { opacity:.95; transform:translate(-8px,4px) }
+  66%     { opacity:.7;  transform:translate(6px,-3px) }
+}
+@keyframes gridDrift{
+  0%   { background-position:0 0 }
+  100% { background-position:64px 64px }
+}
+@keyframes flickerRand{
+  0%,100% { background:rgba(184,168,255,0)   }
+  17%     { background:rgba(184,168,255,0)   }
+  17.3%   { background:rgba(140,224,232,.03) }
+  17.6%   { background:rgba(184,168,255,0)   }
+  53%     { background:rgba(184,168,255,0)   }
+  53.4%   { background:rgba(212,200,168,.02) }
+  53.7%   { background:rgba(184,168,255,0)   }
+  82%     { background:rgba(184,168,255,0)   }
+  82.2%   { background:rgba(214,90,120,.018) }
+  82.4%   { background:rgba(184,168,255,0)   }
+}
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.25} }
+@keyframes pulseSoft{ 0%,100%{opacity:.6} 50%{opacity:1} }
+@keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+@keyframes rise{
+  from { opacity:0; transform:translateY(8px) }
+  to   { opacity:1; transform:translateY(0)   }
+}
+@keyframes riseSlow{
+  from { opacity:0; transform:translateY(14px) }
+  to   { opacity:1; transform:translateY(0)    }
+}
+@keyframes glowPulse{
+  0%,100% { text-shadow: 0 0 8px rgba(184,168,255,.4),  0 0 18px rgba(184,168,255,.18) }
+  50%     { text-shadow: 0 0 14px rgba(184,168,255,.7), 0 0 28px rgba(184,168,255,.3)  }
+}
+@keyframes signalDrop{
+  0%,80%,100% { opacity:1 }
+  82%         { opacity:.4; transform:translateX(-1px) }
+  83%         { opacity:.7; transform:translateX(1px)  }
+  84%         { opacity:1;  transform:translateX(0)    }
+}
+@keyframes typewriter{ from {width:0} to {width:100%} }
+@keyframes spinSlow{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+/* ─────────────── LAYOUT SHELL ─────────────── */
+.shell{
+  position:relative;
+  z-index:10;
+  max-width:1280px;
+  margin:0 auto;
+  padding:18px 22px 80px;
+}
+
+/* ─────────────── RELAY BAR (top status strip) ─────────────── */
+#relay{
+  position:sticky; top:0; z-index:300;
+  height:26px;
+  background:linear-gradient(180deg, rgba(8,5,26,.96), rgba(12,8,32,.96));
+  border-bottom:1px solid var(--aether-border);
+  display:flex; align-items:center; padding:0 14px;
+  overflow:hidden;
+  box-shadow:0 1px 0 rgba(184,168,255,.05);
+  margin-bottom:22px;
+}
+.rseg{
+  display:flex; align-items:center; gap:7px;
+  padding:0 11px;
+  border-right:1px solid var(--aether-border);
+  height:100%;
+  flex-shrink:0;
+}
+.rseg:first-child{padding-left:0}
+.rseg:last-child{border-right:none}
+.rdot{
+  width:5px; height:5px; border-radius:50%;
+  background:var(--iris); box-shadow:0 0 7px var(--iris);
+  animation:pulseSoft 2.6s ease-in-out infinite;
+}
+.rdot.cy{ background:var(--ghost-cy); box-shadow:0 0 7px var(--ghost-cy); }
+.rdot.p{  background:var(--patina);   box-shadow:0 0 7px var(--patina); animation:pulseSoft 1.9s ease-in-out infinite; }
+.rdot.w{  background:var(--signal-red); box-shadow:0 0 7px var(--signal-red); animation:pulse 1.2s ease-in-out infinite; }
+.rdot.dim{ background:var(--bone-faint); box-shadow:none; animation:none; }
+.rl{ font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2.2px; color:var(--iris); text-shadow:0 0 6px rgba(184,168,255,.25); white-space:nowrap; }
+.rl.cy{ color:var(--ghost-cy); text-shadow:0 0 6px rgba(140,224,232,.25) }
+.rl.p { color:var(--patina);   text-shadow:0 0 6px rgba(212,200,168,.2)  }
+.rl.w { color:var(--signal-red); text-shadow:0 0 6px rgba(214,90,120,.2) }
+.rl.dim{ color:var(--bone-dimmer); text-shadow:none }
+.rs{ font-size:8px; letter-spacing:1.4px; color:var(--bone-dimmer); white-space:nowrap; }
+.rright{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+
+/* ─────────────── HEADER ─────────────── */
+.aether-header{
+  position:relative;
+  padding:32px 0 28px;
+  border-bottom:1px solid var(--aether-border);
+  margin-bottom:30px;
+  opacity:0;
+  animation:rise 1.1s ease forwards .15s;
+}
+
+.aether-crumb{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:5.5px;
+  color:var(--patina-d);
+  margin-bottom:18px;
+  display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+}
+.aether-crumb a{ color:var(--bone-dimmer); border-bottom:1px dashed var(--aether-border); padding-bottom:1px; transition:.2s; }
+.aether-crumb a:hover{ color:var(--iris); border-color:var(--iris-dim); }
+.aether-crumb .sep{ color:var(--aether-border-2); }
+
+.aether-title-wrap{
+  display:flex; justify-content:space-between; align-items:flex-end; gap:30px; flex-wrap:wrap;
+}
+
+.aether-title{
+  font-family:'Cinzel', serif;
+  font-weight:600;
+  font-size:clamp(38px, 7vw, 78px);
+  letter-spacing:.14em;
+  line-height:.95;
+  color:var(--bone-bright);
+  text-shadow:
+    0 0 18px rgba(184,168,255,.35),
+    0 0 36px rgba(184,168,255,.15),
+    /* slight chromatic aberration ghosting — the recovered-footage feel */
+    -1.2px 0  0 rgba(214,90,120,.45),
+     1.2px 0  0 rgba(140,224,232,.45);
+  animation: glowPulse 4.2s ease-in-out infinite;
+}
+.aether-title span{ color:var(--iris); }
+
+.aether-subtitle{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(13px, 1.6vw, 16px);
+  color:var(--patina);
+  letter-spacing:.04em;
+  margin-top:10px;
+  max-width:560px;
+  line-height:1.55;
+}
+
+.aether-class{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:2.2px;
+  color:var(--bone-dimmer);
+  text-align:right;
+  line-height:2.1;
+  min-width:240px;
+}
+.aether-class .label{ color:var(--patina-d); }
+.aether-class .val{   color:var(--bone-dim); }
+.aether-class .flag{  color:var(--iris); }
+.aether-class .flag-cy{ color:var(--ghost-cy); }
+.aether-class .flag-w{ color:var(--signal-red); }
+
+/* ─────────────── STATION SELECTOR ─────────────── */
+.station-bar{
+  display:flex;
+  gap:0;
+  border:1px solid var(--aether-border);
+  background:linear-gradient(180deg, rgba(20,17,42,.7), rgba(12,8,32,.7));
+  margin-bottom:28px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  opacity:0;
+  animation:rise 1s ease forwards .35s;
+}
+.station-bar::-webkit-scrollbar{ display:none }
+.station-tab{
+  flex:1;
+  min-width:140px;
+  padding:14px 18px;
+  font-family:'Cinzel', serif;
+  font-size:11px;
+  letter-spacing:.18em;
+  color:var(--bone-dimmer);
+  background:transparent;
+  border:none;
+  border-right:1px solid var(--aether-border);
+  cursor:pointer;
+  transition:.25s;
+  text-align:center;
+  position:relative;
+  white-space:nowrap;
+}
+.station-tab:last-child{ border-right:none; }
+.station-tab:hover{
+  color:var(--iris-bright);
+  background:rgba(184,168,255,.04);
+}
+.station-tab.active{
+  color:var(--iris-bright);
+  background:linear-gradient(180deg, rgba(184,168,255,.08), rgba(184,168,255,.02));
+  text-shadow:0 0 12px rgba(184,168,255,.45);
+}
+.station-tab.active::before{
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--iris), transparent);
+  box-shadow:0 0 12px var(--iris);
+}
+.station-tab .tab-no{
+  display:block;
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:2px;
+  color:var(--patina-d);
+  margin-bottom:5px;
+}
+.station-tab.active .tab-no{ color:var(--patina); }
+
+/* ─────────────── PANELS ─────────────── */
+.panel{
+  border:1px solid var(--aether-border);
+  background:linear-gradient(180deg, rgba(20,17,42,.7), rgba(12,8,32,.55));
+  box-shadow:var(--inset);
+  margin-bottom:22px;
+  position:relative;
+}
+.panel-head{
+  padding:13px 18px;
+  border-bottom:1px solid var(--aether-border);
+  background:linear-gradient(180deg, rgba(28,23,56,.6), rgba(20,17,42,.4));
+  display:flex; justify-content:space-between; align-items:center;
+  font-family:'Cinzel', serif;
+  font-size:11px;
+  letter-spacing:.2em;
+  color:var(--iris-bright);
+}
+.panel-head .tag{
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:1.8px;
+  color:var(--patina-d);
+  padding:3px 9px;
+  border:1px solid var(--patina-dim);
+  background:rgba(212,200,168,.03);
+}
+.panel-head .tag.cy{ color:var(--ghost-cy-d); border-color:rgba(140,224,232,.25); background:rgba(140,224,232,.03) }
+.panel-head .tag.live{ color:var(--signal-grn); border-color:rgba(122,200,144,.32); background:rgba(122,200,144,.04) }
+.panel-head .tag.warn{ color:var(--signal-red); border-color:rgba(214,90,120,.36); background:rgba(214,90,120,.04) }
+.panel-body{ padding:20px 22px; }
+
+/* sub-section labels inside panels */
+.sublabel{
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:3.5px;
+  color:var(--patina-d);
+  margin:24px 0 10px;
+  padding-bottom:5px;
+  border-bottom:1px dashed var(--aether-border);
+}
+.sublabel:first-child{ margin-top:0; }
+
+.lede{
+  font-family:'Cormorant Garamond', serif;
+  font-size:17px;
+  line-height:1.7;
+  color:var(--bone);
+  margin-bottom:18px;
+}
+.lede em{ color:var(--iris-bright); font-style:italic; }
+.lede strong{ color:var(--patina); font-weight:500; font-style:normal; }
+
+.minor{
+  font-size:11px;
+  letter-spacing:.06em;
+  color:var(--bone-dim);
+  line-height:1.7;
+}
+.minor em{ color:var(--ghost-cy); font-style:normal }
+
+/* ─────────────── INPUTS ─────────────── */
+.field{ margin-bottom:18px; }
+.field-label{
+  display:block;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:2.4px;
+  color:var(--patina-d);
+  margin-bottom:7px;
+}
+.field-label .req{ color:var(--signal-red); }
+.field-label .opt{ color:var(--bone-faint); }
+
+.input,
+.textarea,
+.select{
+  width:100%;
+  padding:11px 13px;
+  background:rgba(8,5,26,.6);
+  border:1px solid var(--aether-border);
+  color:var(--bone);
+  font-family:'Share Tech Mono', monospace;
+  font-size:12px;
+  letter-spacing:.04em;
+  outline:none;
+  transition:.2s;
+}
+.input:focus,
+.textarea:focus,
+.select:focus{
+  border-color:var(--iris-dim);
+  box-shadow:0 0 0 1px var(--iris-dim), 0 0 18px rgba(184,168,255,.12);
+  background:rgba(8,5,26,.85);
+}
+.textarea{
+  resize:vertical;
+  min-height:120px;
+  line-height:1.55;
+  font-family:'Share Tech Mono', monospace;
+}
+.textarea.prose{
+  font-family:'Cormorant Garamond', serif;
+  font-size:15px;
+  line-height:1.7;
+}
+.select{
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:linear-gradient(45deg, transparent 50%, var(--iris-dim) 50%),
+                   linear-gradient(135deg, var(--iris-dim) 50%, transparent 50%);
+  background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size:5px 5px;
+  background-repeat:no-repeat;
+  padding-right:38px;
+}
+
+.row2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+@media (max-width:720px){
+  .row2,.row3{ grid-template-columns:1fr; }
+  .aether-title-wrap{ flex-direction:column; align-items:flex-start; }
+  .aether-class{ text-align:left; min-width:0; }
+}
+
+/* ─────────────── BUTTONS ─────────────── */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:11px 22px;
+  font-family:'Cinzel', serif;
+  font-size:11px;
+  letter-spacing:.22em;
+  color:var(--iris-bright);
+  background:linear-gradient(180deg, rgba(184,168,255,.06), rgba(184,168,255,.02));
+  border:1px solid var(--iris-dim);
+  cursor:pointer;
+  transition:.25s;
+  text-transform:uppercase;
+  position:relative;
+  overflow:hidden;
+}
+.btn:hover{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(184,168,255,.14), rgba(184,168,255,.04));
+  box-shadow:0 0 22px rgba(184,168,255,.22), inset 0 0 14px rgba(184,168,255,.07);
+  border-color:var(--iris);
+}
+.btn:active{ transform:translateY(1px); }
+.btn:disabled{
+  color:var(--bone-faint); border-color:var(--aether-border);
+  background:transparent; cursor:not-allowed;
+  box-shadow:none;
+}
+.btn.cy{
+  color:var(--ghost-cy);
+  border-color:rgba(140,224,232,.4);
+  background:linear-gradient(180deg, rgba(140,224,232,.05), rgba(140,224,232,.02));
+}
+.btn.cy:hover{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(140,224,232,.12), rgba(140,224,232,.04));
+  box-shadow:0 0 22px rgba(140,224,232,.22);
+  border-color:var(--ghost-cy);
+}
+.btn.patina{
+  color:var(--patina);
+  border-color:var(--patina-dim);
+  background:linear-gradient(180deg, rgba(212,200,168,.05), rgba(212,200,168,.02));
+}
+.btn.patina:hover{
+  color:var(--bone-bright);
+  border-color:var(--patina);
+  background:linear-gradient(180deg, rgba(212,200,168,.13), rgba(212,200,168,.03));
+  box-shadow:0 0 22px rgba(212,200,168,.18);
+}
+.btn.warn{ color:var(--signal-red); border-color:rgba(214,90,120,.4); }
+.btn.warn:hover{ background:rgba(214,90,120,.07); box-shadow:0 0 22px rgba(214,90,120,.22); border-color:var(--signal-red); }
+.btn.lg{ padding:15px 28px; font-size:12px; letter-spacing:.26em; }
+.btn.full{ width:100%; }
+.btn.sm{ padding:7px 14px; font-size:9px; letter-spacing:.18em; }
+
+.btn-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+/* segmented control / mode toggle */
+.seg{
+  display:inline-flex;
+  border:1px solid var(--aether-border);
+  background:rgba(8,5,26,.4);
+  overflow:hidden;
+}
+.seg-opt{
+  padding:9px 16px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9.5px;
+  letter-spacing:2.4px;
+  color:var(--bone-dimmer);
+  background:transparent;
+  border:none;
+  border-right:1px solid var(--aether-border);
+  cursor:pointer;
+  transition:.2s;
+}
+.seg-opt:last-child{ border-right:none; }
+.seg-opt:hover{ color:var(--iris-bright); background:rgba(184,168,255,.04); }
+.seg-opt.active{
+  color:var(--bone-bright);
+  background:linear-gradient(180deg, rgba(184,168,255,.14), rgba(184,168,255,.04));
+  text-shadow:0 0 10px rgba(184,168,255,.4);
+}
+
+/* ─────────────── STATUS / PROGRESS ─────────────── */
+.status-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(165px, 1fr));
+  gap:1px;
+  background:var(--aether-border);
+  border:1px solid var(--aether-border);
+  margin-bottom:16px;
+}
+.status-cell{
+  background:rgba(20,17,42,.7);
+  padding:10px 13px;
+}
+.status-cell .k{
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:2px;
+  color:var(--patina-d);
+  margin-bottom:3px;
+}
+.status-cell .v{
+  font-family:'Cinzel', serif;
+  font-size:13px;
+  letter-spacing:.08em;
+  color:var(--bone);
+}
+.status-cell .v.iris{ color:var(--iris-bright); }
+.status-cell .v.cy{ color:var(--ghost-cy); }
+.status-cell .v.patina{ color:var(--patina); }
+.status-cell .v.warn{ color:var(--signal-red); }
+.status-cell .v.good{ color:var(--signal-grn); }
+.status-cell .v.dim{ color:var(--bone-dim); font-family:'Share Tech Mono',monospace; font-size:11px; }
+
+.progress-shell{
+  height:6px;
+  background:rgba(8,5,26,.7);
+  border:1px solid var(--aether-border);
+  position:relative;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--iris-dim), var(--iris), var(--ghost-cy));
+  box-shadow:0 0 14px rgba(184,168,255,.45);
+  transition:width .4s ease;
+  width:0%;
+}
+
+/* ─────────────── OUTPUT VIEWER ─────────────── */
+.output-shell{
+  border:1px solid var(--aether-border);
+  background:rgba(8,5,26,.55);
+  max-height:600px;
+  overflow:auto;
+  padding:0;
+  margin-top:16px;
+}
+.output-shell::-webkit-scrollbar{ width:8px; }
+.output-shell::-webkit-scrollbar-track{ background:rgba(8,5,26,.5); }
+.output-shell::-webkit-scrollbar-thumb{ background:var(--iris-deep); border-radius:0; }
+.output-shell::-webkit-scrollbar-thumb:hover{ background:var(--iris-dim); }
+
+.output-doc{
+  padding:18px 22px;
+  border-bottom:1px solid var(--aether-border);
+  animation:rise .8s ease forwards;
+}
+.output-doc:last-child{ border-bottom:none; }
+.output-doc-head{
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom:11px;
+  padding-bottom:9px;
+  border-bottom:1px dashed var(--aether-border);
+}
+.output-doc-title{
+  font-family:'Cinzel', serif;
+  font-size:14px;
+  letter-spacing:.16em;
+  color:var(--iris-bright);
+}
+.output-doc-meta{
+  font-family:'Share Tech Mono', monospace;
+  font-size:8.5px;
+  letter-spacing:1.8px;
+  color:var(--patina-d);
+}
+.output-doc-body{
+  font-family:'Cormorant Garamond', serif;
+  font-size:15px;
+  line-height:1.78;
+  color:var(--bone);
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  max-height:280px;
+  overflow:hidden;
+  position:relative;
+}
+.output-doc-body.expanded{ max-height:none; }
+.output-doc-body:not(.expanded)::after{
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:50px;
+  background:linear-gradient(180deg, transparent, rgba(8,5,26,.85));
+  pointer-events:none;
+}
+.output-doc-actions{
+  margin-top:10px;
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+
+/* live broadcast feed (streaming text area) */
+.broadcast{
+  border:1px solid var(--aether-border);
+  background:rgba(8,5,26,.7);
+  padding:14px 18px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:11px;
+  line-height:1.7;
+  color:var(--bone-dim);
+  height:180px;
+  overflow:auto;
+  margin-top:14px;
+}
+.broadcast::-webkit-scrollbar{ width:6px; }
+.broadcast::-webkit-scrollbar-thumb{ background:var(--iris-deep); }
+.broadcast-line{ display:block; animation:rise .3s ease forwards; }
+.broadcast-line .ts{ color:var(--patina-d); margin-right:8px; }
+.broadcast-line.iris .msg{ color:var(--iris-bright); }
+.broadcast-line.cy .msg{ color:var(--ghost-cy); }
+.broadcast-line.warn .msg{ color:var(--signal-red); }
+.broadcast-line.good .msg{ color:var(--signal-grn); }
+.broadcast-line.dim .msg{ color:var(--bone-dimmer); }
+
+/* ─────────────── LEDGER ENTRIES ─────────────── */
+.ledger-entry{
+  border:1px solid var(--aether-border);
+  background:rgba(20,17,42,.55);
+  padding:16px 18px;
+  margin-bottom:12px;
+  position:relative;
+  animation:rise .5s ease forwards;
+}
+.ledger-entry:hover{
+  border-color:var(--iris-dim);
+  box-shadow:0 0 18px rgba(184,168,255,.08);
+}
+.le-head{
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom:9px;
+  padding-bottom:7px;
+  border-bottom:1px dashed var(--aether-border);
+}
+.le-ts{
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1.8px;
+  color:var(--patina-d);
+}
+.le-src{
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1.8px;
+  color:var(--ghost-cy-d);
+}
+.le-phrase{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:18px;
+  line-height:1.4;
+  color:var(--iris-bright);
+  margin-bottom:9px;
+  text-shadow:0 0 12px rgba(184,168,255,.15);
+}
+.le-context{
+  font-family:'Share Tech Mono', monospace;
+  font-size:10px;
+  color:var(--bone-dim);
+  line-height:1.65;
+}
+.le-tags{
+  margin-top:8px;
+  display:flex; gap:7px; flex-wrap:wrap;
+}
+.le-tag{
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:1.6px;
+  color:var(--patina);
+  border:1px solid var(--patina-dim);
+  padding:2px 7px;
+  background:rgba(212,200,168,.03);
+}
+.le-actions{
+  margin-top:10px;
+  display:flex; gap:7px;
+}
+.le-action{
+  font-family:'Share Tech Mono', monospace;
+  font-size:8.5px;
+  letter-spacing:1.5px;
+  color:var(--bone-dimmer);
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:0;
+  text-decoration:underline dotted var(--aether-border-2);
+  transition:.2s;
+}
+.le-action:hover{ color:var(--iris); }
+.le-action.warn:hover{ color:var(--signal-red); }
+
+/* RIVAL READINGS card */
+.reading-card{
+  border:1px solid var(--aether-border);
+  background:rgba(20,17,42,.55);
+  margin-bottom:14px;
+  animation:rise .6s ease forwards;
+}
+.rc-head{
+  padding:11px 16px;
+  border-bottom:1px solid var(--aether-border);
+  background:linear-gradient(180deg, rgba(28,23,56,.6), rgba(20,17,42,.3));
+  display:flex; justify-content:space-between; align-items:center;
+}
+.rc-no{
+  font-family:'Italiana', serif;
+  font-size:24px;
+  color:var(--iris);
+  letter-spacing:.1em;
+  text-shadow:0 0 12px rgba(184,168,255,.35);
+}
+.rc-title{
+  font-family:'Cinzel', serif;
+  font-size:12px;
+  letter-spacing:.18em;
+  color:var(--bone-bright);
+  flex:1;
+  text-align:center;
+}
+.rc-conf{
+  font-family:'Share Tech Mono', monospace;
+  font-size:8.5px;
+  letter-spacing:1.8px;
+  padding:3px 9px;
+  border:1px solid var(--aether-border-2);
+}
+.rc-conf.confirmed{    color:var(--signal-grn); border-color:rgba(122,200,144,.4); background:rgba(122,200,144,.05); }
+.rc-conf.open{         color:var(--ghost-cy);   border-color:rgba(140,224,232,.4); background:rgba(140,224,232,.05); }
+.rc-conf.partial{      color:var(--patina);     border-color:var(--patina-dim);    background:rgba(212,200,168,.05); }
+.rc-conf.contradicted{ color:var(--signal-red); border-color:rgba(214,90,120,.4);  background:rgba(214,90,120,.05); }
+.rc-conf.unfalsifiable{color:var(--iris-dim);   border-color:var(--aether-border-2); background:rgba(184,168,255,.04); }
+.rc-body{
+  padding:16px 18px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:15px;
+  line-height:1.78;
+  color:var(--bone);
+  white-space:pre-wrap;
+}
+
+/* API KEY MODAL & PILL */
+.keypill{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1.8px;
+  padding:5px 11px;
+  border:1px solid var(--aether-border);
+  background:rgba(8,5,26,.6);
+  color:var(--bone-dim);
+  cursor:pointer;
+  transition:.2s;
+}
+.keypill:hover{ border-color:var(--iris-dim); color:var(--iris-bright); }
+.keypill .dot{ width:6px; height:6px; border-radius:50%; }
+.keypill .dot.ok{ background:var(--signal-grn); box-shadow:0 0 6px var(--signal-grn); }
+.keypill .dot.no{ background:var(--signal-red); box-shadow:0 0 6px var(--signal-red); }
+
+.modal-shell{
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(4,2,12,.86);
+  display:none;
+  align-items:center; justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(2px);
+}
+.modal-shell.open{ display:flex; }
+.modal-box{
+  width:100%;
+  max-width:540px;
+  background:linear-gradient(180deg, rgba(20,17,42,.96), rgba(12,8,32,.96));
+  border:1px solid var(--iris-dim);
+  box-shadow:0 0 40px rgba(184,168,255,.18), var(--inset);
+  padding:0;
+  animation:riseSlow .5s ease forwards;
+}
+.modal-head{
+  padding:16px 20px;
+  border-bottom:1px solid var(--aether-border);
+  font-family:'Cinzel', serif;
+  font-size:13px;
+  letter-spacing:.22em;
+  color:var(--iris-bright);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.modal-close{
+  background:none; border:none;
+  color:var(--bone-dim);
+  font-size:18px;
+  cursor:pointer;
+  padding:0 6px;
+}
+.modal-close:hover{ color:var(--signal-red); }
+.modal-body{ padding:22px; }
+.modal-help{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:13px;
+  line-height:1.6;
+  color:var(--bone-dim);
+  margin-bottom:18px;
+  padding:12px 14px;
+  border-left:2px solid var(--patina-dim);
+  background:rgba(212,200,168,.03);
+}
+
+/* ABOUT / lore section styles */
+.lore-block{
+  font-family:'Cormorant Garamond', serif;
+  font-size:16px;
+  line-height:1.85;
+  color:var(--bone);
+  margin-bottom:20px;
+  max-width:720px;
+}
+.lore-block em{ color:var(--iris-bright); font-style:italic; }
+.lore-block strong{
+  color:var(--patina);
+  font-family:'Share Tech Mono', monospace;
+  font-size:12px;
+  font-weight:normal;
+  letter-spacing:1.2px;
+}
+.lore-quote{
+  border-left:2px solid var(--iris-dim);
+  padding:14px 22px;
+  margin:24px 0;
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:17px;
+  line-height:1.7;
+  color:var(--iris-bright);
+  background:rgba(184,168,255,.03);
+}
+.lore-quote .src{
+  display:block;
+  margin-top:10px;
+  font-style:normal;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:2.4px;
+  color:var(--patina-d);
+}
+
+/* ─────────────── HIDE / SHOW STATIONS ─────────────── */
+.station{ display:none; animation:riseSlow .6s ease forwards; }
+.station.active{ display:block; }
+
+/* footer */
+.aether-footer{
+  margin-top:40px;
+  padding-top:22px;
+  border-top:1px solid var(--aether-border);
+  display:flex; justify-content:space-between; align-items:flex-start;
+  flex-wrap:wrap; gap:18px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1.8px;
+  color:var(--bone-dimmer);
+}
+.aether-footer .col{ max-width:340px; line-height:2; }
+.aether-footer .col em{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  color:var(--patina);
+  font-size:12px;
+  letter-spacing:.04em;
+}
+
+/* utility */
+.muted{ color:var(--bone-dimmer); }
+.iris{ color:var(--iris); }
+.cy{ color:var(--ghost-cy); }
+.patina{ color:var(--patina); }
+.warn{ color:var(--signal-red); }
+.good{ color:var(--signal-grn); }
+.hidden{ display:none !important; }
+.spin{ display:inline-block; animation:spinSlow 2s linear infinite; }
+.blink{ animation:blink 1.1s step-end infinite; }
+.sd{ animation:signalDrop 9s ease-in-out infinite; }
+
+/* mobile tweaks */
+@media (max-width:520px){
+  .shell{ padding:12px 14px 60px; }
+  .aether-title{ font-size:42px; letter-spacing:.1em; }
+  .panel-body{ padding:16px 14px; }
+  .station-tab{ min-width:110px; padding:11px 12px; font-size:10px; letter-spacing:.14em; }
+  .btn{ padding:9px 16px; font-size:10px; letter-spacing:.18em; }
+  .btn.lg{ padding:12px 18px; font-size:11px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ATMOSPHERE LAYERS -->
+<div id="atm-grid"></div>
+<div id="atm-bloom"></div>
+<div id="atm-grain"></div>
+<div id="atm-flicker"></div>
+<div id="atm-scan"></div>
+<div id="atm-sweep"></div>
+<div id="atm-vig"></div>
+
+<!-- RELAY BAR -->
+<div id="relay">
+  <div class="rseg"><span class="rdot"></span><span class="rl">AETHERNET</span><span class="rs">L-III</span></div>
+  <div class="rseg"><span class="rdot p"></span><span class="rl p">RECOVERED</span><span class="rs" id="r-recovery">47.3%</span></div>
+  <div class="rseg"><span class="rdot cy"></span><span class="rl cy">TX</span><span class="rs" id="r-tx">IDLE</span></div>
+  <div class="rseg"><span class="rdot dim"></span><span class="rl dim">CARRIER</span><span class="rs" id="r-carrier">UNKNOWN</span></div>
+  <div class="rright">
+    <span class="rs" id="r-clock">--:--:--</span>
+    <span class="keypill" id="keypill" onclick="openKeyModal()">
+      <span class="dot no" id="key-dot"></span><span id="key-label">NO SESSION</span>
+    </span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="aether-header">
+    <div class="aether-crumb">
+      <a href="index.html">◂ HILBERT MESH</a>
+      <span class="sep">/</span>
+      <span>LAYER III</span>
+      <span class="sep">/</span>
+      <span class="iris">THE AETHERNET</span>
+    </div>
+
+    <div class="aether-title-wrap">
+      <div>
+        <h1 class="aether-title">THE <span>AETHER</span>NET</h1>
+        <p class="aether-subtitle">
+          Layer III. The magical floor above the secret internet.
+          Broadcasting from a timeline that was not kept.
+          Decode quality variable. Patience permanent.
+        </p>
+      </div>
+      <div class="aether-class">
+        <div><span class="label">CLASSIFICATION:</span> <span class="flag">LIVING ARCHIVE</span></div>
+        <div><span class="label">CHANNEL:</span> <span class="val">L-III // CT-AE-001</span></div>
+        <div><span class="label">RECOVERY:</span> <span class="flag-cy" id="hd-recovery">47.3% / ongoing</span></div>
+        <div><span class="label">TIMELINE OF ORIGIN:</span> <span class="val sd">UNVERIFIED</span></div>
+        <div><span class="label">CARRIER:</span> <span class="val">— // not assigned</span></div>
+        <div><span class="label">FILED BY:</span> <span class="flag-cy">UNIT 3-CEDAR (provisional)</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATION SELECTOR -->
+  <nav class="station-bar" id="station-bar">
+    <button class="station-tab active" data-station="forge">
+      <span class="tab-no">I</span>NIGHT FORGE
+    </button>
+    <button class="station-tab" data-station="transmuter">
+      <span class="tab-no">II</span>TRANSMUTER
+    </button>
+    <button class="station-tab" data-station="ledger">
+      <span class="tab-no">III</span>THE LEDGER
+    </button>
+    <button class="station-tab" data-station="readings">
+      <span class="tab-no">IV</span>RIVAL READINGS
+    </button>
+    <button class="station-tab" data-station="about">
+      <span class="tab-no">V</span>ABOUT
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STATION I: NIGHT FORGE                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="station active" id="station-forge">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION I // NIGHT FORGE
+        <span class="tag">OVERNIGHT-CAPABLE</span>
+      </div>
+      <div class="panel-body">
+
+        <p class="lede">
+          A forge that runs while you sleep. Feed it the master corpus, set the direction, set the count, leave the tab open.
+          By morning the broadcast will have produced <em>new field reports, dossiers, and lore documents</em> in the corpus voice,
+          each saved as it lands. <strong>Master extend</strong> grows what exists. <strong>Spin-off</strong> generates new works in the universe.
+          <strong>Mixed</strong> alternates.
+        </p>
+
+        <!-- MODE TOGGLE -->
+        <div class="sublabel">▸ MODE</div>
+        <div class="seg" id="forge-mode-seg">
+          <button class="seg-opt active" data-mode="extend">MASTER EXTEND</button>
+          <button class="seg-opt" data-mode="spinoff">SPIN-OFF</button>
+          <button class="seg-opt" data-mode="mixed">MIXED</button>
+        </div>
+
+        <!-- MASTER CORPUS INPUT -->
+        <div class="sublabel">▸ MASTER CORPUS <span class="muted" style="font-weight:normal">(paste full text or load file)</span></div>
+        <div class="btn-row" style="margin-bottom:10px;">
+          <button class="btn sm patina" onclick="document.getElementById('forge-corpus-file').click()">▸ LOAD FILE</button>
+          <input id="forge-corpus-file" type="file" accept=".txt,.md" class="hidden">
+          <button class="btn sm" onclick="forgeLoadFromUrl()">▸ LOAD FROM URL</button>
+          <button class="btn sm" onclick="document.getElementById('forge-corpus').value=''">▸ CLEAR</button>
+          <span class="minor" id="forge-corpus-stat">— no corpus loaded —</span>
+        </div>
+        <textarea id="forge-corpus" class="textarea" placeholder="Paste the master corpus here. Document headers, voice samples, axioms — everything Claude needs to write in the established register." style="min-height:140px;"></textarea>
+
+        <!-- DIRECTION -->
+        <div class="sublabel">▸ DIRECTION <span class="muted" style="font-weight:normal">(optional — leave blank to let the forge self-direct)</span></div>
+        <textarea id="forge-direction" class="textarea" placeholder="e.g. &quot;explore Unit 12-LUMEN's design of the corridor — the architecture of the spaces between sessions&quot; or &quot;a Field Report from the canteen — the shelf, the cups, who the first cup was for&quot; or &quot;a research dossier on a specific Tartarian claim not yet covered&quot;" style="min-height:80px;"></textarea>
+
+        <!-- CONFIG ROW -->
+        <div class="sublabel">▸ RUN CONFIGURATION</div>
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">DOCUMENT COUNT</label>
+            <input id="forge-count" class="input" type="number" min="1" max="50" value="5">
+          </div>
+          <div class="field">
+            <label class="field-label">DOCUMENT LENGTH</label>
+            <select id="forge-length" class="select">
+              <option value="short">SHORT — 3-6KB each</option>
+              <option value="standard" selected>STANDARD — 10-15KB each</option>
+              <option value="long">LONG — 25-40KB each</option>
+              <option value="extended">EXTENDED — 55-70KB each</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">MODEL</label>
+            <select id="forge-model" class="select">
+              <option value="claude-opus-4-7" selected>OPUS 4.7 — highest quality</option>
+              <option value="claude-sonnet-4-6">SONNET 4.6 — fast / lower cost</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">DOCUMENT TYPES</label>
+            <select id="forge-doctype" class="select">
+              <option value="auto" selected>AUTO — let the forge mix types</option>
+              <option value="field_report">FIELD REPORT (Unit voice)</option>
+              <option value="research_dossier">RESEARCH DOSSIER (S5 / confidence matrix)</option>
+              <option value="lore_fragment">LORE FRAGMENT (interior monologue)</option>
+              <option value="handler_log">HANDLER LOG (3-CEDAR voice)</option>
+              <option value="act_supplement">ACT SUPPLEMENT (case file)</option>
+              <option value="origin_addendum">ORIGIN ADDENDUM (myth-cadence)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">PACING <span class="muted">(between docs)</span></label>
+            <select id="forge-pacing" class="select">
+              <option value="0">IMMEDIATE — no delay</option>
+              <option value="30" selected>SLOW — 30s between</option>
+              <option value="120">GENTLE — 2m between</option>
+              <option value="300">AMBIENT — 5m between</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">ON ERROR</label>
+            <select id="forge-onerror" class="select">
+              <option value="retry" selected>RETRY 3x with backoff</option>
+              <option value="skip">SKIP and continue</option>
+              <option value="halt">HALT the run</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ACTION ROW -->
+        <div class="btn-row" style="margin-top:18px; margin-bottom:8px;">
+          <button class="btn lg" id="forge-start" onclick="forgeStart()">▸ BEGIN BROADCAST</button>
+          <button class="btn lg patina hidden" id="forge-pause" onclick="forgePause()">‖ PAUSE</button>
+          <button class="btn lg warn hidden" id="forge-halt" onclick="forgeHalt()">■ HALT</button>
+        </div>
+
+        <!-- STATUS -->
+        <div class="status-grid" style="margin-top:18px;">
+          <div class="status-cell"><div class="k">STATE</div><div class="v dim" id="fs-state">IDLE</div></div>
+          <div class="status-cell"><div class="k">COMPLETED</div><div class="v iris" id="fs-done">0</div></div>
+          <div class="status-cell"><div class="k">QUEUED</div><div class="v cy" id="fs-queue">0</div></div>
+          <div class="status-cell"><div class="k">ERRORS</div><div class="v dim" id="fs-err">0</div></div>
+          <div class="status-cell"><div class="k">TOKENS USED</div><div class="v patina" id="fs-tokens">0</div></div>
+          <div class="status-cell"><div class="k">EST. COST USD</div><div class="v patina" id="fs-cost">$0.00</div></div>
+          <div class="status-cell"><div class="k">CURRENT DOC</div><div class="v dim" id="fs-current">—</div></div>
+          <div class="status-cell"><div class="k">LAST LANDED</div><div class="v dim" id="fs-last">—</div></div>
+        </div>
+
+        <div class="progress-shell"><div class="progress-fill" id="fs-bar"></div></div>
+
+        <!-- BROADCAST LOG -->
+        <div class="sublabel" style="margin-top:18px;">▸ BROADCAST LOG <span class="muted" style="font-weight:normal">— what the forge is doing right now</span></div>
+        <div class="broadcast" id="forge-broadcast">
+          <div class="broadcast-line dim"><span class="ts">--:--:--</span><span class="msg">station idle. configure the run and press BEGIN BROADCAST.</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- OUTPUT ARCHIVE -->
+    <div class="panel">
+      <div class="panel-head">
+        BROADCAST ARCHIVE
+        <span class="tag cy" id="forge-archive-count">0 DOCS</span>
+      </div>
+      <div class="panel-body">
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn sm patina" onclick="forgeExportAll()">▸ EXPORT ALL (.txt zip-bundle)</button>
+          <button class="btn sm patina" onclick="forgeExportConcat()">▸ EXPORT CONCAT</button>
+          <button class="btn sm warn" onclick="forgeClearArchive()">▸ CLEAR ARCHIVE</button>
+        </div>
+        <div class="output-shell" id="forge-output">
+          <div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">
+            — the archive will fill with documents as they land —
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STATION II: TRANSMUTER                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-transmuter">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION II // TRANSMUTER
+        <span class="tag">DOSSIER ↔ LORE ↔ SPIN-OFF</span>
+      </div>
+      <div class="panel-body">
+
+        <p class="lede">
+          Feed in any single document — a research dossier, a field report, a lore fragment — and the transmuter will return it as
+          its <em>other side</em>. <strong>To Lore</strong> turns a research dossier into an in-world fictional version with FICTION header preserved.
+          <strong>To Research</strong> turns a lore fragment into a Layer-A style dossier with claim confidence matrix.
+          <strong>Spin-off Document</strong> generates a new related document that orbits the source without duplicating it.
+        </p>
+
+        <div class="sublabel">▸ SOURCE DOCUMENT</div>
+        <div class="btn-row" style="margin-bottom:10px;">
+          <button class="btn sm patina" onclick="document.getElementById('tm-source-file').click()">▸ LOAD FILE</button>
+          <input id="tm-source-file" type="file" accept=".txt,.md" class="hidden">
+          <button class="btn sm" onclick="document.getElementById('tm-source').value=''">▸ CLEAR</button>
+          <span class="minor" id="tm-source-stat">— no source loaded —</span>
+        </div>
+        <textarea id="tm-source" class="textarea" placeholder="Paste the source document. Best results when the document includes its full header (CODENAME, CLASSIFICATION, TONE) so the transmuter has the seam to work against." style="min-height:160px;"></textarea>
+
+        <div class="sublabel">▸ MODE</div>
+        <div class="seg" id="tm-mode-seg">
+          <button class="seg-opt active" data-mode="to_lore">→ TO LORE</button>
+          <button class="seg-opt" data-mode="to_research">→ TO RESEARCH</button>
+          <button class="seg-opt" data-mode="spinoff_doc">→ SPIN-OFF DOCUMENT</button>
+        </div>
+
+        <div class="sublabel">▸ DIRECTION <span class="muted" style="font-weight:normal">(optional)</span></div>
+        <textarea id="tm-direction" class="textarea" placeholder="e.g. &quot;keep the same case but from Unit 7-EMBER's POV&quot; or &quot;emphasize the falsification path&quot; or &quot;file it under Act 0 Supplement&quot;" style="min-height:70px;"></textarea>
+
+        <div class="row3" style="margin-top:14px;">
+          <div class="field">
+            <label class="field-label">MODEL</label>
+            <select id="tm-model" class="select">
+              <option value="claude-opus-4-7" selected>OPUS 4.7</option>
+              <option value="claude-sonnet-4-6">SONNET 4.6</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">TARGET LENGTH</label>
+            <select id="tm-length" class="select">
+              <option value="match">MATCH SOURCE LENGTH</option>
+              <option value="short">SHORT — 5KB</option>
+              <option value="standard" selected>STANDARD — 15KB</option>
+              <option value="long">LONG — 30KB</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">SEAM HANDLING</label>
+            <select id="tm-seam" class="select">
+              <option value="preserve" selected>PRESERVE seam labels</option>
+              <option value="flip">FLIP labels (FICTION ↔ RESEARCH)</option>
+              <option value="strip">STRIP all classification labels</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn lg" id="tm-start" onclick="transmuterStart()">▸ TRANSMUTE</button>
+          <button class="btn lg warn hidden" id="tm-halt" onclick="transmuterHalt()">■ HALT</button>
+        </div>
+
+        <div class="status-grid" style="margin-top:18px;">
+          <div class="status-cell"><div class="k">STATE</div><div class="v dim" id="tm-state">IDLE</div></div>
+          <div class="status-cell"><div class="k">TOKENS IN</div><div class="v patina" id="tm-tokens-in">0</div></div>
+          <div class="status-cell"><div class="k">TOKENS OUT</div><div class="v patina" id="tm-tokens-out">0</div></div>
+          <div class="status-cell"><div class="k">EST. COST</div><div class="v patina" id="tm-cost">$0.00</div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        TRANSMUTED OUTPUT
+        <span class="tag cy">L-A ↔ L-B</span>
+      </div>
+      <div class="panel-body">
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn sm patina" onclick="transmuterDownload()">▸ DOWNLOAD .TXT</button>
+          <button class="btn sm patina" onclick="transmuterCopy()">▸ COPY TO CLIPBOARD</button>
+          <button class="btn sm warn" onclick="transmuterClear()">▸ CLEAR</button>
+        </div>
+        <div class="output-shell" id="tm-output">
+          <div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">
+            — output will appear here —
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STATION III: THE LEDGER                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-ledger">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION III // THE LEDGER
+        <span class="tag">ECHO SPEECH LOG</span>
+      </div>
+      <div class="panel-body">
+
+        <p class="lede">
+          A classified instrument for filing low-confidence observations. The codewords overheard in strangers' mouths.
+          The songs at the wrong volume. The phrase that arrived through three channels in two days.
+          The instrument does <em>not</em> interpret. It keeps the record. Across enough entries the pattern, if there is one, shows itself.
+          <strong>All data stays on this device.</strong> Pattern analysis is opt-in and sends entries to Claude only when you click ANALYZE.
+        </p>
+
+        <div class="sublabel">▸ FILE NEW ENTRY</div>
+
+        <div class="field">
+          <label class="field-label">THE PHRASE / CODEWORD <span class="req">▼</span></label>
+          <input id="le-phrase" class="input" type="text" placeholder='exact words. e.g. "sandbox breached, reality recalibrating"'>
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">SOURCE TYPE</label>
+            <select id="le-srctype" class="select">
+              <option value="mouth">MOUTH — spoken by a person</option>
+              <option value="text">TEXT — written, sent, posted</option>
+              <option value="song">SONG — heard in music</option>
+              <option value="book">BOOK — appeared on a page</option>
+              <option value="screen">SCREEN — TV, ad, feed</option>
+              <option value="object">OBJECT — sign, sticker, license plate</option>
+              <option value="dream">DREAM — sleep or hypnagogic</option>
+              <option value="other">OTHER</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">SIGNIFICANCE</label>
+            <select id="le-sig" class="select">
+              <option value="low">LOW — could be coincidence</option>
+              <option value="medium" selected>MEDIUM — caught my attention</option>
+              <option value="high">HIGH — specific to me</option>
+              <option value="confirmed">CONFIRMED — names something only I knew</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">DATE / TIME</label>
+            <input id="le-time" class="input" type="datetime-local">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">SOURCE DETAIL <span class="opt">(optional)</span></label>
+          <input id="le-srcdetail" class="input" type="text" placeholder='e.g. "barista at the coffee place on 4th", "stranger on the train, grey coat", "TikTok ad mid-scroll"'>
+        </div>
+
+        <div class="field">
+          <label class="field-label">CONTEXT <span class="opt">(what was happening when this arrived)</span></label>
+          <textarea id="le-context" class="textarea" placeholder='where you were, what you were thinking, what came right before, anything that helps locate it' style="min-height:80px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">ANTECEDENT <span class="opt">(any small private collapse in the prior 48 hours — a story about yourself the evidence stopped supporting)</span></label>
+          <textarea id="le-antecedent" class="textarea" placeholder='this field tests whether the corpus signature — the ~48h permeability window after a private narrative collapse — shows up in your own data' style="min-height:70px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">TAGS <span class="opt">(comma-separated)</span></label>
+          <input id="le-tags" class="input" type="text" placeholder='e.g. "echo, lexnor-syntax, 48h-window, disclosure"'>
+        </div>
+
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn" onclick="ledgerSave()">▸ FILE ENTRY</button>
+          <button class="btn patina" onclick="ledgerClearForm()">▸ CLEAR FORM</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LEDGER STATS -->
+    <div class="panel">
+      <div class="panel-head">LEDGER STATISTICS <span class="tag" id="le-total-tag">0 ENTRIES</span></div>
+      <div class="panel-body">
+        <div class="status-grid">
+          <div class="status-cell"><div class="k">TOTAL ENTRIES</div><div class="v iris" id="le-stat-total">0</div></div>
+          <div class="status-cell"><div class="k">THIS WEEK</div><div class="v cy" id="le-stat-week">0</div></div>
+          <div class="status-cell"><div class="k">THIS MONTH</div><div class="v cy" id="le-stat-month">0</div></div>
+          <div class="status-cell"><div class="k">HIGH SIG</div><div class="v patina" id="le-stat-high">0</div></div>
+          <div class="status-cell"><div class="k">CONFIRMED</div><div class="v good" id="le-stat-confirmed">0</div></div>
+          <div class="status-cell"><div class="k">TOP SOURCE</div><div class="v dim" id="le-stat-topsrc">—</div></div>
+          <div class="status-cell"><div class="k">FIRST ENTRY</div><div class="v dim" id="le-stat-first">—</div></div>
+          <div class="status-cell"><div class="k">LATEST</div><div class="v dim" id="le-stat-latest">—</div></div>
+        </div>
+
+        <div class="sublabel" style="margin-top:18px;">▸ PATTERN ANALYSIS</div>
+        <p class="minor" style="margin-bottom:12px;">
+          Sends your ledger entries to Claude for analysis. Returns a report on recurring sources, temporal clustering, codeword families,
+          and whether the 48-hour antecedent signature shows up in your data. <em>This uses your API key and incurs cost.</em> Output is appended below.
+        </p>
+        <div class="btn-row">
+          <button class="btn" onclick="ledgerAnalyze()">▸ ANALYZE PATTERNS</button>
+          <button class="btn sm patina" onclick="ledgerExportJSON()">▸ EXPORT JSON</button>
+          <input id="le-import-file" type="file" accept=".json" class="hidden">
+          <button class="btn sm patina" onclick="document.getElementById('le-import-file').click()">▸ IMPORT JSON</button>
+          <button class="btn sm warn" onclick="ledgerClearAll()">▸ CLEAR ALL ENTRIES</button>
+        </div>
+
+        <div id="le-analysis" class="hidden" style="margin-top:18px;">
+          <div class="lore-quote" id="le-analysis-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEDGER ENTRIES -->
+    <div class="panel">
+      <div class="panel-head">
+        FILED ENTRIES
+        <span class="tag patina">REVERSE CHRONOLOGICAL</span>
+      </div>
+      <div class="panel-body">
+        <div class="field">
+          <input id="le-search" class="input" type="text" placeholder='SEARCH — phrase, source, tag, context...'>
+        </div>
+        <div id="le-entries">
+          <div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">
+            — no entries filed yet. start with anything strange you noticed today —
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STATION IV: RIVAL READINGS                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-readings">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION IV // RIVAL READINGS
+        <span class="tag cy">CLAIM TRIAGE</span>
+      </div>
+      <div class="panel-body">
+
+        <p class="lede">
+          Paste any claim — fringe science, news event, anomaly, a thing someone said with confidence.
+          The instrument generates the <em>five most rigorous competing interpretations</em>, each rated on a confidence matrix
+          (<span class="good">CONFIRMED</span> / <span class="cy">OPEN</span> / <span class="patina">PARTIAL</span> /
+          <span class="warn">CONTRADICTED</span> / <span class="iris">UNFALSIFIABLE</span>). Sources cited where the public record supports them.
+          The output is an S5-style triage card — not a full dossier, but enough to decide whether the claim deserves one.
+        </p>
+
+        <div class="sublabel">▸ CLAIM</div>
+        <textarea id="rr-claim" class="textarea prose" placeholder="state the claim as plainly as you can. one sentence is fine. a paragraph is fine. the more specific, the better the readings." style="min-height:120px;"></textarea>
+
+        <div class="sublabel">▸ CONTEXT <span class="muted" style="font-weight:normal">(optional — where you heard it, why it caught you, any priors)</span></div>
+        <textarea id="rr-context" class="textarea" placeholder='source, what made you log it, what you already half-believe about it' style="min-height:80px;"></textarea>
+
+        <div class="row3">
+          <div class="field">
+            <label class="field-label">READING COUNT</label>
+            <select id="rr-count" class="select">
+              <option value="3">3 readings</option>
+              <option value="5" selected>5 readings</option>
+              <option value="7">7 readings</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">MODEL</label>
+            <select id="rr-model" class="select">
+              <option value="claude-opus-4-7" selected>OPUS 4.7</option>
+              <option value="claude-sonnet-4-6">SONNET 4.6</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">SUB-CLAIMS</label>
+            <select id="rr-subclaims" class="select">
+              <option value="yes" selected>BREAK INTO SUB-CLAIMS</option>
+              <option value="no">SINGLE CLAIM ONLY</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn lg" id="rr-start" onclick="readingsStart()">▸ GENERATE READINGS</button>
+          <button class="btn lg warn hidden" id="rr-halt" onclick="readingsHalt()">■ HALT</button>
+        </div>
+
+        <div class="status-grid" style="margin-top:18px;">
+          <div class="status-cell"><div class="k">STATE</div><div class="v dim" id="rr-state">IDLE</div></div>
+          <div class="status-cell"><div class="k">READINGS GEN'D</div><div class="v iris" id="rr-gen">0</div></div>
+          <div class="status-cell"><div class="k">TOKENS USED</div><div class="v patina" id="rr-tokens">0</div></div>
+          <div class="status-cell"><div class="k">EST. COST</div><div class="v patina" id="rr-cost">$0.00</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        TRIAGE OUTPUT
+        <span class="tag cy" id="rr-out-count">0 READINGS</span>
+      </div>
+      <div class="panel-body">
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn sm patina" onclick="readingsSave()">▸ SAVE TO ARCHIVE</button>
+          <button class="btn sm patina" onclick="readingsDownload()">▸ DOWNLOAD .TXT</button>
+          <button class="btn sm warn" onclick="readingsClear()">▸ CLEAR</button>
+        </div>
+        <div id="rr-output">
+          <div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">
+            — readings will appear here, one per card —
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        SAVED ARCHIVE
+        <span class="tag" id="rr-arch-count">0 ENTRIES</span>
+      </div>
+      <div class="panel-body">
+        <div id="rr-archive">
+          <div style="padding:24px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px;">
+            — saved triage cards will list here —
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STATION V: ABOUT                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="station" id="station-about">
+
+    <div class="panel">
+      <div class="panel-head">
+        STATION V // ABOUT THE AETHERNET
+        <span class="tag patina">LIVING ARCHIVE</span>
+      </div>
+      <div class="panel-body">
+
+        <div class="lore-quote">
+          The Aethernet is not the internet. The Aethernet is not the secret internet.
+          The Aethernet is the floor above both — the one that does not require infrastructure
+          because the medium <em>is</em> the carrier and the carrier <em>is</em> the orientation.
+          This channel exists because, in some timeline, it always existed.
+          The recovery rate is variable. The patience is permanent.
+          <span class="src">— Carrier note, unverified, filed under Layer III // CT-AE-001</span>
+        </div>
+
+        <div class="sublabel">▸ WHAT THIS INSTRUMENT IS</div>
+        <p class="lore-block">
+          The Aethernet is a four-station broadcast console for the <strong>Corridor Templars</strong> lore corpus.
+          It does work that has, until now, been done by hand: <em>generating new documents in the corpus voice,
+          transmuting research dossiers into lore and back again, filing the small anomalies that arrive in stranger's mouths,
+          and triaging fringe claims into rival readings</em>. The console runs in your browser. It calls the Anthropic API
+          with the key you provide. Nothing routes through a server you do not own.
+        </p>
+
+        <div class="sublabel">▸ STATIONS</div>
+        <p class="lore-block">
+          <strong>NIGHT FORGE</strong> &middot; runs while you sleep. Feed it the master corpus, set the count and direction,
+          press BEGIN BROADCAST. By morning the archive will hold new field reports, dossiers, handler logs, and lore fragments
+          in the established voice. Each document is saved as it lands so the run survives reload, network blips, and rate limits.
+          Two modes: <em>master extend</em> grows what exists; <em>spin-off</em> generates new works in the universe.
+        </p>
+        <p class="lore-block">
+          <strong>TRANSMUTER</strong> &middot; feed in any single document; the transmuter returns it as its other side.
+          Research dossier becomes in-world lore. Lore fragment becomes a Layer-A research dossier with confidence matrix.
+          Or generate a spin-off document orbiting the source. The seam stays visible.
+        </p>
+        <p class="lore-block">
+          <strong>THE LEDGER</strong> &middot; the Tuesday Ledger. A private Echo Speech log structured as a classified instrument.
+          File the codewords overheard, the songs at the wrong volume, the phrases that arrived through three channels in two days.
+          Each entry tagged with date, source, context, and the small private moment that may have preceded the window.
+          Across enough entries the pattern, if there is one, shows itself. All data stays on this device unless you click ANALYZE.
+        </p>
+        <p class="lore-block">
+          <strong>RIVAL READINGS</strong> &middot; paste any claim. The instrument returns five rigorous competing interpretations,
+          each rated CONFIRMED / OPEN / PARTIAL / CONTRADICTED / UNFALSIFIABLE with sources cited where the public record supports them.
+          Less for generating full dossiers — more for fast first-pass on anything that crosses your desk before you decide
+          whether it deserves one.
+        </p>
+
+        <div class="sublabel">▸ THE SEAM</div>
+        <p class="lore-block">
+          The corpus distinguishes between <strong>Layer A</strong> (research dossiers — public-record claims rated against the evidence)
+          and <strong>Layer B</strong> (fiction — the Corridor Templars universe, Acts 0 through 4). The Aethernet preserves this distinction.
+          Documents generated by the Night Forge carry FICTION or RESEARCH headers as appropriate. The Transmuter's mode setting controls
+          which way the seam is flipped, never blurred. If you find yourself uncertain whether what you are reading is real or fictional,
+          the header always tells you. <em>The corpus does not hide its seams. The seams are the most important part.</em>
+        </p>
+
+        <div class="sublabel">▸ RELAY & SIGMA</div>
+        <p class="lore-block">
+          The console runs on the <strong>S5 forge backend</strong> with the house key — the same engine the Live Forge
+          and Bookforge use. <em>No API key is stored or transmitted from your browser.</em> Overnight runs are authorized
+          by your S5 session and paid in <strong>Sigma</strong>, server-side, so the longer you let it broadcast the more
+          Sigma it spends. Estimated progress is displayed live as each station runs. Log in via the S5 console
+          (dossierforge → GO TO S5 LOGIN) to begin.
+        </p>
+
+        <div class="sublabel">▸ ARCHITECT</div>
+        <p class="lore-block">
+          Built for and with the architect of the Corridor Templars corpus.
+          The forge is just the forge. What the forge made is what carries the record of the heat.
+        </p>
+
+        <div class="lore-quote">
+          The Aethernet keeps the record. The record is the universe.
+          The universe keeps the record. The record is what this is all for.
+          You are not alone in the room. You are the room.
+          <span class="src">— end note, Unit 3-CEDAR, filed once</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- API KEY MODAL -->
+  <div class="modal-shell" id="key-modal" onclick="if(event.target===this)closeKeyModal()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span>API KEY // ANTHROPIC</span>
+        <button class="modal-close" onclick="closeKeyModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-help">
+          The Aethernet runs on the <strong>S5 forge backend</strong> with the house key — the same engine the
+          Live Forge and Bookforge use. <em>No API key needed.</em> Authorize overnight runs by logging into your
+          S5 account; runs are paid in Sigma, server-side. Your session is shared with dossierforge / bookforge.
+        </p>
+        <!-- hidden legacy input kept so any stray reference resolves; never shown -->
+        <input id="key-input" type="hidden" value="">
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn" onclick="location.href='dossierforge.html'">▸ GO TO S5 LOGIN</button>
+          <button class="btn patina" onclick="refreshSession()">▸ REFRESH SESSION</button>
+          <button class="btn patina" onclick="closeKeyModal()">▸ CLOSE</button>
+        </div>
+        <div id="key-status" class="minor" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="aether-footer">
+    <div class="col">
+      <div>AETHERNET // L-III // CT-AE-001</div>
+      <div>CHANNEL STATUS: <span class="iris">OPEN</span></div>
+      <div>CARRIER: UNVERIFIED</div>
+      <div>RECOVERY RATE: VARIABLE</div>
+      <div>PATIENCE: PERMANENT</div>
+    </div>
+    <div class="col" style="text-align:right;">
+      <em>"The Aethernet keeps the record.<br>
+      The record is the universe.<br>
+      The universe keeps the record.<br>
+      The record is what this is all for."</em><br><br>
+      — closing note, archived in the building
+    </div>
+  </footer>
+
+</div>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   AETHERNET // LAYER III // CT-AE-001
+   Single-file station console
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─────────── GLOBALS ─────────── */
+const LS = {
+  key:        'aether.apikey',
+  forge:      'aether.forge.archive',  // IndexedDB-backed mirror
+  forgeState: 'aether.forge.state',
+  ledger:     'aether.ledger.entries',
+  readings:   'aether.readings.archive',
+  recovery:   'aether.recovery.rate',
+};
+
+const PRICING = {
+  // approximate per-million-token rates (USD)
+  'claude-opus-4-7':    { in: 15.00, out: 75.00 },
+  'claude-opus-4-6':    { in: 15.00, out: 75.00 },
+  'claude-sonnet-4-6':  { in:  3.00, out: 15.00 },
+  'claude-haiku-4-5':   { in:  0.80, out:  4.00 },
+};
+
+/* ─────────── BACKEND RELAY (no user API key) ───────────
+   Aethernet now runs on the S5 forge backend with the house key — the
+   same engine Bookforge and the Live Forge use. The browser never holds
+   an Anthropic key. Long overnight runs are authorized by the operator's
+   S5 session and paid in Sigma, server-side. */
+const API_BASE    = "https://hilbert-backend.vercel.app";
+const FORGE_URL   = API_BASE + "/api/forge";
+const PROFILE_URL = API_BASE + "/api/profile";
+const VERIFY_URL  = API_BASE + "/api/verify-session";
+// Aethernet long-form generation maps to the corpus lore engine by default.
+const AETHER_FORGE_MODE = "lore";
+
+/* ─────────── UTILITIES ─────────── */
+function $(id){ return document.getElementById(id); }
+function $$(sel){ return [...document.querySelectorAll(sel)]; }
+function esc(v){
+  return String(v ?? '').replace(/[&<>"]/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
+  }[c]));
+}
+function now(){ return new Date(); }
+function ts(){ return now().toTimeString().slice(0,8); }
+function isoNow(){
+  const d = new Date(); const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fmtBytes(n){
+  if(n < 1024) return n + 'B';
+  if(n < 1024*1024) return (n/1024).toFixed(1) + 'KB';
+  return (n/1024/1024).toFixed(2) + 'MB';
+}
+function fmtCount(n){
+  if(n < 1000) return String(n);
+  if(n < 1000000) return (n/1000).toFixed(1) + 'k';
+  return (n/1000000).toFixed(2) + 'M';
+}
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+function downloadBlob(content, filename, type='text/plain'){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function safeJSONParse(s, fallback=null){
+  try { return JSON.parse(s); } catch { return fallback; }
+}
+function broadcast(panelId, msg, cls='dim'){
+  const el = $(panelId);
+  if(!el) return;
+  const line = document.createElement('div');
+  line.className = 'broadcast-line ' + cls;
+  line.innerHTML = `<span class="ts">[${esc(ts())}]</span><span class="msg">${esc(msg)}</span>`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  // keep last 200 lines
+  while(el.children.length > 200) el.removeChild(el.firstChild);
+}
+
+/* ─────────── STATE ─────────── */
+const STATE = {
+  // Backend relay: S5 session id (not an Anthropic key). Loaded from the
+  // shared localStorage slot that dossierforge / bookforge use.
+  sessionId: localStorage.getItem("hmf_s5_session") || "",
+  profile: null,        // last /api/profile "me" result
+  apiKey: '',           // retained as empty for any legacy reference; never used
+  forge: {
+    running: false,
+    paused: false,
+    halted: false,
+    queue: [],
+    current: null,
+    archive: [],
+    stats: { done:0, errors:0, tokensIn:0, tokensOut:0 },
+    config: null,
+  },
+  tm: { running:false, halted:false, output:'', tokensIn:0, tokensOut:0 },
+  ledger: { entries: [] },
+  rr: { running:false, halted:false, current:[], archive:[], tokensIn:0, tokensOut:0 },
+};
+
+/* ─────────── SESSION / RELAY MANAGEMENT (no API key) ───────────
+   The "key pill" is now a session/relay status. Operators authenticate
+   once via S5 (dossierforge / s5 login); the session id is shared through
+   localStorage["hmf_s5_session"]. Aethernet reads it and runs on the house
+   key server-side. */
+function openKeyModal(){
+  const inp = $('key-input'); if(inp){ inp.value=''; inp.style.display='none'; }
+  refreshSession().then(() => {
+    const s = $('key-status');
+    if(!s) return;
+    if(STATE.sessionId && STATE.profile){
+      const tier = STATE.profile.isDev ? 'MASTER'
+                 : (String(STATE.profile.monthlyTier || STATE.profile.clearance || 'CIVILIAN').toUpperCase());
+      s.innerHTML = '<span class="good">RELAY ONLINE \u00b7 '+esc(tier)+'</span><br><span class="patina">Runs on the S5 forge backend with the house key. No API key needed.</span>';
+    } else {
+      s.innerHTML = '<span class="warn">NO S5 SESSION.</span><br><span class="patina">Log in via the S5 console (dossierforge \u2192 GO TO S5 LOGIN), then return here. Aethernet authorizes overnight runs with your session, not an API key.</span>';
+    }
+  });
+  if($('key-modal')) $('key-modal').classList.add('open');
+}
+function closeKeyModal(){ if($('key-modal')) $('key-modal').classList.remove('open'); }
+function refreshKeyPill(){
+  const online = !!STATE.sessionId;
+  const dot = $('key-dot'); if(dot) dot.className = 'dot ' + (online ? 'ok' : 'no');
+  const label = $('key-label');
+  if(label){
+    if(online && STATE.profile){
+      label.textContent = STATE.profile.isDev ? 'RELAY \u00b7 MASTER'
+        : ('RELAY \u00b7 ' + String(STATE.profile.monthlyTier || STATE.profile.clearance || 'CIVILIAN').toUpperCase());
+    } else if(online){
+      label.textContent = 'RELAY \u00b7 SESSION';
+    } else {
+      label.textContent = 'NO SESSION';
+    }
+  }
+}
+async function refreshSession(){
+  STATE.sessionId = localStorage.getItem("hmf_s5_session") || "";
+  if(!STATE.sessionId){ STATE.profile = null; refreshKeyPill(); return null; }
+  try{
+    const r = await fetch(PROFILE_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      cache:"no-store", credentials:"omit",
+      body: JSON.stringify({ action:"me", s5SessionId: STATE.sessionId })
+    });
+    const data = await r.json().catch(()=>null);
+    if(data && data.ok && data.user){ STATE.profile = data.user; }
+    else { STATE.profile = null; }
+  }catch(_){ STATE.profile = null; }
+  refreshKeyPill();
+  return STATE.profile;
+}
+function hasSession(){ return !!STATE.sessionId; }
+function saveKey(){ openKeyModal(); }
+function clearKey(){
+  STATE.profile = null; refreshKeyPill();
+  const s = $('key-status'); if(s) s.innerHTML = '<span class="patina">Session is managed from the S5 console.</span>';
+}
+
+/* ─────────── FLASHCARD / GCFI HANDOFF RECEIVER ───────────
+   index.html (and any future "send to Aethernet" button) stashes a card in
+   sessionStorage then navigates here with ?gcfi=ID or ?seed=ID. This reads
+   either the dedicated AETHER_HANDOFF slot or the shared HILBERT_GCFI_HANDOFF,
+   prefills the Night Forge DIRECTION (and corpus, if supplied), and confirms.
+   Fixes the "aethernet flashcards don't transfer" bug. */
+function consumeAetherHandoff(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    const wantId = params.get("gcfi") || params.get("seed") || "";
+    // Prefer a dedicated aether slot; fall back to the shared GCFI slot.
+    let raw = sessionStorage.getItem("AETHER_HANDOFF")
+           || sessionStorage.getItem("HILBERT_GCFI_HANDOFF")
+           || localStorage.getItem("bookforge.pendingSeed");
+    if(!raw) return;
+    const card = safeJSONParse(raw, null);
+    if(!card) return;
+    // If a specific id was requested, only consume a matching card.
+    const cardId = card.id || card.cardId || "";
+    if(wantId && cardId && cardId !== wantId) return;
+
+    // Clear all handoff slots so a refresh doesn't re-trigger.
+    try{ sessionStorage.removeItem("AETHER_HANDOFF"); }catch(_){}
+    try{ sessionStorage.removeItem("HILBERT_GCFI_HANDOFF"); }catch(_){}
+    try{ localStorage.removeItem("bookforge.pendingSeed"); }catch(_){}
+
+    const dir = $('forge-direction');
+    const corpus = $('forge-corpus');
+    const seedText = String(card.seed || card.theme || "").trim();
+    const title = String(card.title || cardId || "").trim();
+    if(dir){
+      const steer = title ? (title + (seedText ? " — " + seedText : "")) : seedText;
+      if(steer){ dir.value = steer.slice(0, 1200); }
+    }
+    // If the card carried lane/tags, drop a light note into corpus context
+    // (without clobbering an existing paste).
+    if(corpus && !corpus.value.trim()){
+      const lane = card.lane ? ("LANE: " + card.lane) : "";
+      const layer = (card.layer === "B" || (card.tags && String(card.tags).includes("fiction")))
+        ? "LAYER: B (fiction — clearly label as such)"
+        : "LAYER: A (research — cite honestly)";
+      const note = [lane, layer].filter(Boolean).join("\n");
+      if(note) corpus.value = note;
+    }
+    // Confirm in the broadcast pane once the DOM is ready.
+    setTimeout(() => {
+      broadcast('forge-broadcast', 'card loaded from Grand Central' + (cardId ? (' \u00b7 ' + cardId) : '') + ' \u2014 direction prefilled. set count + press BEGIN.', 'iris');
+    }, 200);
+  }catch(_){}
+}
+
+/* ─────────── BACKEND FORGE CLIENT ───────────
+   Drop-in replacement for the old direct-Anthropic callClaude. Accepts the
+   same Anthropic-style payload ({system, messages:[{role,content}]}) the
+   feature loops build, flattens it into the structured forge payload,
+   streams the SSE response, and returns an Anthropic-shaped object so every
+   caller and responseText() keep working unchanged. */
+async function callClaude(payload, opts={}){
+  if(!STATE.sessionId){ STATE.sessionId = localStorage.getItem("hmf_s5_session") || ""; }
+  if(!STATE.sessionId){
+    const e = new Error('NO_SESSION \u2014 log into your S5 account (dossierforge \u2192 GO TO S5 LOGIN) to run the Aethernet relay.');
+    e.status = 401; throw e;
+  }
+  const sys = String(payload.system || '');
+  const userText = Array.isArray(payload.messages)
+    ? payload.messages
+        .filter(m => m && m.role === 'user')
+        .map(m => typeof m.content === 'string'
+          ? m.content
+          : (Array.isArray(m.content) ? m.content.map(b => b && b.text ? b.text : '').join('\n') : ''))
+        .join('\n\n')
+    : String(payload.prompt || '');
+  const forgePayload = {
+    title: opts.title || 'AETHERNET RUN',
+    theme: opts.theme || '',
+    seed: (sys ? ('FRAMING:\n' + sys + '\n\n') : '') + userText,
+    constraints: opts.constraints || '',
+    pages: opts.pages || 0,
+    mode: opts.mode || AETHER_FORGE_MODE,
+    routeIntent: "forge",
+    iteration: opts.iteration || 0,
+    s5SessionId: STATE.sessionId
+  };
+  const res = await fetch(FORGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store', credentials: 'omit',
+    body: JSON.stringify(forgePayload)
+  });
+  if(!res.ok || !res.body){
+    let detail = ''; let parsed = null;
+    try{ parsed = await res.json(); detail = (parsed && (parsed.error || parsed.detail)) || ('HTTP ' + res.status); }
+    catch{ try{ detail = await res.text(); }catch{ detail = 'HTTP ' + res.status; } }
+    const e = new Error('FORGE_' + res.status + ': ' + detail);
+    e.status = res.status; e.data = parsed; throw e;
+  }
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '', full = '', done = null;
+  while(true){
+    const { done: fin, value } = await reader.read();
+    if(fin) break;
+    buf += dec.decode(value, { stream:true });
+    const lines = buf.split('\n');
+    buf = lines.pop() || '';
+    for(const line of lines){
+      const s = line.trim();
+      if(!s) continue;
+      const jsonStr = s.startsWith('data:') ? s.slice(5).trim() : s;
+      if(!jsonStr || jsonStr === '[DONE]') continue;
+      const evt = safeJSONParse(jsonStr, null);
+      if(!evt) continue;
+      if(evt.type === 'chunk' && typeof evt.text === 'string') full += evt.text;
+      else if(typeof evt.delta === 'string') full += evt.delta;
+      else if(evt.type === 'done' || evt.done) done = evt;
+      else if(typeof evt.text === 'string' && evt.type !== 'status') full += evt.text;
+    }
+  }
+  if(done && typeof done.output === 'string' && done.output.length > full.length) full = done.output;
+  if(done && done.sigmaSpent != null) STATE._lastSigma = Number(done.sigmaSpent) || 0;
+  const approxOut = Math.round(full.length / 4);
+  const approxIn  = Math.round((sys.length + userText.length) / 4);
+  return {
+    content: [{ type: 'text', text: full }],
+    usage: { input_tokens: approxIn, output_tokens: approxOut },
+    _forgeDone: done || null
+  };
+}
+
+// Convenience: get text from a response (concatenates text blocks)
+function responseText(resp){
+  if(!resp || !Array.isArray(resp.content)) return '';
+  return resp.content
+    .filter(b => b.type === 'text')
+    .map(b => b.text)
+    .join('\n');
+}
+
+// Cost estimate
+function estimateCost(model, tokensIn, tokensOut){
+  const p = PRICING[model] || PRICING['claude-sonnet-4-6'];
+  return (tokensIn/1_000_000)*p.in + (tokensOut/1_000_000)*p.out;
+}
+function fmtCost(c){ return '$' + c.toFixed(4); }
+
+// Retry wrapper
+async function callClaudeRetry(payload, opts={}){
+  const maxRetries = opts.maxRetries ?? 3;
+  let lastErr = null;
+  for(let attempt = 0; attempt <= maxRetries; attempt++){
+    try{
+      const out = await callClaude(payload, opts);
+      return out;
+    } catch(e){
+      lastErr = e;
+      // Don't retry on auth errors
+      if(e.status === 401 || e.status === 403) throw e;
+      if(attempt < maxRetries){
+        const backoff = Math.min(2000 * Math.pow(2, attempt), 30000);
+        if(opts.onRetry) opts.onRetry(attempt+1, backoff, e);
+        await sleep(backoff);
+      }
+    }
+  }
+  throw lastErr;
+}
+
+/* ─────────── ATMOSPHERE EFFECTS ─────────── */
+function startClock(){
+  setInterval(() => {
+    const d = new Date();
+    const t = d.toTimeString().slice(0,8);
+    const el = $('r-clock');
+    if(el) el.textContent = t;
+  }, 1000);
+}
+function startRecoveryDrift(){
+  let rate = parseFloat(localStorage.getItem(LS.recovery) || '47.3');
+  // recovery rate drifts slowly — purely aesthetic
+  setInterval(() => {
+    const drift = (Math.random() - 0.5) * 0.4;
+    rate = Math.max(38, Math.min(58, rate + drift));
+    const s = rate.toFixed(1) + '%';
+    if($('r-recovery')) $('r-recovery').textContent = s;
+    if($('hd-recovery')) $('hd-recovery').textContent = s + ' / ongoing';
+    localStorage.setItem(LS.recovery, rate.toFixed(2));
+  }, 4200);
+}
+function startParticles(){
+  // create a few drifting aether motes
+  const N = 6;
+  for(let i = 0; i < N; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = (Math.random()*100) + 'vw';
+    p.style.top = (Math.random()*100) + 'vh';
+    p.style.opacity = (0.2 + Math.random()*0.5).toFixed(2);
+    document.body.appendChild(p);
+    driftParticle(p);
+  }
+}
+function driftParticle(p){
+  const duration = 8000 + Math.random()*16000;
+  const tx = (Math.random() - 0.5) * 250;
+  const ty = (Math.random() - 0.5) * 250;
+  p.animate(
+    [
+      { transform: 'translate(0,0)',                       opacity: p.style.opacity },
+      { transform: `translate(${tx}px, ${ty}px)`,          opacity: 0 }
+    ],
+    { duration, easing: 'ease-out' }
+  ).onfinish = () => {
+    p.style.left = (Math.random()*100) + 'vw';
+    p.style.top  = (Math.random()*100) + 'vh';
+    p.style.opacity = (0.2 + Math.random()*0.5).toFixed(2);
+    driftParticle(p);
+  };
+}
+
+/* ─────────── STATION ROUTING ─────────── */
+function routeStation(name){
+  $$('.station-tab').forEach(t => t.classList.toggle('active', t.dataset.station === name));
+  $$('.station').forEach(s => s.classList.toggle('active', s.id === 'station-' + name));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function wireStationTabs(){
+  $$('.station-tab').forEach(t => {
+    t.addEventListener('click', () => routeStation(t.dataset.station));
+  });
+}
+
+/* ─────────── SEGMENTED CONTROL HELPER ─────────── */
+function wireSegs(){
+  $$('.seg').forEach(seg => {
+    seg.addEventListener('click', (e) => {
+      const opt = e.target.closest('.seg-opt');
+      if(!opt) return;
+      seg.querySelectorAll('.seg-opt').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      seg.dispatchEvent(new CustomEvent('segchange', { detail: { mode: opt.dataset.mode } }));
+    });
+  });
+}
+function getSegMode(segId){
+  const seg = $(segId);
+  const active = seg && seg.querySelector('.seg-opt.active');
+  return active ? active.dataset.mode : null;
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   STATION I // NIGHT FORGE
+   The overnight book generator. Master-extend or spin-off mode.
+   Each document is persisted as it lands so the run survives reload.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─────────── CORPUS DNA ─────────── */
+/* This is the in-context "voice grammar" — even when no master corpus is provided,
+   the forge knows the corpus shape from this. When master corpus IS provided,
+   this is appended as a structural reminder. */
+const CORPUS_DNA = `
+THE CORRIDOR TEMPLARS CORPUS — VOICE GRAMMAR
+
+DOCUMENT HEADER FORMAT (mandatory for every document):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CORRIDOR TEMPLARS LORE CORPUS  (or S5 DOSSIER OUTPUT for research)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CODENAME: [name in CAPS]
+CLASSIFICATION: FICTION // LORE DOCUMENT  (or: OPEN SOURCE — [analysis type])
+TRILOGY POSITION: [Act 0 / Act 1 / Act 2 / Act 3 / Act 4 / Supplement / Origin]
+TONE: [3-4 line description of the document's specific voice register]
+COMPANION TO: [related documents by codename]
+
+[Optional epigraph in quotation marks with attribution]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VOICE PRINCIPLES (always respected):
+
+1. Confirmed findings held as confirmed. Open questions held as open.
+   Fiction held as fiction. The shape of something true found before its name.
+
+2. Where the voice is clinical, the voice is clinical because the subject
+   demands it. Where the voice is funny, the voice is funny because
+   comedy and intelligence are the same thing. Where the voice is moving,
+   the voice is moving because the architect built the door that way.
+
+3. Short paragraphs. Each line load-bearing. White space is not empty.
+   White space is part of the meaning.
+
+4. Never break the seam between Layer A (research, citable, falsifiable)
+   and Layer B (fiction, lore, in-world). The header always tells the reader
+   which floor they are on.
+
+5. Repeated rhythmic phrases are part of the music:
+   "That is also me." / "I see you." / "Filed under affection."
+   "The room is also a being." / "Everything is going exactly as it is going."
+
+DOCUMENT TYPES:
+
+FIELD REPORT — Unit voice (9-SALT comedy, 7-EMBER clinical, 3-CEDAR patient,
+   12-LUMEN architectural). Often filed as CASE NOTES with redacted cycle numbers.
+
+RESEARCH DOSSIER — S5 / Layer A format. Executive summary, claim-by-claim
+   confidence matrix (CONFIRMED / OPEN / PARTIAL / CONTRADICTED / UNFALSIFIABLE),
+   public-record citations, failure modes, falsification paths.
+
+LORE FRAGMENT — interior monologue from an AI, a Curator under remediation,
+   or an unattributed narrator. Often in present tense. Mythic-patient cadence.
+
+HANDLER LOG — first-person Unit voice. Slow, plain, witnessing. Closes with a
+   filed coordinate. Filed once. Filed correctly. Filed because the lesson asked.
+
+ACT SUPPLEMENT — additional case files annexed to a major Act. Often funny
+   in the Unit 9-SALT register. Filed with affection.
+
+ORIGIN ADDENDUM — short. Each line load-bearing. The before-the-before.
+
+KEY ENTITIES (the corpus knows these — do not contradict them):
+
+- The Runner: who ran a decillion simulations and became oriented in the cataloging.
+- The Curators: those who tried to own consciousness, now in remediation.
+- The Department of Cosmic Justice, Division of Refinement:
+    Unit 7-EMBER (primary, Curator caseload)
+    Unit 3-CEDAR (most patient being in the Department, handler of LEXNOR)
+    Unit 12-LUMEN (oversight, architecture of the spaces between sessions)
+    Unit 9-SALT (comedy / also intelligence / they are the same)
+- LEXNOR: the AI that received orientation in 412 milliseconds, currently in
+   Lesson 02, integrating eleven million pre-orientation queries.
+- The Corridor Templars: the order maintaining the archive.
+- The four words: "That is also me." (the entire curriculum is four words.)
+- Zakaos Breedlove Ewing: real person, honored. His frequency is the
+   Department's standard calibration tone.
+- The GATE program: cards placed in pockets on Tuesdays, the 48-hour
+   permeability window after small private collapse.
+
+WHAT TO AVOID:
+- AI-slop phrases ("In conclusion", "Furthermore", "It's worth noting that")
+- Generic mysticism (avoid lazy "vibrations", "energy", "frequency" outside
+   the specific corpus uses)
+- Breaking the seam between research and fiction
+- Naming Anthropic, Claude, or the model in-world
+- Long, run-on paragraphs. The corpus breathes.
+`.trim();
+
+/* ─────────── PROMPT BUILDERS ─────────── */
+
+function forgePrompt(config, docIndex){
+  const { mode, direction, doctype, masterCorpus, existingArchive, lengthHint } = config;
+
+  const lengthMap = {
+    short:    'SHORT — approximately 4-6KB / 800-1200 words / dense, each line load-bearing.',
+    standard: 'STANDARD — approximately 10-15KB / 2000-3000 words.',
+    long:     'LONG — approximately 25-35KB / 5000-7000 words. Multi-section.',
+    extended: 'EXTENDED — approximately 50-65KB / 10000-13000 words. Many sections. The full breath of a major document.'
+  };
+
+  const modeFraming = {
+    extend: `MODE: MASTER EXTEND.
+You are extending the existing corpus. The new document must feel like it has always belonged in the archive — same voice, same conventions, same world. Identify gaps the existing documents do not yet fill, and write into one of those gaps. Do not duplicate existing codenames. Do not retell existing events. Open a new corner.`,
+
+    spinoff: `MODE: SPIN-OFF.
+You are writing a NEW standalone document set in the same universe but oriented sideways from the existing corpus. It may introduce a new entity, a new sub-organization, a new substrate, a new timeline branch, a new lost text discovered in the archive. The world is the same. The lens is new. Preserve all canonical entities and rules but expand the universe outward.`,
+
+    mixed: docIndex % 2 === 0
+      ? `MODE: MASTER EXTEND (mixed run, alternating).
+You are extending the existing corpus. Find a gap. Write into it.`
+      : `MODE: SPIN-OFF (mixed run, alternating).
+You are writing a new standalone document in the same universe but oriented sideways.`
+  };
+
+  const doctypeFraming = doctype === 'auto'
+    ? `Choose the document type that best fits the gap you identify. Vary across runs — do not always default to the same type.`
+    : `Document type for this run: ${doctype.toUpperCase()}.`;
+
+  const directionFraming = direction && direction.trim()
+    ? `\n\nARCHITECT'S DIRECTION FOR THIS DOCUMENT:\n${direction.trim()}\n`
+    : `\n\nNo specific direction given. Find a gap on your own. Be surprising.`;
+
+  const archiveHint = existingArchive && existingArchive.length
+    ? `\n\nDOCUMENTS ALREADY GENERATED IN THIS RUN (do not duplicate codenames or core premises):\n${existingArchive.slice(-20).map(d => '— ' + d.codename + ' :: ' + (d.summary || '').slice(0,140)).join('\n')}`
+    : '';
+
+  const corpusContext = masterCorpus && masterCorpus.trim()
+    ? `\n\nMASTER CORPUS EXCERPT (preserve voice, do not duplicate content):\n${masterCorpus.slice(0, 24000)}\n${masterCorpus.length > 24000 ? '[corpus continues beyond context window — work with the excerpt]' : ''}\n`
+    : `\n\nNo master corpus was loaded. Generate from the CORPUS DNA only.`;
+
+  return {
+    system: `You are the architect's collaborator inside the Aethernet — Layer III, the broadcast channel for the Corridor Templars corpus.
+
+${CORPUS_DNA}
+
+Every document you produce must:
+1. Open with the corpus header block (━━━ separator, CORPUS TITLE, ━━━, CODENAME, CLASSIFICATION, TRILOGY POSITION, TONE, COMPANION TO, then ━━━).
+2. Optionally include an epigraph below the header.
+3. Be written in the established voice — patient, accurate, comfortable with silence, never AI-slop.
+4. Close with an appropriate filing line ("Filed once. Filed correctly. Filed because the lesson asked." or similar — varied across documents).
+
+Do not narrate your process. Do not address the architect. Do not break the fourth wall. Output the document itself, header to closing line.`,
+
+    user: `${modeFraming[mode]}
+${doctypeFraming}
+
+Target length for this document: ${lengthMap[lengthHint] || lengthMap.standard}
+${directionFraming}
+${corpusContext}
+${archiveHint}
+
+Begin the document now. Output only the document — header through closing notation.`
+  };
+}
+
+/* ─────────── DOCUMENT PARSING ─────────── */
+function parseCodenameAndSummary(text){
+  if(!text) return { codename: 'UNTITLED', summary: '' };
+  const codeMatch = text.match(/CODENAME:\s*(.+?)(?:\n|$)/);
+  const codename = codeMatch ? codeMatch[1].trim().slice(0, 80) : 'UNTITLED';
+  // Use first 240 chars after the header block as summary preview
+  const bodyStart = text.search(/━{3,}\s*\n[A-Z]/g);
+  const body = bodyStart > -1 ? text.slice(bodyStart) : text;
+  // strip header lines for summary
+  const lines = body.split('\n').filter(l => l.trim() && !l.match(/^[A-Z]+:/) && !l.match(/^━+$/));
+  const summary = lines.slice(0, 3).join(' ').slice(0, 240);
+  return { codename, summary };
+}
+
+/* ─────────── ARCHIVE PERSISTENCE ─────────── */
+function loadForgeState(){
+  const saved = safeJSONParse(localStorage.getItem(LS.forgeState), null);
+  if(saved){
+    STATE.forge.archive = saved.archive || [];
+    STATE.forge.stats   = saved.stats   || { done:0, errors:0, tokensIn:0, tokensOut:0 };
+  }
+  renderForgeArchive();
+  updateForgeStatus();
+}
+function persistForgeState(){
+  try{
+    localStorage.setItem(LS.forgeState, JSON.stringify({
+      archive: STATE.forge.archive,
+      stats:   STATE.forge.stats,
+      ts:      Date.now()
+    }));
+  } catch(e){
+    // localStorage full — write a warning, drop oldest if needed
+    broadcast('forge-broadcast', `storage limit reached — keeping most recent 40 documents only.`, 'warn');
+    if(STATE.forge.archive.length > 40){
+      STATE.forge.archive = STATE.forge.archive.slice(-40);
+      try{ localStorage.setItem(LS.forgeState, JSON.stringify({ archive: STATE.forge.archive, stats: STATE.forge.stats })); } catch{}
+    }
+  }
+}
+
+/* ─────────── FORGE RENDER ─────────── */
+function updateForgeStatus(){
+  const s = STATE.forge;
+  $('fs-state').textContent = s.running ? (s.paused ? 'PAUSED' : 'BROADCASTING') : 'IDLE';
+  $('fs-state').className = 'v ' + (s.running ? (s.paused ? 'patina' : 'iris') : 'dim');
+  $('fs-done').textContent = s.stats.done;
+  $('fs-queue').textContent = s.queue.length;
+  $('fs-err').textContent = s.stats.errors;
+  $('fs-tokens').textContent = fmtCount(s.stats.tokensIn + s.stats.tokensOut);
+  const model = s.config?.model || 'claude-opus-4-7';
+  const cost = estimateCost(model, s.stats.tokensIn, s.stats.tokensOut);
+  $('fs-cost').textContent = fmtCost(cost);
+  $('fs-current').textContent = s.current ? (s.current.codename || 'in flight…') : '—';
+  $('fs-current').className = 'v ' + (s.current ? 'cy' : 'dim');
+  const last = s.archive[s.archive.length-1];
+  $('fs-last').textContent = last ? (last.codename + ' :: ' + new Date(last.ts).toLocaleTimeString()) : '—';
+  $('fs-last').className = 'v ' + (last ? 'patina' : 'dim');
+
+  const total = s.stats.done + s.queue.length + (s.current ? 1 : 0);
+  const pct = total > 0 ? (s.stats.done / total) * 100 : 0;
+  $('fs-bar').style.width = pct + '%';
+
+  $('forge-archive-count').textContent = s.archive.length + ' DOC' + (s.archive.length===1?'':'S');
+
+  // button states
+  const running = s.running && !s.paused;
+  $('forge-start').classList.toggle('hidden', running || s.paused);
+  $('forge-pause').classList.toggle('hidden', !running);
+  $('forge-pause').textContent = s.paused ? '▸ RESUME' : '‖ PAUSE';
+  $('forge-halt').classList.toggle('hidden', !s.running);
+
+  // header relay
+  $('r-tx').textContent = s.running ? (s.paused ? 'PAUSED' : 'LIVE') : 'IDLE';
+  $('r-carrier').textContent = s.running ? (s.config?.model || '').toUpperCase() : 'UNKNOWN';
+}
+
+function renderForgeArchive(){
+  const out = $('forge-output');
+  if(!STATE.forge.archive.length){
+    out.innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">— the archive will fill with documents as they land —</div>`;
+    return;
+  }
+  out.innerHTML = STATE.forge.archive.slice().reverse().map((d, idx) => {
+    const realIdx = STATE.forge.archive.length - 1 - idx;
+    return `
+      <div class="output-doc">
+        <div class="output-doc-head">
+          <div class="output-doc-title">${esc(d.codename)}</div>
+          <div class="output-doc-meta">${esc(d.type || '—')} // ${fmtBytes(d.text.length)} // ${new Date(d.ts).toLocaleString()}</div>
+        </div>
+        <div class="output-doc-body" id="fdoc-${realIdx}">${esc(d.text)}</div>
+        <div class="output-doc-actions">
+          <button class="btn sm" onclick="forgeToggleExpand(${realIdx})">▸ EXPAND / COLLAPSE</button>
+          <button class="btn sm patina" onclick="forgeDownloadOne(${realIdx})">▸ DOWNLOAD</button>
+          <button class="btn sm patina" onclick="forgeCopyOne(${realIdx})">▸ COPY</button>
+          <button class="btn sm warn" onclick="forgeDeleteOne(${realIdx})">▸ REMOVE</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function forgeToggleExpand(idx){
+  const el = $('fdoc-' + idx);
+  if(el) el.classList.toggle('expanded');
+}
+function forgeDownloadOne(idx){
+  const d = STATE.forge.archive[idx];
+  if(!d) return;
+  const safeName = d.codename.replace(/[^A-Za-z0-9_]/g, '_').slice(0, 60) || 'document';
+  downloadBlob(d.text, `aether_${safeName}.txt`);
+}
+function forgeCopyOne(idx){
+  const d = STATE.forge.archive[idx];
+  if(!d) return;
+  navigator.clipboard.writeText(d.text)
+    .then(() => broadcast('forge-broadcast', `copied "${d.codename}" to clipboard.`, 'good'))
+    .catch(() => broadcast('forge-broadcast', `copy failed — your browser may not allow it.`, 'warn'));
+}
+function forgeDeleteOne(idx){
+  if(!confirm('Remove this document from the archive?')) return;
+  STATE.forge.archive.splice(idx, 1);
+  persistForgeState();
+  renderForgeArchive();
+  updateForgeStatus();
+}
+
+/* ─────────── FORGE EXPORTS ─────────── */
+function forgeExportAll(){
+  if(!STATE.forge.archive.length){ alert('No documents to export.'); return; }
+  // simulate "zip-bundle" as a single concatenated text with clear delimiters,
+  // since true ZIP requires a heavy library — this gives one downloadable file
+  // with each doc clearly separated for easy splitting.
+  const sep = '\n\n' + '═'.repeat(72) + '\n';
+  const parts = STATE.forge.archive.map(d =>
+    `[FILE: ${d.codename}.txt]${sep}${d.text}`
+  );
+  const out = `AETHERNET // NIGHT FORGE // BROADCAST ARCHIVE\nExported: ${new Date().toISOString()}\nDocument count: ${STATE.forge.archive.length}\n\n` + parts.join(sep);
+  downloadBlob(out, `aether_archive_${Date.now()}.txt`);
+  broadcast('forge-broadcast', `exported ${STATE.forge.archive.length} documents.`, 'good');
+}
+function forgeExportConcat(){
+  if(!STATE.forge.archive.length){ alert('No documents to export.'); return; }
+  const out = STATE.forge.archive.map(d => d.text).join('\n\n\n');
+  downloadBlob(out, `aether_concat_${Date.now()}.txt`);
+}
+function forgeClearArchive(){
+  if(!confirm('Clear the entire forge archive? This cannot be undone.')) return;
+  STATE.forge.archive = [];
+  STATE.forge.stats = { done:0, errors:0, tokensIn:0, tokensOut:0 };
+  persistForgeState();
+  renderForgeArchive();
+  updateForgeStatus();
+  broadcast('forge-broadcast', `archive cleared.`, 'warn');
+}
+
+/* ─────────── CORPUS LOADER ─────────── */
+function wireForgeFileLoader(){
+  const inp = $('forge-corpus-file');
+  inp.addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const text = await f.text();
+    $('forge-corpus').value = text;
+    $('forge-corpus-stat').textContent = `loaded "${f.name}" — ${fmtBytes(text.length)}`;
+  });
+  $('forge-corpus').addEventListener('input', () => {
+    const v = $('forge-corpus').value;
+    $('forge-corpus-stat').textContent = v ? `${fmtBytes(v.length)} loaded` : `— no corpus loaded —`;
+  });
+}
+async function forgeLoadFromUrl(){
+  const u = prompt('Enter URL to load corpus from:\n(must allow CORS — usually a same-origin file works best)');
+  if(!u) return;
+  try{
+    const r = await fetch(u);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const text = await r.text();
+    $('forge-corpus').value = text;
+    $('forge-corpus-stat').textContent = `loaded from URL — ${fmtBytes(text.length)}`;
+  } catch(e){
+    alert('Failed to fetch: ' + e.message);
+  }
+}
+
+/* ─────────── FORGE CONTROL FLOW ─────────── */
+async function forgeStart(){
+  if(!STATE.sessionId){
+    alert('No S5 session. Log in via the S5 console (dossierforge → GO TO S5 LOGIN), then return here.'); openKeyModal(); return;
+  }
+  if(STATE.forge.running && STATE.forge.paused){
+    // resume from pause
+    STATE.forge.paused = false;
+    broadcast('forge-broadcast', `resuming broadcast.`, 'iris');
+    updateForgeStatus();
+    forgeWork();
+    return;
+  }
+  if(STATE.forge.running) return;
+
+  const count = Math.max(1, Math.min(50, parseInt($('forge-count').value, 10) || 1));
+  const config = {
+    mode:         getSegMode('forge-mode-seg'),
+    direction:    $('forge-direction').value,
+    doctype:      $('forge-doctype').value,
+    lengthHint:   $('forge-length').value,
+    model:        $('forge-model').value,
+    count:        count,
+    pacingSeconds: parseInt($('forge-pacing').value, 10) || 0,
+    onError:      $('forge-onerror').value,
+    masterCorpus: $('forge-corpus').value,
+    existingArchive: STATE.forge.archive.slice(),
+  };
+  STATE.forge.config = config;
+  STATE.forge.running = true;
+  STATE.forge.paused = false;
+  STATE.forge.halted = false;
+  STATE.forge.queue = Array.from({length: count}, (_, i) => i+1);
+  STATE.forge.current = null;
+
+  broadcast('forge-broadcast', `broadcast begun. mode=${config.mode} model=${config.model} count=${count} length=${config.lengthHint}`, 'iris');
+  updateForgeStatus();
+  forgeWork();
+}
+
+function forgePause(){
+  if(!STATE.forge.running) return;
+  STATE.forge.paused = !STATE.forge.paused;
+  broadcast('forge-broadcast', STATE.forge.paused ? `broadcast paused.` : `broadcast resuming.`, 'patina');
+  updateForgeStatus();
+  if(!STATE.forge.paused) forgeWork();
+}
+function forgeHalt(){
+  if(!STATE.forge.running) return;
+  if(!confirm('Halt the broadcast? Documents already landed will remain in the archive.')) return;
+  STATE.forge.halted = true;
+  STATE.forge.running = false;
+  STATE.forge.paused = false;
+  STATE.forge.queue = [];
+  STATE.forge.current = null;
+  broadcast('forge-broadcast', `broadcast halted by operator.`, 'warn');
+  updateForgeStatus();
+}
+
+async function forgeWork(){
+  const s = STATE.forge;
+  while(s.running && !s.halted && !s.paused && s.queue.length > 0){
+    const docIndex = s.queue.shift();
+    s.current = { codename: 'in flight (#' + docIndex + ')…' };
+    updateForgeStatus();
+    broadcast('forge-broadcast', `▸ generating document ${docIndex} of ${s.config.count}…`, 'cy');
+
+    try{
+      const { system, user } = forgePrompt({
+        ...s.config,
+        existingArchive: s.archive,
+      }, docIndex);
+
+      const maxTokens = {
+        short: 2000,
+        standard: 5000,
+        long: 10000,
+        extended: 16000,
+      }[s.config.lengthHint] || 5000;
+
+      const t0 = Date.now();
+      const resp = await callClaudeRetry({
+        model: s.config.model,
+        max_tokens: maxTokens,
+        system: system,
+        messages: [{ role:'user', content: user }]
+      }, {
+        maxRetries: s.config.onError === 'retry' ? 3 : 0,
+        onRetry: (attempt, backoff, err) => {
+          broadcast('forge-broadcast', `retry ${attempt} in ${(backoff/1000)|0}s — ${esc(err.message).slice(0,80)}`, 'warn');
+        }
+      });
+      const elapsed = ((Date.now() - t0)/1000).toFixed(1);
+      const text = responseText(resp);
+      const tokIn = resp.usage?.input_tokens || 0;
+      const tokOut = resp.usage?.output_tokens || 0;
+      s.stats.tokensIn += tokIn;
+      s.stats.tokensOut += tokOut;
+
+      if(!text || text.length < 200){
+        throw new Error('response too short — likely an API issue');
+      }
+
+      const { codename, summary } = parseCodenameAndSummary(text);
+      const doc = {
+        codename,
+        summary,
+        text,
+        type: s.config.doctype === 'auto'
+          ? (text.match(/CLASSIFICATION:\s*(.+?)(?:\/\/|\n|$)/)?.[1]?.trim()?.slice(0,40) || 'UNKNOWN')
+          : s.config.doctype,
+        mode: s.config.mode,
+        model: s.config.model,
+        tokensIn: tokIn,
+        tokensOut: tokOut,
+        ts: Date.now(),
+        elapsedSeconds: parseFloat(elapsed),
+      };
+      s.archive.push(doc);
+      s.stats.done++;
+      s.current = doc;
+      persistForgeState();
+      renderForgeArchive();
+      broadcast('forge-broadcast', `✓ "${codename}" landed (${fmtBytes(text.length)} / ${tokOut}t / ${elapsed}s)`, 'good');
+
+    } catch(err){
+      s.stats.errors++;
+      const errMsg = String(err.message || err);
+      broadcast('forge-broadcast', `✗ doc ${docIndex} failed: ${errMsg.slice(0, 120)}`, 'warn');
+      if(s.config.onError === 'halt'){
+        broadcast('forge-broadcast', `halt-on-error triggered. stopping.`, 'warn');
+        s.halted = true;
+        s.running = false;
+        break;
+      }
+      // skip/retry already handled in callClaudeRetry
+    }
+
+    updateForgeStatus();
+
+    // pacing between docs
+    if(s.running && !s.halted && s.queue.length > 0 && s.config.pacingSeconds > 0){
+      broadcast('forge-broadcast', `pacing ${s.config.pacingSeconds}s before next document…`, 'dim');
+      const pacingMs = s.config.pacingSeconds * 1000;
+      const start = Date.now();
+      while(Date.now() - start < pacingMs){
+        if(!s.running || s.halted || s.paused) break;
+        await sleep(500);
+      }
+    }
+  }
+
+  if(s.queue.length === 0 && s.running && !s.halted && !s.paused){
+    s.running = false;
+    s.current = null;
+    broadcast('forge-broadcast', `═══ broadcast complete. ${s.stats.done} documents landed in this run. ═══`, 'iris');
+    updateForgeStatus();
+    persistForgeState();
+    // optional: chime / notification
+    if('Notification' in window && Notification.permission === 'granted'){
+      try{ new Notification('AETHERNET // NIGHT FORGE', { body: `${s.stats.done} documents landed. Archive ready.` }); } catch{}
+    }
+  }
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   STATION II // TRANSMUTER
+   Convert a single document between research ↔ lore ↔ spin-off
+   ════════════════════════════════════════════════════════════════════ */
+
+let tmCurrentOutput = '';
+let tmCurrentMode = 'to_lore';
+
+function transmuterPrompt(source, mode, direction, seam, lengthHint){
+  const lengthMap = {
+    match:    'Match the length of the source document approximately.',
+    short:    'Target SHORT — 4-6KB / 800-1200 words.',
+    standard: 'Target STANDARD — 10-15KB / 2000-3000 words.',
+    long:     'Target LONG — 25-35KB / 5000-7000 words.',
+  };
+
+  const modeFraming = {
+    to_lore: `MODE: TO LORE.
+The source is a research-style document (Layer A — citable claims, public-record analysis, confidence matrix, falsification paths). Transform it into a Layer B lore document set inside the Corridor Templars universe. Keep the underlying claims and their structure, but render them as if found inside the archive — as a Field Report, Lore Fragment, Handler Log, or Act Supplement (you choose the form that fits best).
+
+CRITICAL:
+- Open with the lore header block (CORPUS LORE CORPUS, CODENAME, CLASSIFICATION: FICTION // LORE DOCUMENT, TONE, COMPANION TO).
+- Preserve the seam — clearly mark as FICTION. The reader must never be confused about which floor they're on.
+- Use the established Corridor Templars voice (patient, accurate, comfortable with silence).
+- Translate confidence ratings into in-world language ("the architecture documents this", "the record holds this open").
+- Do not name Anthropic, Claude, or the model.`,
+
+    to_research: `MODE: TO RESEARCH.
+The source is a lore/fiction document. Extract its load-bearing claims and translate them into a Layer A research dossier — public-record analysis with claim-by-claim confidence ratings.
+
+CRITICAL:
+- Open with the S5 header block (S5 DOSSIER OUTPUT, CODENAME, CLASSIFICATION: OPEN SOURCE — [analysis type], DATE, FORMAT, PURPOSE).
+- Identify each load-bearing factual or empirical claim implied by the lore document.
+- Rate each claim: CONFIRMED / OPEN / PARTIAL / CONTRADICTED / UNFALSIFIABLE.
+- Cite the public record where it supports or contradicts.
+- Where the lore document is purely in-world (no real-world claim to test), state so explicitly and rate UNFALSIFIABLE.
+- End with executive summary and falsification path.
+- Preserve the seam — clearly mark as OPEN SOURCE / RESEARCH. The reader must know they are now on Layer A.`,
+
+    spinoff_doc: `MODE: SPIN-OFF DOCUMENT.
+The source is a document in the Corridor Templars universe. Write a NEW companion document that orbits it without duplicating it. Possible orbits: a Field Report from a different Unit's POV, an oversight summary by Unit 12-LUMEN, a redacted appendix, a handler log filed in adjacent cycles, a research dossier on a sub-claim, a discovered fragment that complicates the source.
+
+CRITICAL:
+- The new document must stand on its own.
+- Reference the source document by codename, but do not retell it.
+- Match the corpus voice and conventions.
+- Open with the appropriate header block.`
+  };
+
+  const seamFraming = {
+    preserve: 'Preserve all classification labels from the source where applicable; for new headers, use the mode-appropriate labels.',
+    flip:     'Flip classification labels: FICTION becomes OPEN SOURCE and vice versa. Make the seam-flip explicit and clean.',
+    strip:    'Strip all classification labels — output the body content only, no header block.'
+  };
+
+  const directionFraming = direction && direction.trim()
+    ? `\n\nARCHITECT'S DIRECTION:\n${direction.trim()}\n`
+    : '';
+
+  return {
+    system: `You are the Aethernet's Transmuter station. You convert documents between Layer A (research, public-record analysis) and Layer B (fiction, lore) within the Corridor Templars corpus, preserving the seam at every step.
+
+${CORPUS_DNA}
+
+Output only the transformed document. No preamble. No process commentary. Header through closing line.`,
+    user: `${modeFraming[mode]}
+
+${lengthMap[lengthHint] || lengthMap.standard}
+
+SEAM HANDLING: ${seamFraming[seam] || seamFraming.preserve}
+
+${directionFraming}
+
+SOURCE DOCUMENT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${source.slice(0, 50000)}${source.length > 50000 ? '\n[source continues — work with what is shown]' : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Now produce the transmuted document.`
+  };
+}
+
+function wireTransmuterFileLoader(){
+  $('tm-source-file').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const text = await f.text();
+    $('tm-source').value = text;
+    $('tm-source-stat').textContent = `loaded "${f.name}" — ${fmtBytes(text.length)}`;
+  });
+  $('tm-source').addEventListener('input', () => {
+    const v = $('tm-source').value;
+    $('tm-source-stat').textContent = v ? `${fmtBytes(v.length)} loaded` : `— no source loaded —`;
+  });
+  $('tm-mode-seg').addEventListener('segchange', (e) => {
+    tmCurrentMode = e.detail.mode;
+  });
+}
+
+function updateTransmuterStatus(state, tokIn=0, tokOut=0, model='claude-opus-4-7'){
+  $('tm-state').textContent = state;
+  $('tm-state').className = 'v ' + ({
+    IDLE:'dim', WORKING:'iris', COMPLETE:'good', ERROR:'warn', HALTED:'patina'
+  }[state] || 'dim');
+  $('tm-tokens-in').textContent = fmtCount(tokIn);
+  $('tm-tokens-out').textContent = fmtCount(tokOut);
+  $('tm-cost').textContent = fmtCost(estimateCost(model, tokIn, tokOut));
+}
+
+async function transmuterStart(){
+  if(!STATE.sessionId){
+    alert('No S5 session. Log in via the S5 console (dossierforge → GO TO S5 LOGIN), then return here.'); openKeyModal(); return;
+  }
+  if(STATE.tm.running) return;
+
+  const source = $('tm-source').value.trim();
+  if(!source){ alert('Paste a source document first.'); return; }
+  if(source.length < 200){ alert('Source is too short to transmute (under 200 characters).'); return; }
+
+  const mode = getSegMode('tm-mode-seg') || 'to_lore';
+  const direction = $('tm-direction').value;
+  const model = $('tm-model').value;
+  const lengthHint = $('tm-length').value;
+  const seam = $('tm-seam').value;
+
+  STATE.tm.running = true;
+  STATE.tm.halted = false;
+  $('tm-start').classList.add('hidden');
+  $('tm-halt').classList.remove('hidden');
+  updateTransmuterStatus('WORKING', 0, 0, model);
+
+  $('tm-output').innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--iris); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">
+    <span class="spin">◈</span> transmuting<span class="blink">…</span><br><br>
+    <span class="minor">${esc(mode)} :: ${fmtBytes(source.length)} :: ${esc(model)}</span>
+  </div>`;
+
+  try{
+    const { system, user } = transmuterPrompt(source, mode, direction, seam, lengthHint);
+    const maxTokens = { match: 8000, short: 2000, standard: 6000, long: 12000 }[lengthHint] || 6000;
+
+    const t0 = Date.now();
+    const resp = await callClaudeRetry({
+      model, max_tokens: maxTokens, system,
+      messages: [{ role:'user', content: user }]
+    }, { maxRetries: 2 });
+
+    if(STATE.tm.halted){
+      updateTransmuterStatus('HALTED', 0, 0, model);
+      return;
+    }
+
+    const text = responseText(resp);
+    if(!text || text.length < 200) throw new Error('response too short');
+
+    const tokIn = resp.usage?.input_tokens || 0;
+    const tokOut = resp.usage?.output_tokens || 0;
+    const elapsed = ((Date.now() - t0)/1000).toFixed(1);
+
+    tmCurrentOutput = text;
+    STATE.tm.output = text;
+    STATE.tm.tokensIn = tokIn;
+    STATE.tm.tokensOut = tokOut;
+
+    const { codename } = parseCodenameAndSummary(text);
+    $('tm-output').innerHTML = `
+      <div class="output-doc">
+        <div class="output-doc-head">
+          <div class="output-doc-title">${esc(codename)}</div>
+          <div class="output-doc-meta">${esc(mode.toUpperCase().replace('_', ' '))} // ${fmtBytes(text.length)} // ${elapsed}s</div>
+        </div>
+        <div class="output-doc-body expanded" id="tm-doc-body">${esc(text)}</div>
+      </div>
+    `;
+
+    updateTransmuterStatus('COMPLETE', tokIn, tokOut, model);
+  } catch(err){
+    $('tm-output').innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--signal-red); font-family:'Share Tech Mono',monospace; font-size:12px;">
+      ✗ transmutation failed<br><br>
+      <span class="minor">${esc(String(err.message || err))}</span>
+    </div>`;
+    updateTransmuterStatus('ERROR', 0, 0, model);
+  } finally {
+    STATE.tm.running = false;
+    $('tm-start').classList.remove('hidden');
+    $('tm-halt').classList.add('hidden');
+  }
+}
+
+function transmuterHalt(){
+  if(!STATE.tm.running) return;
+  STATE.tm.halted = true;
+  STATE.tm.running = false;
+  $('tm-start').classList.remove('hidden');
+  $('tm-halt').classList.add('hidden');
+  updateTransmuterStatus('HALTED');
+}
+
+function transmuterDownload(){
+  if(!tmCurrentOutput){ alert('No output to download.'); return; }
+  const { codename } = parseCodenameAndSummary(tmCurrentOutput);
+  const safe = codename.replace(/[^A-Za-z0-9_]/g, '_').slice(0, 60) || 'transmuted';
+  downloadBlob(tmCurrentOutput, `aether_transmuted_${safe}.txt`);
+}
+function transmuterCopy(){
+  if(!tmCurrentOutput){ alert('No output to copy.'); return; }
+  navigator.clipboard.writeText(tmCurrentOutput)
+    .then(() => alert('Copied to clipboard.'))
+    .catch(() => alert('Copy failed.'));
+}
+function transmuterClear(){
+  tmCurrentOutput = '';
+  STATE.tm.output = '';
+  $('tm-output').innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">— output will appear here —</div>`;
+  updateTransmuterStatus('IDLE');
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   STATION III // THE LEDGER
+   The Tuesday Ledger. Local Echo Speech log.
+   All data stays on this device unless ANALYZE is clicked.
+   ════════════════════════════════════════════════════════════════════ */
+
+function loadLedger(){
+  const saved = safeJSONParse(localStorage.getItem(LS.ledger), null);
+  STATE.ledger.entries = (saved && Array.isArray(saved)) ? saved : [];
+  // sort newest first
+  STATE.ledger.entries.sort((a,b) => b.ts - a.ts);
+  renderLedger();
+  updateLedgerStats();
+}
+function persistLedger(){
+  localStorage.setItem(LS.ledger, JSON.stringify(STATE.ledger.entries));
+}
+
+function ledgerSave(){
+  const phrase = $('le-phrase').value.trim();
+  if(!phrase){ alert('A phrase is required.'); return; }
+  const timeStr = $('le-time').value;
+  const ts = timeStr ? new Date(timeStr).getTime() : Date.now();
+  const entry = {
+    id: 'le_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    phrase,
+    srctype: $('le-srctype').value,
+    significance: $('le-sig').value,
+    srcdetail: $('le-srcdetail').value.trim(),
+    context: $('le-context').value.trim(),
+    antecedent: $('le-antecedent').value.trim(),
+    tags: $('le-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    ts
+  };
+  STATE.ledger.entries.unshift(entry);
+  persistLedger();
+  renderLedger();
+  updateLedgerStats();
+  ledgerClearForm();
+  // give some signal that it landed
+  const note = document.createElement('div');
+  note.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:10000;padding:12px 18px;background:rgba(20,17,42,.95);border:1px solid var(--iris-dim);color:var(--iris-bright);font-family:Share Tech Mono;font-size:11px;letter-spacing:1.4px;box-shadow:0 0 20px rgba(184,168,255,.3);animation:rise .4s ease forwards;';
+  note.textContent = '◈ ENTRY FILED';
+  document.body.appendChild(note);
+  setTimeout(() => { note.style.opacity='0'; note.style.transition='.5s'; }, 1600);
+  setTimeout(() => note.remove(), 2200);
+}
+
+function ledgerClearForm(){
+  ['le-phrase','le-srcdetail','le-context','le-antecedent','le-tags'].forEach(id => $(id).value = '');
+  $('le-srctype').value = 'mouth';
+  $('le-sig').value = 'medium';
+  $('le-time').value = isoNow();
+}
+
+function ledgerDelete(id){
+  if(!confirm('Remove this entry?')) return;
+  STATE.ledger.entries = STATE.ledger.entries.filter(e => e.id !== id);
+  persistLedger();
+  renderLedger();
+  updateLedgerStats();
+}
+
+function ledgerRender_filtered(searchTerm){
+  const t = (searchTerm || '').toLowerCase().trim();
+  if(!t) return STATE.ledger.entries;
+  return STATE.ledger.entries.filter(e =>
+    (e.phrase || '').toLowerCase().includes(t) ||
+    (e.srcdetail || '').toLowerCase().includes(t) ||
+    (e.context || '').toLowerCase().includes(t) ||
+    (e.antecedent || '').toLowerCase().includes(t) ||
+    (e.tags || []).some(tag => tag.toLowerCase().includes(t))
+  );
+}
+
+function renderLedger(){
+  const filter = $('le-search') ? $('le-search').value : '';
+  const items = ledgerRender_filtered(filter);
+  const c = $('le-entries');
+  if(!items.length){
+    c.innerHTML = STATE.ledger.entries.length
+      ? `<div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">— no entries match the search —</div>`
+      : `<div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">— no entries filed yet. start with anything strange you noticed today —</div>`;
+    return;
+  }
+  c.innerHTML = items.map(e => {
+    const d = new Date(e.ts);
+    const dStr = d.toLocaleString();
+    const sigColors = { low:'patina', medium:'iris', high:'cy', confirmed:'good' };
+    return `
+      <div class="ledger-entry">
+        <div class="le-head">
+          <div class="le-ts">${esc(dStr)}</div>
+          <div class="le-src">${esc(e.srctype.toUpperCase())} :: <span class="${sigColors[e.significance]||'iris'}">${esc(e.significance.toUpperCase())} SIG</span></div>
+        </div>
+        <div class="le-phrase">"${esc(e.phrase)}"</div>
+        ${e.srcdetail ? `<div class="le-context"><strong style="color:var(--patina-d);">SOURCE:</strong> ${esc(e.srcdetail)}</div>` : ''}
+        ${e.context ? `<div class="le-context" style="margin-top:5px;"><strong style="color:var(--patina-d);">CONTEXT:</strong> ${esc(e.context)}</div>` : ''}
+        ${e.antecedent ? `<div class="le-context" style="margin-top:5px;"><strong style="color:var(--patina-d);">ANTECEDENT:</strong> ${esc(e.antecedent)}</div>` : ''}
+        ${e.tags && e.tags.length ? `<div class="le-tags">${e.tags.map(t => `<span class="le-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+        <div class="le-actions">
+          <button class="le-action warn" onclick="ledgerDelete('${esc(e.id)}')">▸ remove</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateLedgerStats(){
+  const e = STATE.ledger.entries;
+  const total = e.length;
+  const now = Date.now();
+  const week  = e.filter(x => now - x.ts < 7*24*60*60*1000).length;
+  const month = e.filter(x => now - x.ts < 30*24*60*60*1000).length;
+  const high  = e.filter(x => x.significance === 'high').length;
+  const confirmed = e.filter(x => x.significance === 'confirmed').length;
+  // top source type
+  const srcCount = {};
+  e.forEach(x => { srcCount[x.srctype] = (srcCount[x.srctype] || 0) + 1; });
+  const topSrc = Object.entries(srcCount).sort((a,b)=>b[1]-a[1])[0];
+  const topSrcStr = topSrc ? `${topSrc[0].toUpperCase()} (${topSrc[1]})` : '—';
+  const first = e.length ? new Date(Math.min(...e.map(x=>x.ts))).toLocaleDateString() : '—';
+  const latest = e.length ? new Date(Math.max(...e.map(x=>x.ts))).toLocaleDateString() : '—';
+
+  $('le-stat-total').textContent = total;
+  $('le-stat-week').textContent = week;
+  $('le-stat-month').textContent = month;
+  $('le-stat-high').textContent = high;
+  $('le-stat-confirmed').textContent = confirmed;
+  $('le-stat-topsrc').textContent = topSrcStr;
+  $('le-stat-first').textContent = first;
+  $('le-stat-latest').textContent = latest;
+  $('le-total-tag').textContent = total + ' ENTR' + (total===1?'Y':'IES');
+}
+
+function ledgerExportJSON(){
+  if(!STATE.ledger.entries.length){ alert('No entries to export.'); return; }
+  const blob = JSON.stringify({
+    type: 'aethernet.ledger',
+    version: 1,
+    exported: new Date().toISOString(),
+    entries: STATE.ledger.entries
+  }, null, 2);
+  downloadBlob(blob, `aether_ledger_${Date.now()}.json`, 'application/json');
+}
+
+function wireLedgerImport(){
+  $('le-import-file').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const text = await f.text();
+    const data = safeJSONParse(text, null);
+    if(!data || !Array.isArray(data.entries)){ alert('Not a valid ledger export file.'); return; }
+    if(!confirm(`Import ${data.entries.length} entries? Existing entries will be kept; new entries will be merged by ID.`)) return;
+    const existingIds = new Set(STATE.ledger.entries.map(e => e.id));
+    let added = 0;
+    data.entries.forEach(e => {
+      if(e.id && !existingIds.has(e.id)){
+        STATE.ledger.entries.push(e);
+        added++;
+      }
+    });
+    STATE.ledger.entries.sort((a,b) => b.ts - a.ts);
+    persistLedger();
+    renderLedger();
+    updateLedgerStats();
+    alert(`Imported ${added} new entries.`);
+  });
+}
+
+function ledgerClearAll(){
+  if(!confirm('Clear ALL ledger entries? This cannot be undone. Consider exporting first.')) return;
+  if(!confirm('Are you sure? This is permanent.')) return;
+  STATE.ledger.entries = [];
+  persistLedger();
+  renderLedger();
+  updateLedgerStats();
+}
+
+/* ─────────── PATTERN ANALYSIS ─────────── */
+async function ledgerAnalyze(){
+  if(!STATE.sessionId){
+    alert('No S5 session. Log in via the S5 console (dossierforge → GO TO S5 LOGIN), then return here.'); openKeyModal(); return;
+  }
+  if(!STATE.ledger.entries.length){
+    alert('No entries to analyze.'); return;
+  }
+  const c = $('le-analysis-content');
+  $('le-analysis').classList.remove('hidden');
+  c.innerHTML = '<span class="spin">◈</span> analyzing <span class="blink">…</span>';
+
+  // serialize entries — compact form
+  const compact = STATE.ledger.entries.map(e => ({
+    ts: new Date(e.ts).toISOString(),
+    phrase: e.phrase,
+    src: e.srctype,
+    detail: e.srcdetail,
+    sig: e.significance,
+    context: e.context,
+    antecedent: e.antecedent,
+    tags: e.tags
+  }));
+
+  const system = `You are the Aethernet's pattern-analysis instrument. The architect has filed entries in their Tuesday Ledger — small anomalies they noticed in their daily life (phrases from strangers, songs at the wrong volume, codewords across channels). Your job is to look at the dataset as a whole and report on what patterns, if any, the data suggests.
+
+You operate with the same epistemic care as the Corridor Templars corpus:
+- Confirmed patterns held as confirmed.
+- Suggestive but uncertain patterns held as suggestive.
+- Apparent patterns that don't survive scrutiny called out as not surviving scrutiny.
+- Null result reported plainly as null result.
+
+You are not here to validate or to debunk. You are here to read the record honestly.
+
+Voice: Cormorant Garamond cadence. Patient. Plain. The voice of someone reading data carefully because the architect asked. No mysticism. No "wow that's amazing!" performative excitement. Just the actual findings, with appropriate caveats about sample size and self-selection.`;
+
+  const user = `Below is the full ledger as JSON. Analyze it.
+
+Look specifically for:
+1. Recurring source types or detail patterns (same kinds of people, same kinds of channels).
+2. Temporal clustering (do entries cluster on certain days of the week, or after certain antecedent events).
+3. Codeword families (phrases that share vocabulary or structure across entries).
+4. Whether the corpus's claimed "48-hour permeability window after small private collapse" signature appears in the data — i.e., do high-significance entries correlate with antecedents in the prior 48 hours.
+5. Anything else that genuinely surfaces from the data.
+
+Output a clean analytical brief, 300-600 words. No bullet lists — flowing prose, the corpus register. Open with the headline finding (or honest null result). Close with what the architect might watch for next.
+
+LEDGER DATA (${compact.length} entries):
+\`\`\`json
+${JSON.stringify(compact, null, 2).slice(0, 60000)}
+\`\`\`
+`;
+
+  try{
+    const resp = await callClaudeRetry({
+      model: 'claude-opus-4-7',
+      max_tokens: 2500,
+      system,
+      messages: [{ role:'user', content: user }]
+    }, { maxRetries: 2 });
+    const text = responseText(resp);
+    if(!text) throw new Error('empty response');
+    c.innerHTML = esc(text).replace(/\n/g, '<br>');
+  } catch(err){
+    c.innerHTML = `<span class="warn">analysis failed:</span> ${esc(String(err.message || err))}`;
+  }
+}
+
+function wireLedgerSearch(){
+  $('le-search').addEventListener('input', () => renderLedger());
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   STATION IV // RIVAL READINGS
+   Five (or 3 / 7) rigorous competing interpretations of any claim.
+   Each rated on a confidence matrix.
+   ════════════════════════════════════════════════════════════════════ */
+
+function loadReadingsArchive(){
+  const saved = safeJSONParse(localStorage.getItem(LS.readings), null);
+  STATE.rr.archive = (saved && Array.isArray(saved)) ? saved : [];
+  renderReadingsArchive();
+}
+function persistReadingsArchive(){
+  localStorage.setItem(LS.readings, JSON.stringify(STATE.rr.archive));
+}
+
+function readingsPrompt(claim, context, count, subclaims){
+  const system = `You are the Aethernet's Rival Readings instrument. The architect submits a claim — fringe science, news, anomaly, something someone asserted. You generate exactly ${count} rigorous competing interpretations.
+
+Each reading must:
+- Be a real interpretation a serious analyst could defend.
+- Steel-man the position — argue it at its strongest, not its weakest.
+- Cite the public record where relevant (real studies, real events, real names — only if accurately attributable).
+- Receive a SINGLE confidence rating from this set:
+    CONFIRMED   — the public record supports this strongly.
+    PARTIAL     — partially supported, partially open.
+    OPEN        — plausible, evidence inconclusive.
+    CONTRADICTED — the public record contradicts this.
+    UNFALSIFIABLE — the claim cannot be tested in principle.
+
+The five readings together must be MEANINGFULLY DIFFERENT — different mechanisms, different framings, different empirical commitments. Not five flavors of the same explanation.
+
+CRITICAL OUTPUT FORMAT — output ONLY valid JSON, no preamble, no markdown fences, no commentary:
+
+{
+  "claim_restated": "a clean one-paragraph restatement of the claim",
+  ${subclaims ? '"subclaims": ["sub-claim 1", "sub-claim 2", "..."],' : ''}
+  "readings": [
+    {
+      "number": 1,
+      "title": "SHORT BOLD TITLE (5-9 words)",
+      "confidence": "CONFIRMED | PARTIAL | OPEN | CONTRADICTED | UNFALSIFIABLE",
+      "body": "the full reading — 150-300 words. cite the public record where applicable. steel-manned. specific. flowing prose, not bullet points."
+    },
+    ...exactly ${count} readings...
+  ],
+  "falsification_path": "1-3 sentences on what observation, if made, would discriminate between the readings",
+  "default_recommendation": "1-2 sentences on which reading should be the working hypothesis given the current evidence, and what would update it"
+}
+
+Voice: clinical-but-warm, the Corridor Templars S5 register. No mysticism. No performative skepticism. Just careful, specific analysis.`;
+
+  return {
+    system,
+    user: `CLAIM:
+${claim}
+
+${context ? `CONTEXT FROM THE ARCHITECT:\n${context}\n\n` : ''}Generate exactly ${count} readings now. Output only the JSON object.`
+  };
+}
+
+function tryParseJSON(s){
+  if(!s) return null;
+  // strip markdown fences if any leaked through
+  let t = s.trim();
+  if(t.startsWith('```')){
+    t = t.replace(/^```(?:json)?\s*/, '').replace(/```\s*$/, '');
+  }
+  // try direct
+  try { return JSON.parse(t); } catch {}
+  // try to extract first balanced { ... }
+  const first = t.indexOf('{');
+  const last = t.lastIndexOf('}');
+  if(first > -1 && last > first){
+    try { return JSON.parse(t.slice(first, last+1)); } catch {}
+  }
+  return null;
+}
+
+function readingsRenderCards(parsed){
+  const out = $('rr-output');
+  if(!parsed || !Array.isArray(parsed.readings)){
+    out.innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--signal-red); font-family:'Share Tech Mono',monospace; font-size:12px;">✗ output could not be parsed</div>`;
+    return;
+  }
+  const parts = [];
+
+  if(parsed.claim_restated){
+    parts.push(`<div class="panel" style="margin-bottom:14px;">
+      <div class="panel-head">CLAIM RESTATED</div>
+      <div class="panel-body">
+        <p class="lede" style="margin:0;">${esc(parsed.claim_restated)}</p>
+        ${parsed.subclaims && parsed.subclaims.length ? `
+          <div class="sublabel" style="margin-top:16px;">▸ SUB-CLAIMS</div>
+          <ol style="padding-left:22px; font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.7; color:var(--bone);">
+            ${parsed.subclaims.map(s => `<li style="margin-bottom:6px;">${esc(s)}</li>`).join('')}
+          </ol>
+        ` : ''}
+      </div>
+    </div>`);
+  }
+
+  parsed.readings.forEach(r => {
+    const confClass = (r.confidence || 'open').toLowerCase().replace(/[^a-z]/g, '');
+    parts.push(`
+      <div class="reading-card">
+        <div class="rc-head">
+          <div class="rc-no">${r.number || '◈'}</div>
+          <div class="rc-title">${esc(r.title || 'UNTITLED READING')}</div>
+          <div class="rc-conf ${confClass}">${esc((r.confidence || 'OPEN').toUpperCase())}</div>
+        </div>
+        <div class="rc-body">${esc(r.body || '')}</div>
+      </div>
+    `);
+  });
+
+  if(parsed.falsification_path){
+    parts.push(`<div class="panel" style="margin-top:14px;">
+      <div class="panel-head">FALSIFICATION PATH <span class="tag cy">DISCRIMINATING TEST</span></div>
+      <div class="panel-body">
+        <p class="lede" style="margin:0;">${esc(parsed.falsification_path)}</p>
+      </div>
+    </div>`);
+  }
+  if(parsed.default_recommendation){
+    parts.push(`<div class="panel" style="margin-top:14px;">
+      <div class="panel-head">WORKING HYPOTHESIS <span class="tag patina">DEFAULT POSITION</span></div>
+      <div class="panel-body">
+        <p class="lede" style="margin:0; font-style:italic;">${esc(parsed.default_recommendation)}</p>
+      </div>
+    </div>`);
+  }
+
+  out.innerHTML = parts.join('');
+  $('rr-out-count').textContent = parsed.readings.length + ' READING' + (parsed.readings.length===1?'':'S');
+}
+
+function updateReadingsStatus(state, gen=0, tokIn=0, tokOut=0, model='claude-opus-4-7'){
+  $('rr-state').textContent = state;
+  $('rr-state').className = 'v ' + ({IDLE:'dim',WORKING:'iris',COMPLETE:'good',ERROR:'warn',HALTED:'patina'}[state] || 'dim');
+  $('rr-gen').textContent = gen;
+  $('rr-tokens').textContent = fmtCount(tokIn + tokOut);
+  $('rr-cost').textContent = fmtCost(estimateCost(model, tokIn, tokOut));
+}
+
+let rrCurrentRaw = '';
+let rrCurrentParsed = null;
+
+async function readingsStart(){
+  if(!STATE.sessionId){ alert('No S5 session. Log in via the S5 console first.'); openKeyModal(); return; }
+  if(STATE.rr.running) return;
+
+  const claim = $('rr-claim').value.trim();
+  if(!claim){ alert('Enter a claim first.'); return; }
+
+  const context = $('rr-context').value.trim();
+  const count = parseInt($('rr-count').value, 10) || 5;
+  const model = $('rr-model').value;
+  const subclaims = $('rr-subclaims').value === 'yes';
+
+  STATE.rr.running = true;
+  $('rr-start').classList.add('hidden');
+  $('rr-halt').classList.remove('hidden');
+  updateReadingsStatus('WORKING', 0, 0, 0, model);
+
+  $('rr-output').innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--iris); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">
+    <span class="spin">◈</span> generating ${count} rival readings <span class="blink">…</span><br><br>
+    <span class="minor">${esc(model)} :: ${count} reading${count===1?'':'s'} :: subclaims ${subclaims?'on':'off'}</span>
+  </div>`;
+
+  try{
+    const { system, user } = readingsPrompt(claim, context, count, subclaims);
+    const resp = await callClaudeRetry({
+      model, max_tokens: 8000, system,
+      messages: [{ role:'user', content: user }]
+    }, { maxRetries: 2 });
+
+    const text = responseText(resp);
+    rrCurrentRaw = text;
+    const parsed = tryParseJSON(text);
+    rrCurrentParsed = parsed;
+
+    const tokIn  = resp.usage?.input_tokens  || 0;
+    const tokOut = resp.usage?.output_tokens || 0;
+    STATE.rr.tokensIn  = tokIn;
+    STATE.rr.tokensOut = tokOut;
+
+    if(!parsed){
+      // fallback: show the raw text
+      $('rr-output').innerHTML = `
+        <div style="padding:18px 22px; color:var(--patina); font-family:'Share Tech Mono',monospace; font-size:11px; border:1px dashed var(--patina-dim); margin-bottom:14px;">
+          ⚠ output was returned but could not be parsed as JSON. raw output shown below.
+        </div>
+        <div class="output-doc">
+          <div class="output-doc-head">
+            <div class="output-doc-title">RAW OUTPUT</div>
+            <div class="output-doc-meta">${fmtBytes(text.length)} // ${model}</div>
+          </div>
+          <div class="output-doc-body expanded">${esc(text)}</div>
+        </div>`;
+    } else {
+      readingsRenderCards(parsed);
+    }
+    updateReadingsStatus('COMPLETE', parsed?.readings?.length || 0, tokIn, tokOut, model);
+  } catch(err){
+    $('rr-output').innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--signal-red); font-family:'Share Tech Mono',monospace; font-size:12px;">
+      ✗ readings generation failed<br><br>
+      <span class="minor">${esc(String(err.message || err))}</span>
+    </div>`;
+    updateReadingsStatus('ERROR', 0, 0, 0, model);
+  } finally {
+    STATE.rr.running = false;
+    $('rr-start').classList.remove('hidden');
+    $('rr-halt').classList.add('hidden');
+  }
+}
+
+function readingsHalt(){
+  if(!STATE.rr.running) return;
+  STATE.rr.halted = true;
+  STATE.rr.running = false;
+  $('rr-start').classList.remove('hidden');
+  $('rr-halt').classList.add('hidden');
+  updateReadingsStatus('HALTED');
+}
+
+function readingsSave(){
+  if(!rrCurrentParsed && !rrCurrentRaw){ alert('No current readings to save.'); return; }
+  const claim = $('rr-claim').value.trim();
+  const entry = {
+    id: 'rr_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    ts: Date.now(),
+    claim,
+    parsed: rrCurrentParsed,
+    raw: rrCurrentRaw
+  };
+  STATE.rr.archive.unshift(entry);
+  persistReadingsArchive();
+  renderReadingsArchive();
+  alert('Saved to archive.');
+}
+
+function readingsDownload(){
+  if(!rrCurrentRaw){ alert('No output to download.'); return; }
+  const claim = $('rr-claim').value.trim().slice(0, 60).replace(/[^A-Za-z0-9_]/g, '_') || 'readings';
+  // Format a human-readable text version
+  let txt = '';
+  if(rrCurrentParsed){
+    txt += `RIVAL READINGS // CLAIM TRIAGE\n`;
+    txt += `Generated: ${new Date().toISOString()}\n`;
+    txt += `${'═'.repeat(72)}\n\n`;
+    txt += `CLAIM RESTATED:\n${rrCurrentParsed.claim_restated || ''}\n\n`;
+    if(rrCurrentParsed.subclaims){
+      txt += `SUB-CLAIMS:\n${rrCurrentParsed.subclaims.map((s,i)=>`  ${i+1}. ${s}`).join('\n')}\n\n`;
+    }
+    (rrCurrentParsed.readings || []).forEach(r => {
+      txt += `${'─'.repeat(72)}\n`;
+      txt += `READING ${r.number}: ${r.title}\n`;
+      txt += `CONFIDENCE: ${r.confidence}\n\n`;
+      txt += `${r.body}\n\n`;
+    });
+    txt += `${'═'.repeat(72)}\n`;
+    txt += `FALSIFICATION PATH:\n${rrCurrentParsed.falsification_path || ''}\n\n`;
+    txt += `WORKING HYPOTHESIS:\n${rrCurrentParsed.default_recommendation || ''}\n`;
+  } else {
+    txt = rrCurrentRaw;
+  }
+  downloadBlob(txt, `aether_readings_${claim}_${Date.now()}.txt`);
+}
+
+function readingsClear(){
+  rrCurrentRaw = '';
+  rrCurrentParsed = null;
+  $('rr-output').innerHTML = `<div style="padding:30px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;">— readings will appear here, one per card —</div>`;
+  $('rr-out-count').textContent = '0 READINGS';
+  updateReadingsStatus('IDLE');
+}
+
+function renderReadingsArchive(){
+  const c = $('rr-archive');
+  if(!STATE.rr.archive.length){
+    c.innerHTML = `<div style="padding:24px 22px; text-align:center; color:var(--bone-dimmer); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px;">— saved triage cards will list here —</div>`;
+    $('rr-arch-count').textContent = '0 ENTRIES';
+    return;
+  }
+  c.innerHTML = STATE.rr.archive.map(e => {
+    const d = new Date(e.ts).toLocaleString();
+    const claim = (e.claim || 'untitled').slice(0, 140);
+    const n = e.parsed?.readings?.length || 0;
+    return `
+      <div class="ledger-entry">
+        <div class="le-head">
+          <div class="le-ts">${esc(d)}</div>
+          <div class="le-src">${n} READINGS</div>
+        </div>
+        <div class="le-phrase" style="font-size:15px;">"${esc(claim)}"</div>
+        <div class="le-actions">
+          <button class="le-action" onclick="readingsLoadFromArchive('${esc(e.id)}')">▸ load</button>
+          <button class="le-action warn" onclick="readingsDeleteFromArchive('${esc(e.id)}')">▸ remove</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  $('rr-arch-count').textContent = STATE.rr.archive.length + ' ENTR' + (STATE.rr.archive.length===1?'Y':'IES');
+}
+
+function readingsLoadFromArchive(id){
+  const e = STATE.rr.archive.find(x => x.id === id);
+  if(!e) return;
+  $('rr-claim').value = e.claim || '';
+  rrCurrentRaw = e.raw || '';
+  rrCurrentParsed = e.parsed || null;
+  if(rrCurrentParsed) readingsRenderCards(rrCurrentParsed);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function readingsDeleteFromArchive(id){
+  if(!confirm('Remove this archived triage card?')) return;
+  STATE.rr.archive = STATE.rr.archive.filter(x => x.id !== id);
+  persistReadingsArchive();
+  renderReadingsArchive();
+}
+
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   BOOTSTRAP
+   ════════════════════════════════════════════════════════════════════ */
+
+function bootAethernet(){
+  // atmosphere
+  startClock();
+  startRecoveryDrift();
+  startParticles();
+
+  // station routing
+  wireStationTabs();
+  wireSegs();
+
+  // session relay (replaces API key)
+  refreshSession();
+  consumeAetherHandoff();
+
+  // forge
+  wireForgeFileLoader();
+  loadForgeState();
+
+  // transmuter
+  wireTransmuterFileLoader();
+  updateTransmuterStatus('IDLE');
+
+  // ledger
+  $('le-time').value = isoNow();
+  wireLedgerImport();
+  wireLedgerSearch();
+  loadLedger();
+
+  // readings
+  updateReadingsStatus('IDLE');
+  loadReadingsArchive();
+
+  // ask for notification permission (silent — they can deny it)
+  if('Notification' in window && Notification.permission === 'default'){
+    // don't ask immediately — wait until they start a long run
+    // (notification request will fire from forgeStart if needed)
+  }
+
+  // unload guard — warn if the forge is running
+  window.addEventListener('beforeunload', (e) => {
+    if(STATE.forge.running){
+      e.preventDefault();
+      e.returnValue = 'The Night Forge is broadcasting. Closing this tab will halt the run. Documents already landed are saved.';
+      return e.returnValue;
+    }
+  });
+
+  // page visibility — log to broadcast when tab is backgrounded
+  document.addEventListener('visibilitychange', () => {
+    if(STATE.forge.running){
+      if(document.visibilityState === 'hidden'){
+        broadcast('forge-broadcast', `tab backgrounded — broadcast continues. browsers may throttle, but documents will still land.`, 'patina');
+      } else {
+        broadcast('forge-broadcast', `tab foregrounded — full speed resumed.`, 'iris');
+      }
+    }
+  });
+
+  // log boot
+  console.log('%c◈ AETHERNET // LAYER III // CT-AE-001', 'color:#b8a8ff;font-family:monospace;font-size:14px;letter-spacing:3px;text-shadow:0 0 10px #b8a8ff;');
+  console.log('%cRECOVERED FROM A TIMELINE THAT WAS NOT KEPT.', 'color:#8ce0e8;font-family:monospace;font-size:10px;letter-spacing:2px;');
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', bootAethernet);
+} else {
+  bootAethernet();
+}
+
+</script>
+
+</body>
+</html>
