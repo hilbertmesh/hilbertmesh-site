@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STONEHOLD</title>
+<style>
+  :root{
+    --bg:#0e0a05; --gold:#f0d27a; --gold-deep:#caa24e; --ink:#e8dcc0; --ink-dim:#a08a60;
+    --line:#7a5f23; --panel:#1b140a;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; min-height:100%;}
+  body{display:flex; flex-direction:column; align-items:center; padding:0 0 40px; overflow-x:hidden;}
+  .wrap{width:100%; max-width:560px; padding:0 18px;}
+  .hero{position:relative; width:100%; margin-top:14px; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line); box-shadow:0 0 40px rgba(240,210,122,.12),0 18px 40px #000a;}
+  .hero img{width:100%; display:block;}
+  .hero::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg,transparent 55%,rgba(14,10,5,.55) 85%,var(--bg) 100%); pointer-events:none;}
+  .tag{text-align:center; margin:18px 4px 4px; font-size:13px; letter-spacing:.5px; color:var(--ink); line-height:1.6;}
+  .tag em{color:var(--gold); font-style:normal;}
+  .server{display:inline-block; margin-top:12px; font-size:11px; letter-spacing:2px;
+    color:var(--gold-deep); border:1px solid var(--line); border-radius:20px; padding:4px 14px; text-transform:uppercase;}
+  .play{display:block; width:100%; margin:24px 0 6px; padding:18px; border:none; border-radius:12px;
+    background:linear-gradient(#e8c45a,#b9883a); color:#241a08; font-family:inherit; font-weight:800;
+    font-size:18px; letter-spacing:2px; cursor:pointer;
+    box-shadow:0 6px 0 #7a5f23,0 12px 24px rgba(0,0,0,.4); text-transform:uppercase;}
+  .play:active{transform:translateY(4px); box-shadow:0 2px 0 #7a5f23,0 6px 14px rgba(0,0,0,.4);}
+  .substate{text-align:center; font-size:11px; color:var(--ink-dim); letter-spacing:.5px; min-height:16px;}
+  .feats{margin-top:26px; display:grid; gap:10px;}
+  .feat{display:flex; gap:12px; align-items:flex-start; background:var(--panel);
+    border:1px solid #2a2010; border-radius:10px; padding:13px 14px;}
+  .feat .ic{font-size:22px; line-height:1;}
+  .feat .ft{font-size:12px;}
+  .feat .ft b{color:var(--gold); display:block; letter-spacing:1px; margin-bottom:2px; font-size:12px;}
+  .feat .ft span{color:var(--ink-dim); line-height:1.5;}
+  .tiers{margin-top:22px; border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  .tiers .th{background:linear-gradient(#1f1810,#15100a); padding:10px 14px; font-size:11px;
+    letter-spacing:2px; color:var(--gold); text-transform:uppercase; border-bottom:1px solid #2a2010;}
+  .trow{display:flex; justify-content:space-between; padding:10px 14px; font-size:12px; border-bottom:1px solid #1c1509;}
+  .trow:last-child{border-bottom:none;}
+  .trow .tn{color:var(--ink); letter-spacing:1px;}
+  .trow .tv{color:var(--ink-dim); text-align:right;}
+  .back{display:inline-block; margin:22px auto 0; color:var(--ink-dim); font-size:12px; text-decoration:none; letter-spacing:1px;}
+  .back:active{color:var(--gold);}
+  .footer{text-align:center; margin-top:24px; font-size:10px; color:#5a4a2a; letter-spacing:2px;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <img src="stonehold_cover.webp" alt="STONEHOLD cover art">
+    </div>
+    <div class="tag">
+      Raise a walled keep on the sun-baked plains.<br>
+      Farms, sawmills and quarries outside the walls; barracks and beacon within.<br>
+      <em>A slow-grind medieval city-builder. The mountain holds.</em>
+      <div class="server">&#9900; SERVER SS37 &middot; ONLINE</div>
+    </div>
+    <button class="play" id="playBtn">&#9656; PLAY GAME</button>
+    <div class="substate" id="sub">Checking your keep&hellip;</div>
+    <div class="feats">
+      <div class="feat"><div class="ic">&#127984;</div><div class="ft"><b>BUILD YOUR HOLD</b><span>Resource fields outside, civic buildings inside the walls. Upgrade over real days.</span></div></div>
+      <div class="feat"><div class="ic">&#8987;</div><div class="ft"><b>REAL-TIME ECONOMY</b><span>Resources accrue on server time even while you're away. Return to a fuller treasury.</span></div></div>
+      <div class="feat"><div class="ic">&#9876;&#65039;</div><div class="ft"><b>SCOUT &amp; CONQUER</b><span>Barbarian camps and derelict towns dot the world map. Scout them, then take them.</span></div></div>
+      <div class="feat"><div class="ic">&#128737;&#65039;</div><div class="ft"><b>CHEAT-PROOF</b><span>Server-authoritative. Every action validated &mdash; your progress is real and yours alone.</span></div></div>
+    </div>
+    <div class="tiers">
+      <div class="th">Membership perks</div>
+      <div class="trow"><span class="tn">CIVILIAN</span><span class="tv">Base economy &middot; 1&times; production</span></div>
+      <div class="trow"><span class="tn">AGENT</span><span class="tv">1.5&times; production &middot; +1 queue &middot; daily pack</span></div>
+      <div class="trow"><span class="tn">SENIOR AGENT</span><span class="tv">2&times; production &middot; +2 queue &middot; faster troops</span></div>
+    </div>
+    <div style="text-align:center"><a class="back" href="index.html">&lsaquo; back to Hilbert Mesh</a></div>
+    <div class="footer">THE MOUNTAIN HOLDS</div>
+  </div>
+<script>
+  function s5sid(){ return localStorage.getItem("hmf_s5_session")||localStorage.getItem("s5_session")||""; }
+  var loggedIn = !!s5sid();
+  var sub=document.getElementById("sub");
+  var btn=document.getElementById("playBtn");
+  if(loggedIn){
+    sub.textContent="Welcome back, operator \u2014 your keep awaits.";
+    btn.innerHTML="\u25B8 ENTER YOUR KEEP";
+    btn.onclick=function(){ location.href="stonehold-game.html"; };
+  } else {
+    sub.innerHTML="Log in with your S5 code to claim a keep &middot; <span style='color:#f0d27a'>free to play</span>";
+    btn.innerHTML="\u25B8 LOG IN TO PLAY";
+    btn.onclick=function(){
+      try{ sessionStorage.setItem("s5_return","stonehold-game.html"); }catch(e){}
+      location.href="s5.html";
+    };
+  }
+</script>
+</body>
+</html>
