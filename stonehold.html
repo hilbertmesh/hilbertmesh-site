@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>STONEHOLD</title>
+<style>
+  :root{--gold:#e7b24a;--gold-dk:#b9822b;--bg:#241a10;--ink:#f4e6c8;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+    font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;user-select:none;-webkit-user-select:none;}
+  #game{position:fixed;inset:0;display:flex;flex-direction:column;}
+  #tabs{display:flex;flex:0 0 auto;height:56px;background:#160f08;}
+  .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-weight:800;
+    font-size:15px;background:linear-gradient(180deg,#f0e3bd,#ddc794);color:#4a3620;border-right:1px solid #b9822b55;
+    font-family:Georgia,'Times New Roman',serif;text-shadow:0 1px 0 #fff8;border-bottom:3px solid #b9822b;}
+  .tab.alt{background:linear-gradient(180deg,#eaddb4,#d5bf8c);}
+  .tab.on{background:linear-gradient(180deg,#f6cf62,#d99b28);box-shadow:inset 0 -3px 0 #8a5f22,inset 0 2px 0 #ffe9ae;border-bottom-color:#8a5f22;}
+  .tab.server{flex:0 0 84px;background:#160f08;color:var(--gold);flex-direction:column;gap:0;font-size:11px;}
+  .tab.server b{font-size:15px;}
+  #res{display:flex;flex:0 0 auto;height:60px;background:linear-gradient(180deg,#f2e4bf,#e0cb9b);border-bottom:3px solid #b9822b;}
+  .rc{flex:1;display:flex;align-items:center;gap:6px;padding:0 5px;border-right:1px solid #b9822b40;}
+  .rc canvas{width:26px;height:26px;flex:0 0 26px;}
+  .rc .v{font-weight:800;font-size:16px;line-height:1;color:#3a2914;text-shadow:0 1px 0 #fff8;}
+  .rc .r{font-size:11px;color:#3f7a26;line-height:1;margin-top:2px;font-weight:700;}
+  #stageWrap{position:relative;flex:1 1 auto;overflow:hidden;background:#0c0906;}
+  #stage{position:absolute;inset:0;width:100%;height:100%;touch-action:none;}
+  #hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:14px;color:#fff;
+    text-shadow:0 1px 3px #000,0 0 8px #000;pointer-events:none;font-weight:600;padding:0 12px;}
+  #topbtns{position:absolute;top:8px;right:8px;display:flex;gap:6px;}
+  .tb{background:linear-gradient(180deg,#fdf3d5 0%,#f2ddae 46%,#e3c98f 54%,#d5b878 100%);border:2px solid #b9822b;color:#5a3c14;
+    border-radius:8px;padding:6px 9px;font-weight:800;font-size:13px;
+    box-shadow:0 2px 0 #8a5f22,0 3px 4px #0004,inset 0 1px 0 #fffb,inset 0 -3px 5px #b9822b44;
+    text-shadow:0 1px 0 #fff8;}
+  .tb:active{transform:translateY(1px);box-shadow:0 1px 0 #8a5f22,inset 0 1px 0 #fffb;}
+  #logbar{flex:0 0 auto;background:linear-gradient(180deg,#fdf6e0,#f2e6c6);border-top:3px solid #b9822b;
+    font-size:12.5px;max-height:26px;overflow:hidden;transition:max-height .18s;}
+  #logbar.open{max-height:200px;}
+  #logLatest{padding:4px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8a2f1f;font-weight:700;}
+  #logList{display:none;overflow-y:auto;max-height:140px;padding:2px 10px 6px;}
+  #logbar.open #logList{display:block;}
+  #logbar.open #logLatest{border-bottom:1px solid #b9822b55;}
+  #logChev{float:right;color:#8a5f22;font-weight:900;}
+  #chatstub{display:none;padding:4px 10px 7px;color:#8a3a2a;font-size:11.5px;border-top:1px dashed #b9822b66;}
+  #logbar.open #chatstub{display:block;}
+  #logbar.open #chatWrap{display:block;}
+  .chtab{padding:4px 9px;font-size:11px;font-weight:800;color:#5a3c14;background:#e3c98f;border:1px solid #b9822b;border-radius:6px 6px 0 0;cursor:pointer;}
+  .chtab.on{background:#fffdf5;border-bottom-color:#fffdf5;}
+  .chatline{padding:2px 0;line-height:1.35;}
+  .chatline .who{font-weight:800;color:#8a5f22;}
+  .chatline.sys{color:#3a6bd9;font-style:italic;}
+  #chatstub .ch{background:#fff;border:1px solid #b9822b;border-radius:4px;padding:0 7px;margin-right:6px;color:#4a3620;font-weight:800;}
+  .lg{padding:2px 0;line-height:1.35;}
+  .lg .t{color:#8a7a55;font-size:10.5px;margin-right:5px;}
+  .lg.system{color:#b3382a;} .lg.battle{color:#7a1f1f;font-weight:700;}
+  .lg.scout{color:#1f4d7a;} .lg.done{color:#3f6d28;} .lg.world{color:#4a3620;}
+  .lg.whisper{color:#7a3fa0;font-style:italic;}   /* private messages — purple, of course */
+  #wallBtn{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:linear-gradient(180deg,#f4e7c2,#dfc893);
+    border:2px solid #b9822b;color:#5a3c14;border-radius:8px;padding:7px 16px;font-weight:800;display:none;
+    box-shadow:0 2px 0 #8a5f22,inset 0 1px 0 #fff8;font-family:Georgia,serif;}
+  #tier{position:absolute;top:8px;left:8px;background:linear-gradient(180deg,#f4e7c2,#dfc893);border:2px solid #b9822b;color:#5a3c14;
+    border-radius:8px;padding:4px 9px;font-size:11px;font-weight:800;box-shadow:0 2px 0 #8a5f22;}
+  #stageWrap{border-left:7px solid;border-right:7px solid;
+    border-image:linear-gradient(180deg,#e2bd6d,#b9822b 30%,#8a5f22 90%) 1;}
+  #shop{position:absolute;inset:0;display:none;overflow:auto;padding:16px;background:linear-gradient(180deg,#3a2c18,#241a10);}
+  #shop h2{color:var(--gold);text-align:center;margin:2px;} #shop .sub{text-align:center;color:#d8b98a;font-size:13px;margin-bottom:12px;}
+  #wheel{width:240px;height:240px;border-radius:50%;border:7px solid var(--gold-dk);display:block;margin:0 auto;}
+  .shopSec{margin:16px 8px 6px;font-weight:800;color:#e7b24a;border-bottom:1px solid #b9822b55;padding-bottom:4px;}
+  #spinBtn{display:block;margin:12px auto;background:#d24d84;color:#fff;border:none;border-radius:10px;padding:12px 40px;font-weight:800;font-size:17px;}
+  .card{background:#f3e6c8;color:#3a2610;border-radius:12px;padding:14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;}
+  #dock{flex:0 0 auto;height:78px;background:linear-gradient(180deg,#e9dcbd,#d6c49c);display:flex;gap:8px;padding:8px;overflow-x:auto;}
+  .slot{flex:0 0 150px;border:2px dashed #a98f5f;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#8a7245;font-weight:700;font-size:13px;}
+  .slot.act{background:#fff8e6;border-style:solid;color:#3a2610;flex-direction:column;gap:2px;}
+  .slot.act .t{font-size:11px;color:#b06a2a;font-weight:800;} .slot.act .bar{width:88%;height:6px;background:#d8c49a;border-radius:3px;overflow:hidden;margin-top:3px;}
+  .slot.act .bar>i{display:block;height:100%;background:#3a8a3a;}
+  #scrim{position:absolute;inset:0;background:#000a;display:none;z-index:40;}
+  #modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90%,380px);max-height:80%;overflow:auto;
+    background:linear-gradient(180deg,#f6ecd0,#e4d0a6);color:#3a2610;border-radius:12px;padding:16px;display:none;z-index:41;
+    box-shadow:0 12px 40px #000a;border:3px solid #b9822b;outline:2px solid #e7c87e;outline-offset:-7px;}
+  #modal h3{margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;text-align:center;
+    border-bottom:2px solid #b9822b;padding-bottom:7px;color:#4a2f10;text-shadow:0 1px 0 #fff8;} .opt{display:flex;align-items:center;gap:10px;padding:11px;background:#fff8e6;
+    border:1px solid #cdb488;border-radius:10px;margin-bottom:8px;font-weight:700;}
+  .opt .em{font-size:22px;width:26px;text-align:center;} .opt .meta{margin-left:auto;font-size:12px;color:#8a6a2a;text-align:right;}
+  .opt.dis{opacity:.5;} #mClose{width:100%;padding:11px;border:none;border-radius:10px;background:#3a2c18;color:var(--gold);font-weight:800;margin-top:4px;}
+  #toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;
+    border-radius:20px;font-weight:700;z-index:50;opacity:0;transition:opacity .25s;pointer-events:none;max-width:82%;text-align:center;}
+</style>
+</head>
+<body>
+<!-- BACK TO HILBERT MESH (tan parchment, matches Stonehold GUI) -->
+<button id="backToSite" title="Back to Hilbert Mesh" style="position:fixed;top:6px;right:6px;z-index:99999;
+background:linear-gradient(180deg,#fdf3d5,#e3c98f);color:#5a3c14;
+border:2px solid #b9822b;border-radius:7px;padding:3px 8px;
+font-family:Georgia,serif;font-weight:800;font-size:10px;letter-spacing:.3px;line-height:1.15;
+box-shadow:0 2px 0 #8a5f22,0 2px 4px #0005,inset 0 1px 0 #fffb;
+text-shadow:0 1px 0 #fff8;cursor:pointer;opacity:.9;
+transition:opacity .18s,box-shadow .18s;">◂ MESH</button>
+<button id="resetSave" title="Reset your save (safe)" style="display:none;position:fixed;top:6px;right:84px;z-index:99999;
+background:linear-gradient(180deg,#fdf3d5,#e3c98f);color:#8a3a2a;
+border:2px solid #b9822b;border-radius:7px;padding:3px 8px;
+font-family:Georgia,serif;font-weight:800;font-size:10px;line-height:1.15;
+box-shadow:0 2px 0 #8a5f22,0 2px 4px #0005,inset 0 1px 0 #fffb;cursor:pointer;opacity:.9;">↻ RESET</button>
+<script>(function(){var rb=document.getElementById('resetSave');if(!rb)return;
+rb.onclick=function(){ if(!confirm('Reset your save? This wipes your LOCAL game and starts fresh. If you are online, your server progress reloads instead. No cheating — this just clears a stuck save.'))return;
+  try{localStorage.removeItem('stonehold_v2');}catch(e){}
+  location.reload();};})();</script>
+<script>(function(){var b=document.getElementById('backToSite');if(!b)return;
+b.addEventListener('touchstart',function(){b.style.opacity='1';},{passive:true});
+b.addEventListener('mouseenter',function(){b.style.opacity='1';b.style.boxShadow='0 2px 0 #8a5f22,0 4px 8px #0006,inset 0 1px 0 #fffb';});
+b.addEventListener('mouseleave',function(){b.style.opacity='.92';b.style.boxShadow='0 2px 0 #8a5f22,0 3px 5px #0005,inset 0 1px 0 #fffb';});
+b.addEventListener('click',function(){b.textContent='RETURNING…';b.style.opacity='.6';
+setTimeout(function(){window.location.href='index.html';},350);});})();</script>
+<div id="game">
+  <div id="tabs">
+    <div class="tab on" data-v="town">🏰 TOWN</div>
+    <div class="tab alt" data-v="outside">🌾 FIELDS</div>
+    <div class="tab" data-v="map">🗺️ MAP</div>
+    <div class="tab alt" data-v="shop">🛒 SHOP</div>
+    <div class="tab" id="profileTab" onclick="openProfile()">👤 PROFILE</div>
+    <div class="tab" id="cityTab" style="display:none" onclick="openCityList()">🏰<b id="cityCount">1</b></div><div class="tab server">Server<b>SS37</b><span id="srvBadge" style="font-size:8px;font-weight:400;color:#8a5f22;display:block">connecting…</span></div>
+  </div>
+  <div id="res"></div>
+  <div id="stageWrap">
+    <canvas id="stage"></canvas>
+    <div id="tier">TIER: —</div>
+    <div id="topbtns">
+      <button class="tb" data-skip="1">⏩+1h</button>
+      <button class="tb" data-skip="6">⏩+6h</button>
+      <button class="tb" id="zoomIn">➕</button>
+      <button class="tb" id="zoomOut">➖</button>
+      <button class="tb" id="refreshBtn">↻</button>
+      <button class="tb" id="devBtn" title="dev mode" style="display:none">🛠️</button>
+      <button class="tb" id="dbgBtn" title="download debug log" style="display:none">🐛</button>
+    </div>
+    <div id="hint"></div>
+    <button id="wallBtn">🧱 Upgrade Walls</button>
+    <div id="shop"></div>
+  </div>
+  <div id="logbar">
+    <div id="logLatest">📜 <span>The realm awaits your first decree.</span><b id="logChev">▾</b></div>
+    <div id="logList"></div>
+    <div id="chatWrap" style="display:none">
+      <div id="chatTabs" style="display:flex;gap:2px;padding:4px 4px 0;flex-wrap:wrap">
+        <span class="chtab on" data-ch="global">🌍 Global</span>
+        <span class="chtab" data-ch="local">📍 Local</span>
+        <span class="chtab" data-ch="clan">⚔️ Clan</span>
+        <span class="chtab" data-ch="trade">💰 Trade</span>
+        <span class="chtab" data-ch="system">🔔 System</span>
+      </div>
+      <div id="chatMsgs" style="max-height:110px;overflow-y:auto;padding:6px 8px;font-size:12.5px;background:#fffdf5"></div>
+      <div style="display:flex;gap:4px;padding:4px;border-top:1px solid #b9822b55">
+        <input id="chatInput" maxlength="200" placeholder="/g global · /l local · /c clan · /t trade · /p name msg" style="flex:1;padding:7px;border:2px solid #b9822b;border-radius:6px;font-size:12.5px">
+        <button id="chatSendBtn" style="background:linear-gradient(180deg,#3f8a3a,#2c6329);color:#fff;border:2px solid #24521f;border-radius:6px;padding:7px 12px;font-weight:800">➤</button>
+      </div>
+    </div>
+  </div>
+  <div id="dock"></div>
+</div>
+<div id="scrim"></div><div id="modal"></div><div id="toast"></div>
+
+<script>
+/* ===================== STONEHOLD — Town v2 (canvas iso engine) ===================== */
+/* ---- debug console: captures errors + actions, exports to .txt ---- */
+const DBG={buf:[],max:800,
+  log(type,msg){this.buf.push({t:new Date().toISOString().slice(11,23),type,msg:String(msg)});if(this.buf.length>this.max)this.buf.shift();},
+  download(){try{
+    const lines=this.buf.map(e=>`[${e.t}] ${e.type}: ${e.msg}`).join('\n');
+    const head='STONEHOLD DEBUG LOG\n'+new Date().toString()+'\nUA: '+navigator.userAgent+
+      '\nviewport: '+innerWidth+'x'+innerHeight+' dpr='+(devicePixelRatio||1)+
+      '\nview: '+(typeof view!=='undefined'?view:'?')+'  render: code-art (no image files)'+
+      '\n\n=== RENDER DIAGNOSTICS ===\n'+
+      'zoom: '+(typeof zoom!=='undefined'?zoom.toFixed(2):'?')+
+      '\nwallTier: '+(typeof S!=='undefined'?S.wall:'?')+'   thLevel: '+(typeof S!=='undefined'?S.thLevel:'?')+
+      '\ncityBuildings: '+(typeof S!=='undefined'?Object.keys(S.city||{}).length:'?')+'   resourceNodes: '+(typeof S!=='undefined'?Object.keys(S.nodes||{}).length:'?')+
+      '\nqueue: '+(typeof S!=='undefined'?(S.queue||[]).length:'?')+'   hotspots(lastFrame): '+(typeof hots!=='undefined'?hots.length:'?')+
+      '\nmapDecor: '+(typeof mapdecor!=='undefined'&&mapdecor?mapdecor.length:'0')+'   npcs: '+(typeof npcs!=='undefined'&&npcs?npcs.length:'0')+
+      '\ncanvas: '+(typeof VW!=='undefined'?VW+'x'+VH:'?')+' @dpr'+(typeof DPR!=='undefined'?DPR:'?')+
+      '\n\n=== STATE ===\n'+JSON.stringify(typeof S!=='undefined'?S:{},null,1)+'\n\n=== EVENT LOG ('+this.buf.length+') ===\n'+lines;
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([head],{type:'text/plain'}));
+    a.download='stonehold-debug-'+Date.now()+'.txt';document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},3000);
+    if(typeof toast==='function')toast('Debug log downloaded 🐛');
+  }catch(err){alert('Debug export failed: '+err);}}
+};
+addEventListener('error',e=>DBG.log('JS-ERROR',(e.message||'')+' @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')+':'+(e.colno||'')));
+addEventListener('unhandledrejection',e=>DBG.log('PROMISE-REJECT',(e.reason&&e.reason.message)||e.reason));
+(function(){const _e=console.error;console.error=function(){DBG.log('console.error',[].join.call(arguments,' '));_e.apply(console,arguments);};})();
+
+/* ================= CODE-DRAWN ART (no image files) ================= */
+/* Evony Age-1/2 look: warm soft-lit palette, gabled houses (not tents),   */
+/* warm outlines (never pure black), terrain backdrops, level badges.      */
+let ATLAS_OK=true;                                   // guards throughout expect this
+var _renderFails=0, _renderErrLogged=false, lastSave=Date.now();   // loop-state vars (declared before loop starts)
+requestAnimationFrame(()=>loop());                    // kick the render loop (atlas used to)
+
+const OUT='rgba(60,44,30,0.34)';                      // warm dark outline (never black)
+function shade(c,f){return 'rgb('+(c[0]*f|0)+','+(c[1]*f|0)+','+(c[2]*f|0)+')';}
+function poly(pts,fill,stroke,lw){ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke!==null){ctx.strokeStyle=stroke||OUT;ctx.lineWidth=lw||1;ctx.stroke();}}
+function softShadow(cx,cy,fw,fh){ctx.save();ctx.globalAlpha=.16;ctx.beginPath();
+  ctx.ellipse(cx,cy,fw*1.02,fh*1.02,0,0,7);ctx.fillStyle='#000';ctx.fill();ctx.restore();}
+
+/* ---- texture helpers (the sculpt toolkit) ---- */
+/* GRAIN: seeded (no shimmer) speck pattern, anchored per-face so it pans with buildings.
+   Kills the flat solid-color vector look — the #1 Evony de-blocker. */
+const GRAIN=(function(){const c=document.createElement('canvas');c.width=c.height=64;
+  const g=c.getContext('2d');let s=1234567;const rnd=()=>((s=(s*16807)%2147483647)/2147483647);
+  const img=g.createImageData(64,64);
+  for(let i=0;i<img.data.length;i+=4){const v=rnd();
+    const l=v<0.5?0:255;img.data[i]=img.data[i+1]=img.data[i+2]=l;
+    img.data[i+3]=(rnd()*26)|0;}                     // specks ≤10% alpha, light+dark mix
+  g.putImageData(img,0,0);return c;})();
+let GRAIN_PAT=null;
+function grain(pts,a){                               // clip to face, stipple, anchored to face bbox
+  if(!GRAIN_PAT){try{GRAIN_PAT=ctx.createPattern(GRAIN,'repeat');}catch(e){return;}}
+  if(!GRAIN_PAT)return;
+  let mx=1e9,my=1e9,Mx=-1e9,My=-1e9;
+  for(const p of pts){if(p[0]<mx)mx=p[0];if(p[1]<my)my=p[1];if(p[0]>Mx)Mx=p[0];if(p[1]>My)My=p[1];}
+  if((Mx-mx)*(My-my)<60)return;                      // tiny faces: texture is invisible, skip the work
+  ctx.save();ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.closePath();ctx.clip();
+  ctx.globalAlpha=(a===undefined?0.55:a);
+  ctx.translate(Math.round(mx),Math.round(my));      // pattern rides with the face, not the screen
+  ctx.fillStyle=GRAIN_PAT;ctx.fillRect(-1,-1,(Mx-mx)+3,(My-my)+3);
+  ctx.restore();}
+function gfill(pts,c,f1,f2,stroke){                 // vertical gradient fill of a face
+  let miny=1e9,maxy=-1e9;for(const p of pts){if(p[1]<miny)miny=p[1];if(p[1]>maxy)maxy=p[1];}
+  if(maxy-miny<0.5)maxy=miny+1;const g=ctx.createLinearGradient(0,miny,0,maxy);
+  g.addColorStop(0,shade(c,f1));g.addColorStop(1,shade(c,f2));
+  poly(pts,g,stroke===undefined?OUT:stroke,1);
+  grain(pts);}                                       // weathering on every face (walls/roofs/soil)
+function facePt(f,u,v){                              // f=[bA,bB,tB,tA]; u along base, v up
+  const bx=f[0][0]+(f[1][0]-f[0][0])*u, by=f[0][1]+(f[1][1]-f[0][1])*u;
+  const tx=f[3][0]+(f[2][0]-f[3][0])*u, ty=f[3][1]+(f[2][1]-f[3][1])*u;
+  return [bx+(tx-bx)*v, by+(ty-by)*v];}
+function courses(f,n,col,lw){ctx.strokeStyle=col;ctx.lineWidth=lw||1;   // lines ∥ base (stone/timber)
+  for(let k=1;k<n;k++){const v=k/n;const a=facePt(f,0,v),b=facePt(f,1,v);
+    ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}}
+function win(f,u,v,du,dv,col){const p=[facePt(f,u-du,v-dv),facePt(f,u+du,v-dv),facePt(f,u+du,v+dv),facePt(f,u-du,v+dv)];
+  poly(p,col,'rgba(40,30,18,0.45)',1);}
+function shingles(eaveA,eaveB,ridgeA,ridgeB,col){ctx.strokeStyle=col;ctx.lineWidth=1; // roof courses
+  for(let k=1;k<=3;k++){const t=k/4;
+    const a=[eaveA[0]+(ridgeA[0]-eaveA[0])*t,eaveA[1]+(ridgeA[1]-eaveA[1])*t];
+    const b=[eaveB[0]+(ridgeB[0]-eaveB[0])*t,eaveB[1]+(ridgeB[1]-eaveB[1])*t];
+    ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}}
+function rim(a,b,col){ctx.strokeStyle=col;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();} // warm sun edge
+
+/* ---- gabled house: a real house shape (ridge parallel to a wall) ---- */
+function house(cx,cy,fw,fh,H,R,wall,roof,opt){opt=opt||{};
+  const N=[cx,cy-fh],E=[cx+fw,cy],S=[cx,cy+fh],W=[cx-fw,cy];         // ground diamond
+  const tN=[N[0],N[1]-H],tE=[E[0],E[1]-H],tS=[S[0],S[1]-H],tW=[W[0],W[1]-H];
+  const fSW=[W,S,tS,tW], fSE=[S,E,tE,tS];
+  gfill(fSW,wall,0.94,0.72);                                         // SW wall (lighter), top→bottom gradient
+  gfill(fSE,wall,0.76,0.56);                                         // SE wall (darker)
+  // ambient occlusion: the roof throws shade onto the top of the walls (kills the box read)
+  const ao=(f)=>{const a=facePt(f,0,0),b=facePt(f,1,0),a2=facePt(f,0,0.20),b2=facePt(f,1,0.20);
+    const g=ctx.createLinearGradient(0,Math.min(a[1],b[1]),0,Math.max(a2[1],b2[1]));
+    g.addColorStop(0,'rgba(30,20,10,0.28)');g.addColorStop(1,'rgba(30,20,10,0)');
+    poly([a,b,b2,a2],g,null);};
+  ao(fSW);ao(fSE);
+  // ground-contact AO: darker footing line where wall meets earth
+  ctx.strokeStyle='rgba(30,22,12,0.30)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(W[0],W[1]-1);ctx.lineTo(S[0],S[1]-1);ctx.lineTo(E[0],E[1]-1);ctx.stroke();
+  if(opt.timber){courses(fSW,1,shade(wall,0.5));                     // Tudor beams
+    ctx.strokeStyle=shade(wall,0.5);ctx.lineWidth=1.4;
+    for(const u of [0.28,0.72]){const a=facePt(fSW,u,0),b=facePt(fSW,u,0.9);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}}
+  else courses(fSW,3,'rgba(60,44,30,0.10)');                        // faint plaster lines
+  // windows (warm-lit) + a door on the SW front
+  const hsh=CUR_SEED%9973;                                           // per-BUILDING life, stable while panning
+  const lit='rgba(240,206,120,0.9)', dark='rgba(48,38,26,0.9)';
+  const glow=(f,u,v)=>{if(fw<9)return;const q=facePt(f,u,v);ctx.save();ctx.globalAlpha=0.20;
+    ctx.fillStyle='#ffd070';ctx.beginPath();ctx.ellipse(q[0],q[1],7,9,0,0,7);ctx.fill();ctx.restore();};
+  const w1=hsh%3!==0, w2=hsh%4!==1;
+  if(w1)glow(fSW,0.30,0.62); win(fSW,0.30,0.55,0.055,0.16,w1?lit:dark);
+  if(w2)glow(fSW,0.70,0.62); win(fSW,0.70,0.55,0.055,0.16,w2?lit:dark);
+  win(fSE,0.5,0.55,0.06,0.16,shade(wall,0.4));
+  poly([facePt(fSW,0.44,0),facePt(fSW,0.56,0),facePt(fSW,0.56,0.42),facePt(fSW,0.44,0.42)],shade(roof,0.4),'rgba(40,30,18,0.5)',1); // door
+  // gable roof with OVERHANGING EAVES (extends past the walls → reads as a real roof, not a box lid)
+  const ovf=1.20, drop=Math.min(3.5,H*0.14);
+  const ev=(p)=>[cx+(p[0]-cx)*ovf, p[1]+drop];
+  const eN=ev(tN),eE=ev(tE),eS=ev(tS),eW=ev(tW);
+  const rA=[(eN[0]+eW[0])/2,(eN[1]+eW[1])/2-R];
+  const rB=[(eS[0]+eE[0])/2,(eS[1]+eE[1])/2-R];
+  poly([eE,eS,ev(tS),ev(tE)],shade(roof,0.5),null);                 // eave underside shadow (SE)
+  poly([eW,eS,ev(tS),ev(tW)],shade(roof,0.6),null);                 // eave underside (SW)
+  gfill([eN,eE,rB,rA],roof,1.08,0.9);                               // upper-right slope (lit)
+  shingles(eN,eE,rA,rB,shade(roof,0.72));
+  gfill([eW,eS,rB,rA],roof,0.86,0.72);                              // lower-left slope
+  shingles(eW,eS,rA,rB,shade(roof,0.6));
+  gfill([eE,eS,rB],roof,0.7,0.58);                                  // front gable triangle
+  // ridge CAP: a real course of capping tiles, not just a line (Evony roofs read from the ridge)
+  ctx.strokeStyle=shade(roof,0.50);ctx.lineWidth=3.4;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(rA[0],rA[1]);ctx.lineTo(rB[0],rB[1]);ctx.stroke();
+  rim(rA,rB,shade(roof,1.28));                                      // sunlit top edge of the cap
+  ctx.fillStyle=shade(roof,0.42);                                   // cap end-stones
+  ctx.beginPath();ctx.arc(rA[0],rA[1],2.1,0,7);ctx.fill();
+  ctx.beginPath();ctx.arc(rB[0],rB[1],2.1,0,7);ctx.fill();
+  if(opt.chimney&&fw>7){                                            // stone chimney on the lit slope + living smoke
+    const chp=[rA[0]+(rB[0]-rA[0])*0.74,(rA[1]+(rB[1]-rA[1])*0.74)];
+    const chx=chp[0]+fw*0.10, chy=chp[1]+2.5, cw=Math.max(3,fw*0.10), chh=Math.max(6,H*0.42);
+    poly([[chx-cw,chy],[chx,chy+cw*0.5],[chx,chy-chh+cw*0.5],[chx-cw,chy-chh]],shade(wall,0.82),null);
+    poly([[chx,chy+cw*0.5],[chx+cw,chy],[chx+cw,chy-chh],[chx,chy-chh+cw*0.5]],shade(wall,0.62),null);
+    ctx.fillStyle=shade(wall,1.0);ctx.fillRect(chx-cw-1,chy-chh-2.5,cw*2+2,3);
+    const t=performance.now()/1400+hsh;                             // deterministic drift per house
+    for(let i2=0;i2<3;i2++){const ph=(t+i2*0.33)%1;
+      ctx.save();ctx.globalAlpha=0.22*(1-ph);
+      ctx.fillStyle='#e8e4da';ctx.beginPath();
+      ctx.ellipse(chx+Math.sin((t+i2)*2.1)*3+ph*5, chy-chh-4-ph*15, 2.2+ph*3.4, 1.7+ph*2.6, 0,0,7);
+      ctx.fill();ctx.restore();}}
+  if(opt.stripes){for(let i=0;i<4;i++){const t0=i/4,t1=(i+0.5)/4;
+      const a=[S[0]+(E[0]-S[0])*t0,S[1]+(E[1]-S[1])*t0],b=[S[0]+(E[0]-S[0])*t1,S[1]+(E[1]-S[1])*t1];
+      poly([a,b,[b[0],b[1]-H*0.34],[a[0],a[1]-H*0.34]], i%2?'#b5674c':'#e8d8b0',null);}}
+  if(opt.banner){ctx.strokeStyle='#6b4a2a';ctx.lineWidth=2;ctx.beginPath();
+    ctx.moveTo(cx,rA[1]-2);ctx.lineTo(cx,rA[1]-14);ctx.stroke();
+    poly([[cx,rA[1]-14],[cx+11,rA[1]-10],[cx,rA[1]-6]],'#b23a34',null);}
+}
+/* ---- stone tower / keep (grand center & map castles): steep hip + flag ---- */
+function tower(cx,cy,fw,fh,H,R,wall,roof,opt){opt=opt||{};
+  const N=[cx,cy-fh],E=[cx+fw,cy],S=[cx,cy+fh],W=[cx-fw,cy];
+  const K=0.90;                                                      // battered walls: top narrower than base
+  const tp=(p)=>[cx+(p[0]-cx)*K, cy+(p[1]-cy)*K - H];
+  const tN=tp(N),tE=tp(E),tS=tp(S),tW=tp(W);
+  const fSW=[W,S,tS,tW], fSE=[S,E,tE,tS];
+  gfill(fSW,wall,0.94,0.72); gfill(fSE,wall,0.74,0.54);
+  courses(fSW,4,'rgba(50,38,26,0.18)'); courses(fSE,4,'rgba(50,38,26,0.22)'); // stone block courses
+  ctx.strokeStyle='rgba(255,250,238,0.35)';ctx.lineWidth=1.4;        // sunlit corner arris — pops the silhouette
+  ctx.beginPath();ctx.moveTo(S[0],S[1]);ctx.lineTo(tS[0],tS[1]);ctx.stroke();
+  ctx.strokeStyle='rgba(28,20,12,0.35)';ctx.lineWidth=2.2;           // battered footing shadow
+  ctx.beginPath();ctx.moveTo(W[0],W[1]-1);ctx.lineTo(S[0],S[1]-1);ctx.lineTo(E[0],E[1]-1);ctx.stroke();
+  win(fSW,0.5,0.5,0.05,0.14,'rgba(30,22,14,0.8)'); win(fSE,0.5,0.5,0.05,0.14,'rgba(30,22,14,0.8)'); // arrow slits
+  if(opt.crenel){ctx.fillStyle=shade(wall,0.98);
+    for(let i=0;i<=4;i+=2){const p=[tW[0]+(tS[0]-tW[0])*i/4,tW[1]+(tS[1]-tW[1])*i/4];ctx.fillRect(p[0]-2.5,p[1]-6,5,6);
+      const q=[tS[0]+(tE[0]-tS[0])*i/4,tS[1]+(tE[1]-tS[1])*i/4];ctx.fillRect(q[0]-2.5,q[1]-6,5,6);} }
+  gfill([tN,tE,tS,tW],wall,1.0,0.9);                                // top
+  const apex=[cx,tN[1]-R];                                          // steep hip roof
+  gfill([tN,tW,apex],roof,1.1,0.92); shingles(tN,tW,apex,apex,shade(roof,0.72));
+  gfill([tW,tS,apex],roof,0.86,0.72);
+  gfill([tS,tE,apex],roof,0.66,0.54);
+  gfill([tE,tN,apex],roof,0.96,0.82);
+  rim(tN,apex,shade(roof,1.3));                                     // sunlit hip edge
+  ctx.strokeStyle=shade(roof,0.5);ctx.lineWidth=2.2;ctx.lineCap='round'; // hip cap on the front edge
+  ctx.beginPath();ctx.moveTo(tS[0],tS[1]);ctx.lineTo(apex[0],apex[1]);ctx.stroke();
+  if(opt.flag){ctx.strokeStyle='#6b4a2a';ctx.lineWidth=2;ctx.beginPath();
+    ctx.moveTo(apex[0],apex[1]);ctx.lineTo(apex[0],apex[1]-16);ctx.stroke();
+    poly([[apex[0],apex[1]-16],[apex[0]+13,apex[1]-12],[apex[0],apex[1]-8]],opt.flag,null);}
+}
+function levelBadge(x,y,n){const w=21,h=15;ctx.save();          // Evony dark tab, white number
+  ctx.beginPath();ctx.roundRect(x-w/2,y-h/2,w,h,4);
+  ctx.fillStyle='rgba(22,22,26,0.92)';ctx.fill();
+  ctx.lineWidth=1;ctx.strokeStyle='rgba(255,255,255,0.30)';ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='800 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(n,x,y+0.5);ctx.restore();}
+/* ---- resource field: soil diamond + crop rows + small hut + marker ---- */
+function field(cx,cy,fw,fh,soil,crop,marker){
+  const N=[cx,cy-fh],E=[cx+fw,cy],S=[cx,cy+fh],W=[cx-fw,cy];
+  softShadow(cx,cy+fh*0.4,fw,fh);
+  const sc=soil.split(',').map(Number);
+  gfill([N,E,S,W],sc,1.06,0.82);                                    // soil base
+  const ROWS=9, L=(A,B,t)=>[A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t];
+  for(let i=0;i<ROWS;i++){                                          // alternating tilled strips (Evony: crops ARE the tile)
+    const a0=L(W,N,i/ROWS),b0=L(S,E,i/ROWS),a1=L(W,N,(i+1)/ROWS),b1=L(S,E,(i+1)/ROWS);
+    poly([a0,b0,b1,a1],shade(sc,i%2?0.90:1.05),null);}
+  grain([N,E,S,W],0.65);                                            // strips stay weathered, never flat
+  ctx.lineCap='round';
+  for(let i=1;i<ROWS;i++){const a=L(W,N,i/ROWS),b=L(S,E,i/ROWS);
+    ctx.strokeStyle='rgba(40,28,14,0.35)';ctx.lineWidth=2.2;         // furrow shadow (depth)
+    ctx.beginPath();ctx.moveTo(a[0],a[1]+1.4);ctx.lineTo(b[0],b[1]+1.4);ctx.stroke();
+    ctx.strokeStyle=i%2?crop[0]:crop[1];ctx.lineWidth=2.0;           // the growing row
+    ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+  ctx.strokeStyle='rgba(255,250,235,0.30)';ctx.lineWidth=1.2;        // sunlit NE edge of the plot
+  ctx.beginPath();ctx.moveTo(N[0],N[1]);ctx.lineTo(E[0],E[1]);ctx.stroke();
+  house(W[0]+fw*0.34,W[1]-fh*0.06,fw*0.22,fh*0.22,8,5.5,[176,146,102],[128,74,48]); // hut tucked in the corner
+  if(marker){ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(marker,E[0]-fw*0.36,E[1]-7);}
+}
+
+let CUR_SEED=0;
+function hashKey(k){k=String(k);let h=2166136261;for(let i=0;i<k.length;i++){h^=k.charCodeAt(i);h=Math.imul(h,16777619);}return Math.abs(h);}
+/* dispatch a code-drawn object.  dx,dy = anchor (bottom-center of tile), dw = visual width */
+function draw(type,dx,dy,dw,anchor){
+  CUR_SEED=(draw._seed!=null?draw._seed:0); draw._seed=null;
+  const fw=dw*0.34, fh=fw*0.5;         // iso footprint half-extents
+  const cx=dx, cy=dy-fh*1.15;          // sit the base just above the passed anchor point
+  softShadow(cx,cy+fh*0.5,fw,fh);
+  switch(type){
+    case 'cottage':  house(cx,cy,fw*0.82,fh*0.82,dw*0.22,dw*0.20,[214,196,158],[158,92,64],{timber:1,chimney:1}); break;
+    case 'barracks': house(cx,cy,fw*0.98,fh*0.98,dw*0.26,dw*0.20,[156,150,136],[136,82,64],{banner:1}); break;
+    case 'forge':    house(cx,cy,fw*0.94,fh*0.94,dw*0.24,dw*0.18,[142,134,126],[92,84,80],{chimney:1,banner:1}); break;
+    case 'rally':    house(cx,cy,fw*0.94,fh*0.94,dw*0.20,dw*0.16,[186,172,140],[150,74,58],{banner:1,timber:1}); break;
+    case 'embassy':  house(cx,cy,fw*0.96,fh*0.96,dw*0.26,dw*0.20,[212,200,172],[96,110,150],{banner:1}); break;
+    case 'market':   house(cx,cy,fw*0.92,fh*0.92,dw*0.24,dw*0.18,[204,186,152],[150,120,72],{stripes:1}); break;
+    case 'warehouse':house(cx,cy,fw*1.02,fh*1.02,dw*0.20,dw*0.14,[168,162,150],[122,110,96]); break;
+    case 'beacon':   tower(cx,cy,fw*0.5,fh*0.5,dw*0.40,dw*0.22,[176,170,156],[124,84,60],{flag:'#e08a2a'}); break;
+    case 'keep':     tower(cx,cy,fw*0.9,fh*0.9,dw*0.34,dw*0.26,[190,184,168],[120,90,60],{crenel:1,flag:'#c0413a'}); break;
+    case 'th1': tower(cx,cy,fw*0.9,fh*0.9,dw*0.26,dw*0.22,[196,190,176],[92,108,150],{flag:'#c0413a'}); break;
+    case 'th2': tower(cx,cy,fw*1.0,fh*1.0,dw*0.34,dw*0.28,[200,194,180],[86,104,152],{crenel:1,flag:'#c0413a'}); break;
+    case 'th3': tower(cx,cy,fw*1.06,fh*1.06,dw*0.44,dw*0.34,[206,200,186],[80,100,156],{crenel:1,flag:'#f0c23a'}); break;
+    case 'farm':   field(cx,cy,fw*1.15,fh*1.15,'150,120,74',['#b9c24a','#8aa63a'],'🌾'); break;
+    case 'sawmill':field(cx,cy,fw*1.15,fh*1.15,'120,92,56',['#7a9a4a','#5f8636'],'🪵'); break;
+    case 'quarry': field(cx,cy,fw*1.15,fh*1.15,'150,146,132',['#b8b4a4','#98948a'],'⛰️'); break;
+    case 'mine':   field(cx,cy,fw*1.15,fh*1.15,'110,100,90',['#8a7a5a','#6a5a44'],'⛏️'); break;
+    case 'cast1': tower(cx,cy,fw*0.8,fh*0.8,dw*0.22,dw*0.18,[176,170,156],[120,86,58],{crenel:1,flag:'#8a8a82'}); break;
+    case 'cast2': tower(cx,cy,fw*0.9,fh*0.9,dw*0.30,dw*0.24,[186,180,164],[110,84,60],{crenel:1,flag:'#b23a34'}); break;
+    case 'cast3': tower(cx,cy,fw*1.0,fh*1.0,dw*0.40,dw*0.30,[196,190,174],[100,80,60],{crenel:1,flag:'#c0413a'}); break;
+    case 'cast4': tower(cx,cy,fw*1.1,fh*1.1,dw*0.50,dw*0.38,[206,200,184],[92,78,62],{crenel:1,flag:'#f0c23a'}); break;
+    case 'barb':    house(cx,cy,fw*0.9,fh*0.9,dw*0.20,dw*0.24,[150,120,86],[110,80,50],{banner:1}); break;
+    case 'derelict':tower(cx,cy,fw*0.8,fh*0.8,dw*0.22,dw*0.10,[140,138,128],[96,92,84],{crenel:1}); break;
+    default: house(cx,cy,fw*0.9,fh*0.9,dw*0.22,dw*0.18,[200,186,150],[142,92,66],{chimney:1});
+  }
+  const lv=draw._lv; if(lv!=null){levelBadge(cx-dw*0.30,cy+fh*0.55,lv);draw._lv=null;}  // Evony: tab on tile's lower-left
+}
+
+/* backdrop grounds (code-drawn, improve each pass; painterly image can slot in later) */
+function bgCover(type,top){top=top||0;
+  const full=[[0,top],[VW,top],[VW,VH],[0,VH]];
+  if(type==='dirt'){const g=ctx.createLinearGradient(0,top,0,VH);g.addColorStop(0,'#b79a63');g.addColorStop(1,'#9c7f4c');
+    ctx.fillStyle=g;ctx.fillRect(0,top,VW,VH-top);grain(full,0.85);return;}
+  // warm grass field (town) — two-tone soft gradient + faint iso lattice
+  const g=ctx.createLinearGradient(0,top,0,VH);
+  g.addColorStop(0,'#8aa550');g.addColorStop(1,'#6f8f40');ctx.fillStyle=g;ctx.fillRect(0,top,VW,VH-top);
+  ctx.save();ctx.globalAlpha=0.06;ctx.strokeStyle='#3d5222';ctx.lineWidth=1;
+  const S=46;for(let x=-VH;x<VW;x+=S){ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x+VH,VH);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,VH);ctx.lineTo(x+VH,top);ctx.stroke();}ctx.restore();
+  grain(full,0.75);
+}
+function mapGround(){const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,'#7f9a52');g.addColorStop(1,'#6a8443');
+  ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
+  ctx.save();ctx.globalAlpha=0.05;ctx.strokeStyle='#3d5222';ctx.lineWidth=1;const S=54;
+  for(let x=-VH;x<VW;x+=S){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+VH,VH);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,VH);ctx.lineTo(x+VH,0);ctx.stroke();}ctx.restore();
+  grain([[0,0],[VW,0],[VW,VH],[0,VH]],0.75);}
+
+/* id map */
+const ID={
+  ground:'grass', grass:'grass', land:'mapland', outsideBg:'dirt',
+  wall:{1:'grass',2:'grass',3:'grass',4:'grass'},   // town backdrop = warm grass field (no code wall ring)
+  th:{1:'th1',2:'th2',3:'th3'},
+  barracks:'barracks', warehouse:'warehouse', market:'market', cottage:'cottage',
+  forge:'forge', rally:'rally', embassy:'embassy',
+  beacon:'beacon', keep:'keep',
+  farm:'farm', sawmill:'sawmill', quarry:'quarry', mine:'mine',
+  cast:{1:'cast1',2:'cast2',3:'cast3',4:'cast4'},
+  barb:'barb', derelict:'derelict',
+  iconRes:'iconRes'
+};
+/* resource meta */
+const RES=[{k:'food'},{k:'wood'},{k:'stone'},{k:'iron'},{k:'gold'}];
+/* city buildings: cost + build time(sec) + effect */
+const CITY={
+  cottage:  {id:ID.cottage, name:'Cottage',   t:180,  cost:{wood:80},            pop:20,      req:1},
+  barracks: {id:ID.barracks,name:'Barracks',  t:1500, cost:{wood:120,stone:80},  troopCap:50, req:2},
+  market:   {id:ID.market,  name:'Market',    t:900,  cost:{wood:100,stone:60},  gold:60,     req:2},
+  warehouse:{id:ID.warehouse,name:'Warehouse',t:1200, cost:{wood:150,stone:120}, store:50000, req:2},
+  beacon:   {id:ID.beacon,  name:'Watchtower',t:600,  cost:{wood:100,stone:100}, scout:1,     req:2},
+  forge:    {id:ID.forge,   name:'Forge',     t:1800, cost:{wood:120,stone:150,iron:80},  forge:1,  req:2},
+  rally:    {id:ID.rally,   name:'Rally Spot',t:1200, cost:{wood:200,stone:100},          rally:1,  req:2},
+  embassy:  {id:ID.embassy, name:'Embassy',   t:1500, cost:{wood:180,stone:140,gold:50},  emb:1,    req:2},
+};
+/* resource nodes: gives + rate/h + time */
+const NODE={
+  farm:   {id:ID.farm,   name:'Farm',      gives:'food', rate:200, t:180, cost:{wood:60}},
+  sawmill:{id:ID.sawmill,name:'Sawmill',   gives:'wood', rate:160, t:300, cost:{wood:40,stone:20}},
+  quarry: {id:ID.quarry, name:'Quarry',    gives:'stone',rate:120, t:480, cost:{wood:80}},
+  mine:   {id:ID.mine,   name:'Iron Mine', gives:'iron', rate:80,  t:720, cost:{wood:100,stone:60}},
+};
+// WALLS — the crown grind. Each tier a real milestone; later tiers stretch toward days.
+// Future tiers (planned monthly content): 5:+2d 6:+2.5d 7:+3d 8:+3.5d 9:+4d 10:+5d.
+const WALL_T={1:900,2:7200,3:28800,4:129600},
+      WALL_COST={1:{wood:800,stone:500},2:{wood:2400,stone:1800,iron:200},3:{wood:9000,stone:7000,iron:2000,gold:400},4:{wood:40000,stone:32000,iron:14000,gold:3000}};
+const TH_T={2:5400,3:21600}, TH_COST={2:{wood:1500,stone:1000,iron:100},3:{wood:6000,stone:4500,iron:1200,gold:500}};
+
+/* ===================== STATE ===================== */
+const SAVE='stonehold_v2';
+const CITY_KEYS=['res','city','nodes','queue','wall','thLevel','wallDef'];   // moved up: used by load()->migrateCities()
+let S=load();
+if(!S.cities||!S.activeCity){migrateCities(S);}   // guarantee multi-city shape
+function fresh(){return{res:{food:0,wood:0,stone:0,iron:0,gold:0},wall:0,thLevel:0,
+  city:{}, nodes:{}, queue:[], troops:0, army:{sword:0,archer:0,horse:0}, scouts:0, marches:[], log:[], tax:20, t:Date.now(), mapRes:{}, razed:{}, npcHp:{}, campClear:{},
+  spinDay:'', spinsUsed:0, monthlyClaim:'',
+  born:Date.now(), shieldUntil:Date.now()+3*24*3600e3, truceUntil:0,
+  wallDef:{trap:0,abatis:0,archerTower:0,rollingLog:0},
+  cities:null, activeCity:null};}   // cities container built by migrateCities()
+// ── MULTI-CITY (per-castle resources) ────────────────────────────────────
+// Each castle is its own economy. S.cities{id:{res,city,nodes,queue,wall,thLevel,
+// wallDef,name,x,y}}. S.res/S.city/etc stay live pointers to the ACTIVE castle so
+// the whole existing codebase keeps working. Conquering an enemy adds a city here.
+function migrateCities(s){
+  if(s.cities&&s.activeCity&&s.cities[s.activeCity])return; // already multi-city
+  // Wrap the single legacy base into cities['home'].
+  const home={};for(const k of CITY_KEYS)home[k]=s[k];
+  home.name='Home Stonehold'; home.x=(s.home&&s.home.x)||512; home.y=(s.home&&s.home.y)||512;
+  s.cities={home}; s.activeCity='home';
+}
+function activeCityObj(){return (S.cities&&S.cities[S.activeCity])||null;}
+function syncActiveIntoCity(){const c=activeCityObj();if(!c)return;for(const k of CITY_KEYS)c[k]=S[k];}
+function loadCityIntoActive(id){const c=S.cities&&S.cities[id];if(!c)return false;
+  S.activeCity=id;for(const k of CITY_KEYS)S[k]=c[k];return true;}
+function switchCity(id){if(id===S.activeCity)return;syncActiveIntoCity();
+  if(loadCityIntoActive(id)){save();renderRes();setView(S.thLevel?'town':'fields');
+    toast('Now viewing '+(S.cities[id].name||'castle'));}}
+function cityCount(){return S.cities?Object.keys(S.cities).length:1;}
+function openCityList(){
+  syncActiveIntoCity();
+  const items=[{em:'🏰',label:'Your Castles: '+cityCount(),meta:'each has its own resources',fn:closeModal}];
+  for(const id in (S.cities||{})){const c=S.cities[id];const r=c.res||{};
+    items.push({em:id===S.activeCity?'📍':'🏰',label:(c.name||id)+(id===S.activeCity?' (here)':''),
+      meta:'('+c.x+','+c.y+') · 🌾'+fmt(Math.round(r.food||0))+' 🪵'+fmt(Math.round(r.wood||0))+' 🪙'+fmt(Math.round(r.gold||0)),
+      fn:()=>{closeModal();switchCity(id);}});}
+  if(cityCount()>1)items.push({em:'🐎',label:'Ship resources between castles',meta:'slow — scales with cargo & distance',fn:()=>{closeModal();openTransport();}});
+  modal('🏰 Your Castles',items);}
+function openTransport(){
+  const others=Object.keys(S.cities||{}).filter(id=>id!==S.activeCity);
+  if(!others.length){toast('You need a second castle first');return;}
+  const items=others.map(id=>{const c=S.cities[id];
+    return {em:'🐎',label:'Ship to '+(c.name||id),meta:'('+c.x+','+c.y+')',fn:()=>{closeModal();transportTo(id);}};});
+  modal('🐎 Ship Resources',items);}
+function transportTo(destId){
+  const dest=S.cities[destId];if(!dest)return;
+  const rk=prompt('Which resource? (food/wood/stone/iron/gold)','gold');
+  if(!rk||!(rk in (S.res||{}))){toast('Pick food, wood, stone, iron or gold');return;}
+  const have=Math.round(S.res[rk]||0);
+  const inp=prompt('Ship how much '+rk+'? (you have '+fmt(have)+')',String(Math.floor(have/2)));
+  if(!inp)return;const amt=Math.max(1,Math.min(have,Math.floor(parseInt(inp)||0)));if(!amt)return;
+  // duration: distance × cargo. Millions of gold = a long, slow caravan.
+  const homeC=activeCityObj();const dist=Math.hypot((dest.x-homeC.x),(dest.y-homeC.y));
+  const dur=Math.max(60,Math.round((dist*14/300)*60 + amt/5000))*1000;
+  S.res[rk]-=amt;
+  if(!S.transports)S.transports=[];
+  S.transports.push({id:'x'+Date.now(),to:destId,rk,amt,arrive:Date.now()+dur});
+  save();renderRes();
+  toast('🐎 Caravan away: '+fmt(amt)+' '+rk+' → '+(dest.name||destId)+' · '+fmtTime(dur/1000));
+  addLog('system','Caravan: '+fmt(amt)+' '+rk+' to '+(dest.name||destId)+' ('+fmtTime(dur/1000)+')');}
+function tickTransports(){if(!S.transports||!S.transports.length)return;const now=Date.now();let changed=false;
+  for(const t of S.transports){if(t.done)continue;if(now>=t.arrive){t.done=true;changed=true;
+    const dc=S.cities&&S.cities[t.to];if(dc){dc.res[t.rk]=(dc.res[t.rk]||0)+t.amt;
+      // if the destination is the active city, reflect immediately
+      if(t.to===S.activeCity)S.res[t.rk]=dc.res[t.rk];
+      addLog('done','Caravan arrived at '+(dc.name||t.to)+': +'+fmt(t.amt)+' '+t.rk);}}}
+  if(changed){S.transports=S.transports.filter(t=>!t.done);save();renderRes();}}
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE));if(s&&s.res){
+  for(const k in s.city)if(!s.city[k].lv)s.city[k].lv=1;
+  for(const k in s.nodes)if(!s.nodes[k].lv)s.nodes[k].lv=1;
+  if(!s.mapRes)s.mapRes={}; if(!s.razed)s.razed={}; if(!s.npcHp)s.npcHp={};
+  if(s.scouts===undefined)s.scouts=0; if(!s.marches)s.marches=[]; if(!s.campClear)s.campClear={};
+  if(!s.army)s.army={sword:s.troops||0,archer:0,horse:0}; if(!s.log)s.log=[]; if(s.tax===undefined)s.tax=20;
+  if(!s.wallDef)s.wallDef={trap:0,abatis:0,archerTower:0,rollingLog:0};
+  migrateCities(s);
+  if(s.wall==null||s.wall<0)s.wall=0; if(s.wall>4)s.wall=4;
+  if(s.thLevel==null||s.thLevel<0)s.thLevel=0;
+  return s;}}catch(e){}
+  return fresh();}  // blank slate: 0 resources, no buildings — the realm is earned
+// Auth: match the rest of Hilbert Mesh. The site stores the login as a session id
+// in localStorage; we read the same keys and call /api/profile same-origin.
+const S5_SESSION_KEYS=['hmf_s5_session','s5_session','HILBERT_S5_SESSION'];
+function readS5Session(){for(const k of S5_SESSION_KEYS){const v=localStorage.getItem(k);if(v&&v.length>=12)return v;}return '';}
+// The API lives on the separate backend project (same as the rest of the site).
+// Override with ?api=... if ever needed, else default to the known backend.
+const API_BASE=(new URLSearchParams(location.search).get('api')||'https://hilbert-backend.vercel.app').replace(/\/$/,'');
+let S5_SESSION=readS5Session();
+// legacy fallback: a raw code passed by URL or old key
+const S5_CODE=localStorage.getItem('hm_code')||localStorage.getItem('s5code')||new URLSearchParams(location.search).get('code')||'';
+const HAS_AUTH=!!(S5_SESSION||S5_CODE);
+let ONLINE=false, syncTimer=0, syncDirty=false, IS_DEV=false, SRV_DEV=false;
+let SIGMA=0;   // shared Hilbert Mesh Sigma balance (same ledger as the S5 site / DossierForge)
+let SRVWORLD={razed:{},camp:{},clear:{}};
+function save(){S.t=Date.now();if(typeof syncActiveIntoCity==='function')syncActiveIntoCity();localStorage.setItem(SAVE,JSON.stringify(S));syncDirty=true;}
+async function srv(action,payload){
+  if(!HAS_AUTH)return {ok:false,offline:true};
+  const auth=S5_SESSION?{s5SessionId:S5_SESSION}:{s5Code:S5_CODE};
+  try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),8000);
+    const r=await fetch(API_BASE+'/api/profile',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    cache:'no-store',credentials:'omit',          // match the site's working call — wildcard CORS needs omit
+    body:JSON.stringify({action,...auth,...payload}),signal:ctl.signal});
+    clearTimeout(to);
+    return await r.json();}catch(e){return {ok:false,error:e&&e.name==='AbortError'?'timeout':'net'};}}
+async function syncPush(){ if(!ONLINE||!syncDirty)return; syncDirty=false;
+  const r=await srv('stonehold_save',{stoneholdState:S});
+  if(r&&r.tier&&r.tier!==(localStorage.getItem('hm_tier')||''))localStorage.setItem('hm_tier',r.tier);}
+async function bootOnline(){
+  // Guarantee the game is playable immediately — the render loop must never sit
+  // on a black screen waiting for the network.
+  try{ if(!S||!S.res){S=fresh();} migrateCities(S); renderRes(); setView(S.thLevel?'town':(S.thLevel===0?'outside':'fields')); }catch(e){}
+  if(!HAS_AUTH){setSrvBadge('OFFLINE · no login');
+    const rb1=document.getElementById('resetSave');if(rb1)rb1.style.display='';   // offline: allow reset
+    DBG.log('auth','no session found in localStorage — keys checked: '+S5_SESSION_KEYS.join(','));
+    showDiag('No login session found. Open the game from hilbertmesh.com while signed in. (Looked for: '+S5_SESSION_KEYS.join(', ')+')');
+    if(!localStorage.getItem('hm_seenGuest')){ showAccountGate(); }
+    return; }
+  setSrvBadge('connecting…');
+  DBG.log('auth','session found ('+(S5_SESSION?'session':'code')+'), contacting server');
+  let r;
+  try{ r=await srv('stonehold_load',{}); }catch(e){ r={ok:false,error:'net'}; }
+  if(r&&r.ok){ONLINE=true;
+    const rb0=document.getElementById('resetSave');if(rb0)rb0.style.display='none';   // online: no reset button
+    if(r.tier)localStorage.setItem('hm_tier',r.tier);
+    if(r.username)S.lord=r.username;
+    if(r.home&&Number.isFinite(r.home.x)){S.home=r.home;}
+    if(r.sigma!==undefined)SIGMA=Number(r.sigma)||0;
+    if(r.protectUntil&&Number(r.protectUntil)>(S.truceUntil||0))S.truceUntil=Number(r.protectUntil);
+    if(r.isDev){IS_DEV=true;SRV_DEV=true;const db=document.getElementById('devBtn');if(db)db.style.display='';const bg=document.getElementById('dbgBtn');if(bg)bg.style.display='';}
+    if(r.world)applyWorld(r.world);
+    if(Array.isArray(r.marchReports))r.marchReports.forEach(rp=>addLog(rp.k,rp.x));
+    if(r.stoneholdState&&r.stoneholdState.res){S=Object.assign(fresh(),r.stoneholdState);migrateCities(S);save();
+      DBG.log('sync','loaded server state');}
+    else { S=fresh(); migrateCities(S); save(); renderRes(); setView('outside');
+      DBG.log('sync','no server state -> fresh blank start (cleared local)'); toast('🏰 Fresh realm — claim your land'); }
+    if(r.giftTier){for(const k in S.res)S.res[k]+=100000;S.spinsUsed=0;
+      grantBuff('prod4',24*3600e3);save();renderRes();
+      toast('👑 '+r.giftTier+' gift pack! +100k each, bonus spins, 24h production');addLog('done',r.giftTier+' member gift pack claimed');}
+    setSrvBadge('ONLINE');
+    syncTimer=setInterval(syncPush,15000);
+    window.addEventListener('beforeunload',()=>{try{if(navigator.sendBeacon){
+      const auth=S5_SESSION?{s5SessionId:S5_SESSION}:{s5Code:S5_CODE};
+      navigator.sendBeacon(API_BASE+'/api/profile',JSON.stringify({action:'stonehold_save',...auth,stoneholdState:S}));}}catch(e){}});
+  }else{ const why=(r&&r.error)||'server_rejected';
+    setSrvBadge(why==='timeout'?'OFFLINE · server slow':why==='net'?'OFFLINE · no server':'OFFLINE · '+why);
+    const rb2=document.getElementById('resetSave');if(rb2)rb2.style.display='';   // offline: allow reset
+    try{ if(!S||!S.res){S=fresh();migrateCities(S);save();} renderRes();
+      setView(S.thLevel?'town':(S.thLevel===0?'outside':'fields')); }catch(e){}
+    showDiag('Session found but server said: '+why+'. The backend may be down, or /api/profile is not reachable from this page. auth='+(S5_SESSION?'session-id':'code'));
+    DBG.log('sync','server not ok ('+why+') — offline. auth='+(HAS_AUTH?'yes':'no')+' resp='+JSON.stringify(r||{}).slice(0,200)); }}
+function setSrvBadge(t){const e=document.getElementById('srvBadge');if(e)e.textContent=t;}
+function showDiag(msg){ try{
+  if(document.getElementById('diagBar'))return;
+  var d=document.createElement('div');d.id='diagBar';
+  d.style.cssText='position:fixed;left:6px;right:6px;bottom:6px;z-index:100001;background:#2a1408;color:#ffd98a;border:1px solid #b9822b;border-radius:8px;padding:8px 34px 8px 10px;font:12px system-ui;line-height:1.4;box-shadow:0 3px 10px #0007;';
+  d.innerHTML='⚠️ '+msg+'<span id="diagX" style="position:absolute;top:4px;right:8px;cursor:pointer;font-weight:800;color:#ffb84d">×</span>';
+  document.body.appendChild(d);
+  document.getElementById('diagX').onclick=function(){d.remove();};
+}catch(e){} }
+function showAccountGate(){
+  if(document.getElementById('acctGate'))return;
+  var ov=document.createElement('div');ov.id='acctGate';
+  ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(20,12,4,.82);display:flex;align-items:center;justify-content:center;padding:24px;';
+  ov.innerHTML='<div style="background:linear-gradient(180deg,#fdf6e0,#f0dfb2);border:3px solid #b9822b;border-radius:14px;max-width:340px;padding:22px;text-align:center;box-shadow:0 8px 30px #000a;font-family:Georgia,serif;color:#5a3c14;">'
+    +'<div style="font-size:34px;margin-bottom:6px;">\U0001F3F0</div>'
+    +'<div style="font-weight:800;font-size:19px;margin-bottom:8px;">Claim Your Keep</div>'
+    +'<div style="font-size:13.5px;line-height:1.5;margin-bottom:16px;">Stonehold is online and shared. To raise a stronghold, save your progress, and join the realm \u2014 you will need a free S5 account.</div>'
+    +'<button id="acctMake" style="display:block;width:100%;background:linear-gradient(180deg,#f2cd72,#b9822b);color:#3a2708;border:2px solid #8a5f22;border-radius:9px;padding:12px;font-weight:800;font-size:15px;font-family:Georgia,serif;cursor:pointer;margin-bottom:10px;box-shadow:0 2px 0 #8a5f22;">\u25B8 Create free S5 account</button>'
+    +'<button id="acctGuest" style="display:block;width:100%;background:transparent;color:#8a5f22;border:none;font-size:12.5px;cursor:pointer;text-decoration:underline;">Play offline for now (progress will not save online)</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+  document.getElementById('acctMake').onclick=function(){location.href='s5.html';};
+  document.getElementById('acctGuest').onclick=function(){localStorage.setItem('hm_seenGuest','1');ov.remove();};
+}
+function tierMult(){const t=(localStorage.getItem('hm_tier')||new URLSearchParams(location.search).get('tier')||'').toUpperCase();
+  document.getElementById('tier').textContent='TIER: '+(t||'FREE');
+  // S5 tiers scale perks (fairness/convenience only): +1 spin per tier, richer/cheaper shop, small production edge
+  if(t==='DEV'||t==='S5'||t==='S5_AGENT') return {name:'S5',mult:5,queues:4,spins:4,shop:3,monthly:50};
+  if(t==='SENIOR_AGENT'||t==='SENIOR') return {name:'SENIOR',mult:2,queues:3,spins:3,shop:2,monthly:25};
+  if(t==='AGENT') return {name:'AGENT',mult:1.5,queues:2,spins:2,shop:1.5,monthly:10};
+  return {name:'FREE',mult:1,queues:1,spins:1,shop:1,monthly:0};}
+function queueMax(){return tierMult().queues;}
+
+/* ===================== ECONOMY ===================== */
+function rates(){const m=tierMult().mult;const r={food:0,wood:0,stone:0,iron:0,gold:0};
+  r.food+=200;r.wood+=160;
+  for(const k in S.nodes){const nd=S.nodes[k],d=NODE[nd.type];if(d)r[d.gives]+=d.rate*(nd.lv||1);}
+  let pop=0;
+  for(const k in S.city){const b=S.city[k];if(b.type==='market')r.gold+=60*(b.lv||1);
+    const cd=CITY[b.type];if(cd&&cd.pop)pop+=cd.pop*(b.lv||1);}
+  r.gold+=Math.round(pop*(S.tax||0)/100*0.6);                          // the taxman
+  const pm=prodBuffMult()*(1+techBonus('prod')); if(pm!==1)for(const k in r)r[k]=Math.round(r[k]*pm); // buffs + Agriculture research
+  if((S.tax||0)>50){const pen=Math.max(0.3,1-((S.tax-50)/100)*1.4);    // grumbling peasants work less
+    r.food=Math.round(r.food*pen);r.wood=Math.round(r.wood*pen);
+    r.stone=Math.round(r.stone*pen);r.iron=Math.round(r.iron*pen);}
+  for(const q in r)r[q]*=m; return r;}
+function cap(){let c=100000;for(const k in S.city){const b=S.city[k];if(b.type==='warehouse')c+=50000*(b.lv||1);}return c;}
+function applyElapsed(){const now=Date.now();const h=(now-S.t)/3.6e6;if(h>0){const r=rates();
+  for(const k in r)S.res[k]=Math.min(cap(),Math.round((S.res[k]||0)+r[k]*h));}S.t=now;}
+function afford(c){for(const k in c)if((S.res[k]||0)<c[k])return false;return true;}
+function pay(c){if(!afford(c))return false;for(const k in c)S.res[k]-=c[k];return true;}
+function costStr(c){return Object.entries(c).map(([k,v])=>v+' '+k).join(' · ');}
+function fmtTime(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),ss=s%60;const h=Math.floor(m/60);
+  if(h)return h+'h '+(m%60)+'m';if(m)return m+'m '+ss+'s';return ss+'s';}
+function fmt(n){return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'k':''+n;}
+
+/* ===================== BUILD QUEUE ===================== */
+function enqueue(job){ // job:{kind,slot,type,dur,label}
+  if(S.queue.length>=queueMax()){toast('Build queue full'+(queueMax()<2?' — members get a 2nd slot':''));return false;}
+  job.end=Date.now()+job.dur*1000; S.queue.push(job); save(); renderDock(); toast(job.label+' started · '+fmtTime(job.dur)); return true;}
+function processQueue(){let ch=false;const now=Date.now();
+  S.queue=S.queue.filter(j=>{ if(now>=j.end){ complete(j); ch=true; return false;} return true;});
+  if(ch){save();renderDock();renderRes();}}
+function complete(j){
+  if(j.kind==='city') S.city[j.slot]={type:j.type,lv:1};
+  else if(j.kind==='node') S.nodes[j.slot]={type:j.type,lv:1};
+  else if(j.kind==='up-city'){const b=S.city[j.slot];if(b)b.lv=Math.min(MAXLV,(b.lv||1)+1);}
+  else if(j.kind==='up-node'){const b=S.nodes[j.slot];if(b)b.lv=Math.min(MAXLV,(b.lv||1)+1);}
+  else if(j.kind==='wall') S.wall=Math.min(4,S.wall+1);
+  else if(j.kind&&j.kind.slice(0,5)==='tech-'){const tk=j.kind.slice(5);if(!S.research)S.research={};S.research[tk]=(S.research[tk]||0)+1;addLog('done',(TECH[tk]?TECH[tk].name:tk)+' Lv '+S.research[tk]+' researched');}
+  else if(j.kind==='th')  S.thLevel=Math.min(3,S.thLevel+1);
+  else if(j.kind==='gh'){S.thLevel=1;toast('🏛️ The Grand Hall stands! Your stronghold is founded.');}
+  else if(j.kind==='train') S.army.sword+=j.n;
+  else if(j.kind==='train-scout') S.scouts+=j.n;
+  else if(j.kind&&j.kind.slice(0,6)==='train-'&&UNITS[j.kind.slice(6)]) S.army[j.kind.slice(6)]+=j.n;
+  DBG.log('done',j.kind+' '+(j.type||'')+' @'+(j.slot||''));
+  toast(j.label+' complete!');addLog('done',j.label+' complete');
+}
+
+/* ===================== CANVAS / ISO ===================== */
+let view='town';
+const cv=document.getElementById('stage'),ctx=cv.getContext('2d');
+let DPR=Math.min(devicePixelRatio||1,2),VW=0,VH=0;
+function fit(){VW=cv.clientWidth;VH=cv.clientHeight;cv.width=VW*DPR;cv.height=VH*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabled=true;}
+addEventListener('resize',fit);
+let hots=[];function hot(x,y,r,fn){hots.push({x,y,r,fn});}
+
+/* iso grid config: 5x5, center = town hall, 24 build cells (16 unlocked, 8 corners locked) */
+const N=5, CENTER=2;
+function isoTW(){return Math.max(58,Math.min(112, VW*0.86*2/(N+1)))*zoom;}
+function cellScreen(c,r){const TW=isoTW(),TH=TW/2;const ox=VW/2+cams.town.x, oy=VH*0.34+cams.town.y;
+  return{x:ox+(c-r)*TW/2, y:oy+(c+r)*TH/2, TW, TH};}
+function cornerLocked(c,r){return (c===0||c===N-1)&&(r===0||r===N-1);} // 4 corners... add 4 edge-mids for 8
+function slotKey(c,r){return c+'_'+r;}
+
+function drawDiamond(cx,cy,TW,TH,fill,stroke,lw){ctx.save();ctx.beginPath();
+  ctx.moveTo(cx,cy-TH/2);ctx.lineTo(cx+TW/2,cy);ctx.lineTo(cx,cy+TH/2);ctx.lineTo(cx-TW/2,cy);ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1.5;ctx.stroke();}ctx.restore();}
+
+/* ---- Evony-style town walls (tier-scaled, drawn in two depth passes) ---- */
+function wallSeg(A,B,h,stone,tier){
+  const At=[A[0],A[1]-h],Bt=[B[0],B[1]-h];
+  gfill([A,B,Bt,At],stone,0.96,0.72);
+  courses([A,B,Bt,At],3,'rgba(50,38,26,0.16)');
+  // parapet walk: a lighter capping strip along the top (walls have a top, not just an edge)
+  const cap=h*0.14;
+  poly([At,Bt,[Bt[0],Bt[1]+cap],[At[0],At[1]+cap]],shade(stone,1.10),null);
+  ctx.strokeStyle=shade(stone,1.22);ctx.lineWidth=1.4;
+  ctx.beginPath();ctx.moveTo(At[0],At[1]);ctx.lineTo(Bt[0],Bt[1]);ctx.stroke();
+  // battered footing: heavy shadow where the wall meets the ground
+  ctx.strokeStyle='rgba(28,20,12,0.32)';ctx.lineWidth=2.6;
+  ctx.beginPath();ctx.moveTo(A[0],A[1]-1);ctx.lineTo(B[0],B[1]-1);ctx.stroke();
+  // buttress rhythm: shallow vertical shadow ribs break the long flat ribbon
+  const len=Math.hypot(B[0]-A[0],B[1]-A[1]);const rib=Math.max(2,Math.round(len/60));
+  ctx.strokeStyle='rgba(40,30,18,0.14)';ctx.lineWidth=3;
+  for(let i=1;i<rib;i++){const t=i/rib;
+    ctx.beginPath();ctx.moveTo(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t-1);
+    ctx.lineTo(At[0]+(Bt[0]-At[0])*t,At[1]+(Bt[1]-At[1])*t+cap);ctx.stroke();}
+  if(tier>=2){ctx.fillStyle=shade(stone,1.03);const n=Math.max(4,Math.round(len/15));
+    for(let i=0;i<=n;i+=2){const t=i/n;const p=[At[0]+(Bt[0]-At[0])*t,At[1]+(Bt[1]-At[1])*t];ctx.fillRect(p[0]-2.5,p[1]-7,5,7);}}}
+function townWalls(when){const tier=S.wall|0;
+  if(tier===0){                                                        // Stage 0: bare stone slab boundary
+    const h0=9*zoom, sl=[186,182,170];
+    const bk=cellScreen(-0.65,-0.65), rt=cellScreen(N-1+0.65,-0.65),
+          fr=cellScreen(N-1+0.65,N-1+0.65), lf=cellScreen(-0.65,N-1+0.65);
+    const slab=(A,B)=>{const At=[A.x,A.y-h0],Bt=[B.x,B.y-h0];
+      gfill([[A.x,A.y],[B.x,B.y],Bt,At],sl,1.0,0.80);
+      poly([At,Bt,[Bt[0],Bt[1]+h0*0.22],[At[0],At[1]+h0*0.22]],shade(sl,1.12),null);
+      ctx.strokeStyle='rgba(28,20,12,0.28)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(A.x,A.y-1);ctx.lineTo(B.x,B.y-1);ctx.stroke();};
+    if(when==='back'){slab(lf,bk);slab(bk,rt);}else{slab(lf,fr);slab(fr,rt);}
+    return;}
+  const h=(16+tier*7)*zoom;
+  const stone= tier<=1? [150,120,86] : [170,166,154];
+  const tRoof= tier<=1? [110,80,50] : [120,90,64];
+  const bk=cellScreen(-0.65,-0.65), rt=cellScreen(N-1+0.65,-0.65),
+        fr=cellScreen(N-1+0.65,N-1+0.65), lf=cellScreen(-0.65,N-1+0.65);
+  const ts=isoTW()*0.5;
+  const twr=(P,flag)=>tower(P.x,P.y,ts*0.42,ts*0.21,h+ts*0.18,ts*0.5,stone,tRoof,{crenel:tier>=2,flag:flag});
+  if(when==='back'){
+    wallSeg([lf.x,lf.y],[bk.x,bk.y],h,stone,tier);
+    wallSeg([bk.x,bk.y],[rt.x,rt.y],h,stone,tier);
+    twr(bk,'#c0413a'); twr(rt);
+  }else{
+    wallSeg([lf.x,lf.y],[fr.x,fr.y],h,stone,tier);
+    wallSeg([fr.x,fr.y],[rt.x,rt.y],h,stone,tier);
+    twr(lf); twr(fr,'#f0c23a');
+    ctx.fillStyle='#1c140c';ctx.beginPath();ctx.ellipse(fr.x,fr.y-h*0.2,ts*0.13,ts*0.19,0,0,7);ctx.fill(); // gate arch
+  }}
+
+/* Your Stonehold as a walled compound — same wall tier + TH level as the town view,
+   so FIELDS and MAP show the *actual* castle progression, not a generic keep. */
+function drawStonehold(cx,cy,w){
+  if(!S.thLevel){ softShadow(cx,cy+w*0.13,w*0.5,w*0.25); foundation(cx,cy-w*0.08,w*0.9); return; }
+  const tier=S.wall|0, fw=w*0.52, fh=fw*0.5, h=w*(0.05+0.035*Math.max(1,tier));
+  const pN=[cx,cy-fh],pE=[cx+fw,cy],pS=[cx,cy+fh],pW=[cx-fw,cy];
+  const up=(p)=>[p[0],p[1]-h];
+  const stone= tier===0? [186,182,170] : tier<=1? [150,120,86] : [170,166,154];
+  const tRoof= tier<=1? [110,80,50] : [120,90,64];
+  softShadow(cx,cy+fh*0.15,fw*1.05,fh*1.05);
+  gfill([pN,pE,pS,pW],[187,178,158],1.0,0.88,null);                   // cobble courtyard
+  const seg=(A,B)=>{gfill([A,B,up(B),up(A)],stone,0.96,0.72);courses([A,B,up(B),up(A)],2,'rgba(50,38,26,0.16)');
+    if(tier>=2){ctx.fillStyle=shade(stone,1.03);const n=6;for(let i=0;i<=n;i+=2){const t=i/n;
+      const p=[up(A)[0]+(up(B)[0]-up(A)[0])*t,up(A)[1]+(up(B)[1]-up(A)[1])*t];ctx.fillRect(p[0]-1.6,p[1]-4.5,3.2,4.5);}}};
+  const ts=w*0.16, twr=(P,flag)=>{if(tier===0)return;tower(P[0],P[1],ts*0.42,ts*0.21,h+ts*0.30,ts*0.5,stone,tRoof,{crenel:tier>=2,flag});};
+  seg(pW,pN); seg(pN,pE); twr(pN);                                    // back walls (+ towers from Stage 1)
+  draw(ID.th[S.thLevel], cx, cy+fh*0.44, w*0.55);                     // the actual town hall, true center
+  seg(pW,pS); seg(pS,pE); twr(pW); twr(pE); twr(pS,'#c0413a');        // front walls + towers
+  ctx.fillStyle='#1c140c';ctx.beginPath();                            // gate on the front corner
+  ctx.ellipse(pS[0],pS[1]-h*0.25,w*0.035,h*0.42,0,0,7);ctx.fill();
+}
+
+function renderTown(){
+  hots=[];
+  bgCover(ID.wall[S.wall]);
+  // Evony town interior = cobble paving inside the wall ring (grass stays outside)
+  {const bk=cellScreen(-0.65,-0.65), rt=cellScreen(N-1+0.65,-0.65),
+        fr=cellScreen(N-1+0.65,N-1+0.65), lf=cellScreen(-0.65,N-1+0.65);
+   const pav=[[bk.x,bk.y],[rt.x,rt.y],[fr.x,fr.y],[lf.x,lf.y]];
+   gfill(pav,[187,178,158],1.0,0.9,null);           // warm gray-tan paving + grain via gfill
+   grain(pav,0.6);                                   // extra grime so cobble reads dirtier than grass
+   ctx.save();ctx.beginPath();ctx.moveTo(pav[0][0],pav[0][1]);
+   for(let i=1;i<4;i++)ctx.lineTo(pav[i][0],pav[i][1]);ctx.closePath();ctx.clip();
+   ctx.globalAlpha=0.10;ctx.strokeStyle='#4a3c28';ctx.lineWidth=1;   // faint cobble seams (iso lattice)
+   const st=isoTW()*0.25, cxm=(bk.x+fr.x)/2, W2=Math.abs(rt.x-lf.x);
+   for(let k=-Math.ceil(W2/st);k<=Math.ceil(W2/st);k++){const off=k*st;
+     ctx.beginPath();ctx.moveTo(cxm+off-W2,bk.y-W2*0.5);ctx.lineTo(cxm+off+W2,bk.y+W2*0.5);ctx.stroke();  // NE-parallel
+     ctx.beginPath();ctx.moveTo(cxm+off+W2,bk.y-W2*0.5);ctx.lineTo(cxm+off-W2,bk.y+W2*0.5);ctx.stroke();} // NW-parallel
+   ctx.restore();}
+  townWalls('back');
+  const cells=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(cornerLocked(c,r))continue;
+    cells.push({c,r,key:slotKey(c,r),depth:c+r});
+  }
+  cells.sort((a,b)=>a.depth-b.depth);
+  const TWv=isoTW(),THv=TWv/2;
+  // pass 1: embedded floor diamonds — faint on empty plots, invisible under buildings (no opaque plate)
+  for(const cell of cells){
+    if(cell.c===CENTER&&cell.r===CENTER)continue;
+    if(S.city[cell.key])continue;
+    const p=cellScreen(cell.c,cell.r);
+    drawDiamond(p.x,p.y,TWv*0.96,THv*0.96,'rgba(225,218,200,0.18)','rgba(0,0,0,0.18)',1);
+  }
+  // pass 2: contents back-to-front (smaller footprints = neat rows, less spill over walls)
+  for(const cell of cells){
+    const p=cellScreen(cell.c,cell.r);
+    const isSel=sel&&sel.view==='town'&&sel.key===cell.key;
+    if(isSel) drawHi(p.x,p.y,TWv*0.98,THv*0.98);
+    if(cell.c===CENTER&&cell.r===CENTER){
+      if(sel&&sel.view==='town'&&sel.key==='TH') drawHi(p.x,p.y,TWv*1.1,THv*1.1);
+      if(!S.thLevel){ foundation(p.x,p.y,TWv*1.05);
+        const gq=S.queue.find(j=>j.kind==='gh'); if(gq)drawTimer(p.x,p.y-THv*0.6,gq);
+        hot(p.x,p.y,TWv*0.4,()=>{sel={view:'town',key:'TH'};DBG.log('tap','gh-foundation');buildGrandHall();}); }
+      else{ draw._lv=S.thLevel; draw(ID.th[S.thLevel], p.x, p.y+THv*0.52, TWv*1.3);   // anchored to true tile center
+        hot(p.x,p.y,TWv*0.4,()=>{sel={view:'town',key:'TH'};DBG.log('tap','townhall');upgradeTH();}); }
+      continue;
+    }
+    const b=S.city[cell.key];
+    const q=S.queue.find(j=>j.kind==='city'&&j.slot===cell.key);
+    if(b){ draw._lv=b.lv||1; draw._seed=hashKey(cell.key); draw(CITY[b.type].id, p.x, p.y+THv*0.3, TWv*0.9);
+      const uq=S.queue.find(j=>j.kind==='up-city'&&j.slot===cell.key); if(uq)drawTimer(p.x,p.y-THv*0.5,uq);
+      hot(p.x,p.y,TWv*0.42,()=>{sel={view:'town',key:cell.key};DBG.log('tap','city '+cell.key+'='+b.type);upgradeMenu('city',cell.key);}); }
+    else if(q){ drawTimer(p.x,p.y,q); hot(p.x,p.y,TWv*0.42,()=>{sel={view:'town',key:cell.key};toast('Building… '+fmtTime((q.end-Date.now())/1000));}); }
+    else { plus(p.x,p.y); hot(p.x,p.y,TWv*0.42,()=>{sel={view:'town',key:cell.key};DBG.log('tap','city-empty '+cell.key);buildCityMenu(cell.key);}); }
+  }
+  townWalls('front');
+  setHint(tutHint()||'Drag to pan · pinch/±  to zoom · tap a plot to build');
+}
+function drawHi(cx,cy,TW,TH){const p=0.4+0.45*Math.sin(performance.now()/280);ctx.save();
+  ctx.lineWidth=3;ctx.strokeStyle='rgba(255,208,90,'+p.toFixed(2)+')';ctx.shadowColor='#ffcf5a';ctx.shadowBlur=14;
+  ctx.beginPath();ctx.moveTo(cx,cy-TH/2);ctx.lineTo(cx+TW/2,cy);ctx.lineTo(cx,cy+TH/2);ctx.lineTo(cx-TW/2,cy);ctx.closePath();ctx.stroke();ctx.restore();}
+function plus(x,y){ctx.save();ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.font='800 26px system-ui';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeText('+',x,y);ctx.fillText('+',x,y);ctx.restore();}
+function drawTimer(x,y,q){const left=(q.end-Date.now())/1000;ctx.save();ctx.fillStyle='#000c';
+  ctx.fillRect(x-40,y-12,80,24);ctx.fillStyle='#ffd873';ctx.font='800 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('⏳ '+fmtTime(left),x,y);ctx.restore();}
+
+function renderOutside(){
+  hots=[];bgCover(ID.outsideBg);
+  const TW=Math.min(130,VW*0.30)*zoom,TH=TW/2, ox=VW*0.5+cams.outside.x, oy=VH*0.50+cams.outside.y;
+  // your stronghold rides the SAME ground plane as the plots (rigid — fields can never slide into it)
+  {const w=Math.min(150,VW*0.40)*zoom, cx=ox, cy=oy-TH*3.1;
+   drawStonehold(cx, cy+w*0.10, w);
+   ctx.fillStyle='#2c2114';ctx.font='800 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.fillText('▲ Your Stonehold · tap to enter',cx,cy-w*0.46);
+   hot(cx,cy+w*0.05,w*0.42,()=>{setView('town');DBG.log('nav','fields->town via castle');});}
+  const layout=[[-1,0],[0,0],[1,0],[-1,1],[0,1],[1,1]];
+  const order=layout.map((L,i)=>({i,c:L[0],r:L[1],d:L[0]+L[1]})).sort((a,b)=>a.d-b.d);
+  for(const o of order){const x=ox+(o.c-o.r)*TW*0.62, y=oy+(o.c+o.r)*TH*0.95;
+    const key=''+o.i; const n=S.nodes[key]; const q=S.queue.find(j=>j.kind==='node'&&j.slot===key);
+    if(sel&&sel.view==='outside'&&sel.key===key) drawHi(x,y,TW*0.95,TH*0.95);
+    if(n){draw._lv=n.lv||1;draw._seed=hashKey(key);draw(NODE[n.type].id,x,y+TH*0.35,TW*1.0);
+      const uq=S.queue.find(j=>j.kind==='up-node'&&j.slot===key); if(uq)drawTimer(x,y-TH*0.5,uq);
+      hot(x,y,TW*0.45,()=>{sel={view:'outside',key};DBG.log('tap','node '+key+'='+n.type);upgradeMenu('node',key);});}
+    else if(q){drawDiamond(x,y,TW*0.9,TH*0.9,'rgba(225,218,200,0.20)','rgba(0,0,0,0.20)',1);drawTimer(x,y,q);hot(x,y,TW*0.45,()=>{sel={view:'outside',key};toast('Building… '+fmtTime((q.end-Date.now())/1000));});}
+    else{drawDiamond(x,y,TW*0.9,TH*0.9,'rgba(225,218,200,0.20)','rgba(255,255,255,0.5)',1.5);plus(x,y);hot(x,y,TW*0.45,()=>{sel={view:'outside',key};DBG.log('tap','node-empty '+key);buildNodeMenu(key);});}
+  }
+  setHint(tutHint()||'Drag to pan · tap a plot to build a resource field');
+}
+
+/* NPC castle — 10 visual tiers. 1-2 timber camp, 3-5 stone, 6-8 grand, 9-10 the iconic
+   tall-tower thick-wall fortress. dead=true draws a razed ruin (flat land + rubble). */
+function castle(cx,cy,w,lvl,dead){
+  if(dead){
+    ctx.save();ctx.globalAlpha=.55;ctx.beginPath();ctx.ellipse(cx,cy,w*0.34,w*0.17,0,0,7);ctx.fillStyle='#7d7452';ctx.fill();ctx.restore();
+    poly([[cx-w*0.20,cy],[cx-w*0.12,cy-w*0.10],[cx-w*0.02,cy-w*0.06],[cx+w*0.02,cy+w*0.02],[cx-w*0.10,cy+w*0.05]],'#8f8a7a','rgba(50,44,30,0.5)',1);
+    poly([[cx+w*0.05,cy-w*0.02],[cx+w*0.13,cy-w*0.12],[cx+w*0.20,cy-w*0.04],[cx+w*0.15,cy+w*0.04]],'#a09a88','rgba(50,44,30,0.5)',1);
+    ctx.strokeStyle='rgba(40,32,20,0.5)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-w*0.06,cy+w*0.02);ctx.lineTo(cx+w*0.02,cy-w*0.16);ctx.stroke();
+    return;}
+  lvl=Math.max(1,Math.min(10,lvl|0));
+  const sc=0.62+lvl*0.045, fw=w*0.5*sc, fh=fw*0.5, h=w*(0.055+0.021*lvl);
+  const pN=[cx,cy-fh],pE=[cx+fw,cy],pS=[cx,cy+fh],pW=[cx-fw,cy];
+  const up=p=>[p[0],p[1]-h];
+  const wood=lvl<=2;
+  const stone=wood?[150,120,86]:lvl>=9?[198,194,182]:[172,168,156];
+  const tRoof=wood?[110,80,50]:[118,88,62];
+  softShadow(cx,cy+fh*0.15,fw*1.08,fh*1.08);
+  gfill([pN,pE,pS,pW],wood?[166,142,104]:[184,176,158],1.0,0.88,null);
+  const seg=(A,B)=>{const q=[A,B,up(B),up(A)];gfill(q,stone,0.96,0.72);
+    courses(q,lvl>=6?3:2,'rgba(50,38,26,0.16)');
+    if(lvl>=5){ctx.strokeStyle='rgba(30,22,12,0.22)';ctx.lineWidth=Math.max(2,h*0.16); // battered base = thick-wall read
+      ctx.beginPath();ctx.moveTo(A[0],A[1]-1);ctx.lineTo(B[0],B[1]-1);ctx.stroke();}
+    if(lvl>=3){ctx.fillStyle=shade(stone,1.03);const n=6;for(let i=0;i<=n;i+=2){const t=i/n;
+      const q2=[up(A)[0]+(up(B)[0]-up(A)[0])*t,up(A)[1]+(up(B)[1]-up(A)[1])*t];ctx.fillRect(q2[0]-1.6,q2[1]-4.5,3.2,4.5);}}};
+  const ts=w*0.13*sc, tall=lvl>=9?2.2:lvl>=6?1.45:1.0;
+  const flag=lvl>=9?'#f0c23a':lvl>=6?'#c0413a':undefined;
+  const twr=(P,f)=>tower(P[0],P[1],ts*0.42,ts*0.21,(h+ts*0.32)*tall,ts*0.5,stone,tRoof,{crenel:lvl>=3,flag:f});
+  seg(pW,pN);seg(pN,pE); if(lvl>=3)twr(pN);
+  const kw=w*(0.28+lvl*0.02), kRoof=lvl>=6?[86,104,152]:tRoof;
+  if(lvl>=6)tower(cx+fw*0.30,cy-fh*0.20,kw*0.13,kw*0.065,h+kw*0.26,kw*0.15,stone,tRoof,{crenel:1});
+  tower(cx,cy+fh*0.10,kw*0.17,kw*0.085,(h+kw*0.42)*(lvl>=9?1.3:1),kw*0.2,stone,kRoof,{crenel:lvl>=3,flag});
+  seg(pW,pS);seg(pS,pE);
+  if(lvl>=3){twr(pW);twr(pE);} twr(pS,flag);
+  ctx.fillStyle='#1c140c';ctx.beginPath();ctx.ellipse(pS[0],pS[1]-h*0.25,w*0.03,h*0.40,0,0,7);ctx.fill();
+}
+
+/* MAP resource camps — deplete to flat land */
+let camps=null;
+function seedCamps(){camps=[];if(!rivers)seedRivers();const rnd=mul(4242);const G=6,SP=340;
+  for(let gy=-G;gy<=G;gy++)for(let gx=-G;gx<=G;gx++){
+    if(gx===0&&gy===0)continue; if(rnd()<0.62)continue;
+    const jx=(rnd()-0.5)*220+150, jy=(rnd()-0.5)*220-150;
+    const t=rnd();const res=t<0.3?'wood':t<0.55?'stone':t<0.8?'food':'iron';
+    const lvl=1+Math.floor(rnd()*5);
+    const px=gx*SP+jx, py=gy*SP+jy; if(nearRiver(px,py,50))continue;
+    camps.push({id:'c'+camps.length,x:px,y:py,res,lvl,pool:lvl*3000});}}
+function campLeft(c){return S.mapRes[c.id]!==undefined?S.mapRes[c.id]:c.pool;}
+function drawCamp(x,y,c){
+  const left=campLeft(c);
+  if(left<=0){ // exhausted — flat land + rubble
+    ctx.save();ctx.globalAlpha=.45;ctx.beginPath();ctx.ellipse(x,y,24,12,0,0,7);ctx.fillStyle='#8a7d57';ctx.fill();ctx.restore();
+    poly([[x-8,y],[x-2,y-6],[x+6,y-4],[x+9,y+2],[x-2,y+4]],'#98917c','rgba(60,50,35,0.4)',1);
+    return;}
+  softShadow(x,y+5,22,11);
+  CUR_SEED=hashKey(c.id);
+  house(x,y,13,7,10,7,[168,142,102],[120,84,52]);
+  const em=c.res==='wood'?'🪵':c.res==='stone'?'⛰️':c.res==='iron'?'⛏️':'🌾';
+  ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(em,x+18,y-9);
+  levelBadge(x-18,y+7,c.lvl);
+}
+function campMenu(c){const left=campLeft(c);
+  if(left<=0){toast('This camp is exhausted — flat land now.');return;}
+  if(activeMarchTo(c.id)){toast('A march is already on the road there');return;}
+  const name=(c.res==='wood'?'Logging':c.res==='stone'?'Quarry':c.res==='iron'?'Mining':'Grain')+' Camp';
+  const mi=distMiles(c.x,c.y).toFixed(1);
+  if(!S.campClear[c.id]){                                             // bandits hold it — clear it by force first
+    const TT2=troopTotal(), G=garrison(c), aF=marchFood(c.x,c.y,TT2), aT=marchDur(c.x,c.y,S.army,'raid');
+    modal(name+' · Lv '+c.lvl+' · '+mi+' mi · ⚠️ bandit garrison ~'+G,[
+      {em:'⚔️',label:'Attack with all ('+compStr(S.army)+')',meta:aF+'🌾 · '+fmtTime(aT)+' each way',
+       dis:TT2<1||S.res.food<aF||activeMarches()>=marchSlots()||TT2>marchSizeCap(),
+       lockMsg:activeMarches()>=marchSlots()?'March queue full — build a Rally Spot':TT2>marchSizeCap()?'Rally Spot too small (max '+marchSizeCap()+')':TT2<1?'Train soldiers first':'Not enough provisions',
+       fn:()=>{S.res.food-=aF;DISPATCH_CTX={tKind:'camp',tLvl:c.lvl,amount:TT2,foodPaid:aF};dispatch('clearcamp',c.id,c.x,c.y,slice(TT2),0);closeModal();renderRes();}}]);
+    return;}
+  const take=Math.min(500*c.lvl,left), H=5;
+  const gF=marchFood(c.x,c.y,H), gT=marchDur(c.x,c.y,H,'gather');
+  modal(name+' · Lv '+c.lvl+' · '+mi+' mi · cleared ✅',[
+    {em:'⛏️',label:'Send '+H+' haulers · fetch '+take+' '+c.res,meta:fmt(left)+' left · '+gF+'🌾 · '+fmtTime(gT)+' each way',
+     dis:troopTotal()<H||S.res.food<gF||activeMarches()>=marchSlots(),
+     lockMsg:activeMarches()>=marchSlots()?'March queue full — build a Rally Spot':troopTotal()<H?'Need '+H+' troops to haul':'Not enough provisions',
+     fn:()=>{S.res.food-=gF;DISPATCH_CTX={tKind:'camp',tLvl:c.lvl,amount:H,res:c.res,foodPaid:gF};dispatch('gather',c.id,c.x,c.y,slice(H),0);closeModal();renderRes();}}]);}
+
+/* MAP */
+const cams={town:{x:0,y:0},outside:{x:0,y:0},map:{x:0,y:0}};
+function CAM(){return cams[view]||cams.town;}
+let zoom=1, sel=null, npcs=null, PLAYERS=[], playersFetched=0;
+function seedNPCs(){npcs=[];if(!rivers)seedRivers();const rnd=mul(1337);const G=6,SP=340;
+  for(let gy=-G;gy<=G;gy++)for(let gx=-G;gx<=G;gx++){
+    if(gx===0&&gy===0)continue; if(rnd()<0.72)continue;
+    const jx=(rnd()-0.5)*120, jy=(rnd()-0.5)*120;
+    const tier=1+Math.floor(rnd()*4);
+    const px=gx*SP+jx, py=gy*SP+jy; if(nearRiver(px,py,60))continue;
+    npcs.push({id:'n'+npcs.length,x:px,y:py,tier,kind:rnd()<0.5?'Barbarian':'Derelict',lvl:1+Math.floor(rnd()*10)});}}
+let mapdecor=null, rivers=null;
+function seedRivers(){rivers=[];const rnd=mul(777);
+  for(let r=0;r<4;r++){const pts=[];const a=rnd()*Math.PI*2;
+    let x=(rnd()-0.5)*9000, y=(rnd()-0.5)*9000;
+    const dx=Math.cos(a), dy=Math.sin(a), ph=rnd()*7, amp=60+rnd()*70;
+    for(let i=-90;i<90;i++){const t=i*96;
+      pts.push([x+dx*t-dy*Math.sin(t*0.012+ph)*amp, y+dy*t+dx*Math.sin(t*0.012+ph)*amp]);}
+    rivers.push(pts);}}
+function nearRiver(x,y,d){if(!rivers)seedRivers();const d2=d*d;
+  for(const pts of rivers)for(const q of pts){const ddx=q[0]-x,ddy=q[1]-y;if(ddx*ddx+ddy*ddy<d2)return true;}
+  return false;}
+function seedDecor(){mapdecor=[];seedRivers();const rnd=mul(90210);const G=7,SP=340;
+  for(let gy=-G;gy<=G;gy++)for(let gx=-G;gx<=G;gx++){
+    const n=rnd()<0.15?0:(1+(rnd()<0.55?1:0));                       // 0–2 features per cell → Evony-dense
+    for(let i=0;i<n;i++){const jx=(rnd()-0.5)*300, jy=(rnd()-0.5)*300;
+      const t=rnd();
+      const kind=t<0.30?'grove':t<0.48?'pine':t<0.60?'pond':t<0.74?'rocks':t<0.84?'rock':'tuft';
+      const px=gx*SP+jx+170, py=gy*SP+jy+170;
+      if(kind!=='tuft'&&nearRiver(px,py,36))continue;                 // nothing solid spawns in the water
+      mapdecor.push({x:px,y:py,kind,s:0.8+rnd()*0.6,v:Math.floor(rnd()*5)});}}}
+function drawRivers(cam){if(!rivers)return;
+  for(let R=0;R<rivers.length;R++){const pts=rivers[R];
+    let vis=false;const P=[];
+    for(const q of pts){const px=VW/2-cam.x+q[0]*zoom, py=VH/2-cam.y+q[1]*zoom;
+      P.push([px,py]); if(px>-80&&px<VW+80&&py>-80&&py<VH+80)vis=true;}
+    if(!vis)continue;
+    ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
+    // draw in short strokes: width breathes, and some stretches sink underground (Evony map look)
+    for(let i=1;i<P.length;i++){
+      const ph=i*0.55+R*3.1;
+      if(Math.sin(i*0.23+R*7)>0.93)continue;                          // the river vanishes into marsh here
+      const w=(7+3*Math.sin(ph))*zoom;
+      ctx.beginPath();ctx.moveTo(P[i-1][0],P[i-1][1]);ctx.lineTo(P[i][0],P[i][1]);
+      ctx.strokeStyle='#3f5f47';ctx.lineWidth=w+3.5*zoom;ctx.globalAlpha=0.5;ctx.stroke();  // muddy banks
+      ctx.globalAlpha=0.95;
+      ctx.strokeStyle='#517d9e';ctx.lineWidth=w;ctx.stroke();
+      ctx.strokeStyle='#6e9fc0';ctx.lineWidth=w*0.5;ctx.stroke();
+      if(Math.sin(ph*1.7)>0.6){ctx.strokeStyle='rgba(210,230,240,0.5)';ctx.lineWidth=1.2;ctx.stroke();} // glints
+    }
+    ctx.restore();}}
+function grove(x,y,s,v){const off=[[0,0],[15,7],[-13,9],[7,-9],[-7,-15]];
+  const n=3+(v%3); const ord=off.slice(0,n).sort((a,b)=>a[1]-b[1]);
+  for(const o of ord)pine(x+o[0]*s,y+o[1]*s,s*0.9);}
+function rocks(x,y,s){rock(x,y,s);rock(x+16*s,y+6*s,s*0.55);rock(x-14*s,y+7*s,s*0.4);}
+function tuft(x,y,s){ctx.strokeStyle='#5d7a35';ctx.lineWidth=1.5;
+  for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(x+i*4*s,y);ctx.lineTo(x+i*5.5*s,y-6*s);ctx.stroke();}}
+function pine(x,y,s){ctx.fillStyle='#6b4a2a';ctx.fillRect(x-2*s,y-6*s,4*s,7*s);
+  for(let i=0;i<3;i++){const w=14*s-i*4*s,h=10*s;poly([[x,y-6*s-i*7*s-h],[x-w/2,y-6*s-i*7*s],[x+w/2,y-6*s-i*7*s]],i%2?'#3f6b2e':'#4c7d38','rgba(30,44,20,0.4)',1);}}
+function pond(x,y,s){ctx.save();
+  ctx.beginPath();ctx.ellipse(x,y+1.5,28*s,15*s,0,0,7);ctx.fillStyle='rgba(90,80,52,0.5)';ctx.fill(); // muddy bank
+  ctx.beginPath();ctx.ellipse(x,y,26*s,14*s,0,0,7);ctx.fillStyle='#4f7fa8';ctx.fill();
+  ctx.lineWidth=2;ctx.strokeStyle='#6a9ec4';ctx.stroke();ctx.globalAlpha=.5;ctx.beginPath();ctx.ellipse(x-6*s,y-3*s,10*s,4*s,0,0,7);ctx.fillStyle='#8fc0dd';ctx.fill();ctx.restore();}
+function rock(x,y,s){poly([[x-14*s,y],[x-6*s,y-12*s],[x+4*s,y-14*s],[x+13*s,y-4*s],[x+8*s,y+4*s],[x-8*s,y+4*s]],'#9a968c','rgba(40,36,28,0.4)',1);
+  poly([[x-6*s,y-12*s],[x+4*s,y-14*s],[x+13*s,y-4*s],[x,y-2*s]],'#b4b0a4',null);}
+function renderMap(){hots=[];const cam=CAM();
+  mapGround();
+  if(!mapdecor)seedDecor();
+  drawRivers(cam);
+  for(const d of mapdecor){const dx=VW/2-cam.x+d.x*zoom, dy=VH/2-cam.y+d.y*zoom;
+    if(dx<-70||dx>VW+70||dy<-70||dy>VH+70)continue;const s=d.s*zoom;
+    if(d.kind==='pine')pine(dx,dy,s);
+    else if(d.kind==='grove')grove(dx,dy,s,d.v);
+    else if(d.kind==='pond')pond(dx,dy,s);
+    else if(d.kind==='rocks')rocks(dx,dy,s);
+    else if(d.kind==='rock')rock(dx,dy,s);
+    else tuft(dx,dy,s);}
+  if(!camps)seedCamps();
+  for(const c of camps){const cxp=VW/2-cam.x+c.x*zoom, cyp=VH/2-cam.y+c.y*zoom;
+    if(cxp<-60||cxp>VW+60||cyp<-60||cyp>VH+60)continue;
+    drawCamp(cxp,cyp,c);
+    if(campLeft(c)>0){ctx.fillStyle='#fff';ctx.font='700 11px system-ui';ctx.textAlign='center';ctx.strokeStyle='#000';ctx.lineWidth=3;
+      const lab=c.res[0].toUpperCase()+c.res.slice(1)+' camp';ctx.strokeText(lab,cxp,cyp+22);ctx.fillText(lab,cxp,cyp+22);
+      hot(cxp,cyp,34,()=>campMenu(c));}}
+  if(!npcs)seedNPCs();
+  // player castles: convert absolute world coords to home-relative (home at 0,0)
+  const HX=(S.home&&S.home.x)||512, HY=(S.home&&S.home.y)||512;
+  const plist=(PLAYERS||[]).map(p=>({player:true,hid:p.hid,name:p.name,prot:p.protected,
+    x:(p.x-HX)*14, y:(p.y-HY)*14, lvl:5}));
+  const all=[{x:0,y:0,me:true,tier:S.wall}].concat(npcs).concat(plist);
+  all.sort((a,b)=>(a.y)-(b.y));
+  for(const n of all){const nx=VW/2-cam.x+n.x*zoom, ny=VH/2-cam.y+n.y*zoom;
+    if(nx<-120||nx>VW+120||ny<-180||ny>VH+120)continue;
+    const dead=!n.me&&!n.player&&!!S.razed[n.id];
+    if(n.me) drawStonehold(nx,ny,150*zoom);
+    else if(n.player) castle(nx,ny,110*zoom,5,false);
+    else castle(nx,ny,(80+n.lvl*10)*zoom,n.lvl,dead);
+    ctx.fillStyle=n.player?'#ffd070':'#fff';ctx.font='700 12px system-ui';ctx.textAlign='center';ctx.strokeStyle='#000';ctx.lineWidth=3;
+    const lab=n.me?'Your Stonehold':n.player?('⚔ '+n.name+(n.prot?' 🛡️':'')):(dead?n.kind+' ruins':n.kind+' '+n.lvl);
+    ctx.strokeText(lab,nx,ny+6);ctx.fillText(lab,nx,ny+6);
+    if(n.player)hot(nx,ny-24,48,()=>attackPlayer(n));
+    else if(!n.me&&!dead)hot(nx,ny-26,42,()=>scout(n));
+    if(n.me)hot(nx,ny-20,52,()=>{setView('town');toast('🏰 Home');DBG.log('nav','map->town via castle');});}
+  drawMarches(cam);
+  worldBorder(cam);
+  coordBox(cam);
+  setHint('Drag to explore · tap the ◎ X·Y chip to navigate');
+  if(ONLINE && Date.now()-playersFetched>30000){playersFetched=Date.now();
+    srv('stonehold_nearby',{}).then(r=>{if(r&&r.ok&&Array.isArray(r.players)){PLAYERS=r.players;}});}
+}
+function coordBox(cam){const HX=(S.home&&S.home.x)||512,HY=(S.home&&S.home.y)||512;const cl=(v,h)=>Math.max(0,Math.min(999,h+Math.round(v/14)));
+  const X=cl(cam.x,HX),Y=cl(cam.y,HY);const w=132,h=30,x=VW-w-10,y=92;
+  ctx.save();ctx.fillStyle='#efe2c0';ctx.strokeStyle='#b9822b';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(x,y,w,h,7);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#3a2c18';ctx.font='800 14px system-ui';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('◎ X:'+X+'  Y:'+Y,x+10,y+h/2+1);ctx.restore();
+  hot(x+w/2,y+h/2,44,mapNavMenu);}                                    // tap the chip → navigate
+function mapNavMenu(){const c=cams.map;
+  modal('🧭 Navigate the Realm',[
+    {em:'🏰',label:'Center on Your Stonehold',meta:'X:'+((S.home&&S.home.x)||512)+' Y:'+((S.home&&S.home.y)||512),fn:()=>{c.x=0;c.y=0;closeModal();toast('Home sweet stronghold');}},
+    {em:'🎯',label:'Go to coordinates…',meta:'0–999',fn:()=>{closeModal();
+      const inp=prompt('Enter coordinates as  X Y  (0–999):','512 512'); if(!inp)return;
+      const m2=inp.match(/(\d+)\D+(\d+)/); if(!m2){toast('Format: 512 512');return;}
+      const X=Math.max(0,Math.min(999,+m2[1])), Y=Math.max(0,Math.min(999,+m2[2]));
+      c.x=(X-512)*14; c.y=(Y-512)*14; clampMapCam(c);
+      DBG.log('goto',X+','+Y); toast('Marched to '+X+' · '+Y);}},
+  ]);}
+function worldBorder(cam){                                            // the edge of the realm
+  const L=VW/2-cam.x+WORLD.min*zoom, R=VW/2-cam.x+WORLD.max*zoom;
+  const T=VH/2-cam.y+WORLD.min*zoom, B=VH/2-cam.y+WORLD.max*zoom;
+  ctx.save();ctx.fillStyle='#3d3020';
+  if(L>0)ctx.fillRect(0,0,Math.min(L,VW),VH);
+  if(R<VW)ctx.fillRect(Math.max(R,0),0,VW-Math.max(R,0),VH);
+  if(T>0)ctx.fillRect(0,0,VW,Math.min(T,VH));
+  if(B<VH)ctx.fillRect(0,Math.max(B,0),VW,VH-Math.max(B,0));
+  ctx.strokeStyle='#8a5f22';ctx.lineWidth=5;ctx.strokeRect(L,T,R-L,B-T);ctx.restore();}
+/* THE ARMY — multiple soldier types. Power, speed, and cost differ; an army marches
+   at the pace of its SLOWEST unit (Evony law). More types incoming — same universe. */
+const UNITS={
+  sword:{name:'Swordsman',em:'🗡️',cost:{food:40,iron:12},t:9,pow:1.0,speed:1.0},
+  archer:{name:'Archer',em:'🏹',cost:{food:32,wood:16},t:8,pow:1.15,speed:1.0},
+  horse:{name:'Horseman',em:'🐎',cost:{food:120,iron:40,gold:6},t:22,pow:2.3,speed:2.4},
+};
+function troopTotal(a){a=a||S.army;let n=0;for(const k in UNITS)n+=a[k]||0;return n;}
+function cityLvSum(t){let n=0;for(const k in S.city){const b=S.city[k];if(b.type===t)n+=b.lv||1;}return n;}
+function popCap(){return 50+cityLvSum('cottage')*20+(S.popBonus||0);} // cottages house the people (+dev bonus)
+function popUsed(){let n=troopTotal()+S.scouts;
+  for(const j of S.queue)if(j.kind&&j.kind.slice(0,5)==='train')n+=j.n||0;
+  for(const m of S.marches){if(m.comp)n+=troopTotal(m.comp);n+=m.scouts||0;}
+  return n;}
+function idlePop(){return Math.max(0,popCap()-popUsed());}            // recruits come from idle civilians
+function rallyLv(){return cityLvSum('rally');}
+function marchSlots(){return 1+rallyLv();}                            // Rally Spot = simultaneous marches
+function marchSizeCap(){return 100*Math.max(1,rallyLv());}            // ...and max army per march
+function activeMarches(){return S.marches.filter(m=>!m.home).length;}
+function forgeBoost(){return 1+0.05*cityLvSum('forge')+techBonus('atk');}   // Forge level + Military Science research
+// WALL DEFENSE — Evony-style defensive works built into your walls. Each adds a
+// defense value that reduces incoming attacker power; more = a true uber-base.
+const DEFS={
+  trap:       {name:'Trap',        em:'🨤', cost:{wood:60,stone:20},        def:8,  desc:'Cheap pits that bleed attackers'},
+  abatis:     {name:'Abatis',      em:'🪵', cost:{wood:120,iron:20},        def:16, desc:'Sharpened logs slow the charge'},
+  archerTower:{name:"Archer Tower",em:'🏹', cost:{wood:150,stone:120,iron:60},def:40, desc:'Rains arrows on besiegers'},
+  rollingLog: {name:'Rolling Log', em:'🪵', cost:{wood:200,stone:80},       def:30, desc:'Crushes massed infantry'},
+};
+// FORGE RESEARCH — Evony-style tech tree. Each tech has levels 1-10; each level
+// costs more + takes longer and stacks a % bonus. Forge level caps how high you go.
+const TECH={
+  militaryScience:{name:'Military Science',em:'⚔️',effect:'atk', per:0.03, desc:'+3% army attack / level'},
+  ironWorking:    {name:'Iron Working',    em:'🛡️',effect:'def', per:0.03, desc:'+3% wall defense / level'},
+  logistics:      {name:'Logistics',       em:'🐎',effect:'speed', per:0.04, desc:'+4% march speed / level'},
+  agriculture:    {name:'Agriculture',     em:'🌾',effect:'prod', per:0.05, desc:'+5% production / level'},
+  masonry:        {name:'Masonry',         em:'🧱',effect:'build', per:0.04, desc:'+4% faster building / level'},
+};
+function techLv(k){return (S.research&&S.research[k])||0;}
+function techBonus(effect){let b=0;for(const k in TECH)if(TECH[k].effect===effect)b+=techLv(k)*TECH[k].per;return b;}
+function researchCost(k,lv){const m=lv+1;
+  return {food:Math.round(400*m*m*m), iron:Math.round(240*m*m*m), gold:Math.round(80*m*m*m)};}
+function researchTime(k,lv){return Math.min(86400,600*(lv+1)*(lv+1)*(lv+1));}   // late tiers reach many hours
+function forgeMaxTech(){return Math.max(0,cityLvSum('forge'));}   // forge level = tech cap
+function wallDefTotal(){let d=0;const wd=S.wallDef||{};for(const k in DEFS)d+=(wd[k]||0)*DEFS[k].def;
+  d+=(S.wall||0)*25;   // the wall itself contributes
+  return Math.round(d*(1+techBonus('def')));}   // Iron Working research amplifies defense
+function defenseMult(){return 1+wallDefTotal()/500;}   // how much a defender resists (for future PvP)
+function powerOf(a){let p=0;for(const k in UNITS)p+=(a[k]||0)*UNITS[k].pow;return p;}
+function slowestSpeed(a){let sp=99;for(const k in UNITS)if((a[k]||0)>0)sp=Math.min(sp,UNITS[k].speed);return sp===99?1:sp;}
+function slice(n){ // take n troops from the army, proportionally across types
+  const total=troopTotal();n=Math.min(n,total);const out={};let taken=0;
+  for(const k in UNITS){const q=Math.floor(n*(S.army[k]||0)/total);out[k]=q;taken+=q;}
+  for(const k of ['sword','archer','horse']){if(taken>=n)break;
+    if((S.army[k]||0)>(out[k]||0)){out[k]=(out[k]||0)+1;taken++;}}
+  return out;}
+function compStr(a){const bits=[];for(const k in UNITS)if(a[k])bits.push(a[k]+UNITS[k].em);return bits.join(' ')||'0';}
+
+/* Marches: everything on the map takes TIME. Distance × army size = duration; provisions cost food.
+   Troops leave your count and return after the round trip. Absolute timestamps → works offline. */
+function distMiles(x,y){return Math.hypot(x,y)/140;}
+function marchDur(x,y,comp,kind){const d=Math.hypot(x,y);
+  if(kind==='scout')return Math.max(25,Math.round(d/900*60));         // lone rider, fast
+  const n=typeof comp==='number'?comp:troopTotal(comp);
+  const sp=typeof comp==='number'?1:slowestSpeed(comp);
+  return Math.max(40,Math.round((d/300)*(1+n/60)*60/sp));}            // slower with mass, faster if all-cavalry
+function marchFood(x,y,units){return Math.ceil(distMiles(x,y)*Math.max(1,units)*2);}
+function activeMarchTo(tid){return S.marches.find(m=>m.tid===tid&&!m.home);}
+let DISPATCH_CTX={};   // {tKind,tLvl,amount,res} set by the menu just before dispatch()
+async function dispatch(kind,tid,tx,ty,comp,scouts){
+  comp=comp||{};
+  const ctx=DISPATCH_CTX; DISPATCH_CTX={};
+  // Attacking while under protection breaks it — warn first (truce costs money).
+  if((kind==='raid'||kind==='clearcamp')&&isProtected()){
+    const paid=(S.truceUntil||0)>Date.now();
+    const msg=paid
+      ? 'Attacking ends your paid Truce early — you will be exposed to attacks. Continue?'
+      : 'Attacking ends your newbie protection early — you will be exposed. Continue?';
+    if(!confirm('⚠️ '+msg)){ if(ctx.foodPaid)S.res.food+=ctx.foodPaid; renderRes(); return; }
+    S.shieldUntil=0; S.truceUntil=0; save();
+    addLog('system','Protection dropped — you struck first.');
+    if(ONLINE)srv('stonehold_truce',{days:0}).catch(()=>{});   // clear server protection
+  }
+  if(ONLINE){
+    // SERVER decides: it re-slices from its OWN army, deducts food+units, schedules,
+    // and computes the battle at arrival. We already optimistically deducted food in
+    // the menu for snappy UX — refund it and let the server be the source of truth.
+    if(ctx.foodPaid)S.res.food+=ctx.foodPaid;
+    const r=await srv('stonehold_march',{kind,tid,tx,ty,tKind:ctx.tKind,tLvl:ctx.tLvl,amount:ctx.amount,res:ctx.res});
+    if(r&&r.ok){ if(r.army)S.army=r.army; if(r.scouts!=null)S.scouts=r.scouts; if(r.res)S.res=r.res; if(r.marches)S.marches=r.marches;
+      (r.reports||[]).forEach(rp=>addLog(rp.k,rp.x)); save();renderRes();
+      const msg=(kind==='scout'?'🔍 Scout':kind==='raid'?'⚔️ '+compStr(comp):'⛏️ Haulers')+' dispatched (server)';
+      toast(msg); addLog('system',msg);
+    } else { const e=r&&r.error||'failed'; toast('March refused: '+e.replace(/_/g,' ')); DBG.log('march','server-reject '+e); renderRes(); }
+    return;
+  }
+  // OFFLINE single-player fallback (localStorage authority)
+  const dur=marchDur(tx,ty,scouts?1:comp,kind)*1000, now=Date.now();
+  S.marches.push({id:'m'+now+Math.random().toString(36).slice(2,5),kind,tid,tx,ty,tKind:ctx.tKind,tLvl:ctx.tLvl,
+    comp,scouts:scouts||0,depart:now,arrive:now+dur,ret:now+dur*2,resolved:false,home:false});
+  for(const k in comp)S.army[k]=(S.army[k]||0)-(comp[k]||0);
+  S.scouts-=scouts||0; save();
+  DBG.log('march',kind+' -> '+tid+' eta '+Math.round(dur/1000)+'s');
+  const msg=(kind==='scout'?'🔍 Scout':kind==='raid'?'⚔️ '+compStr(comp):'⛏️ Haulers')+' dispatched · ETA '+fmtTime(dur/1000);
+  toast(msg); addLog('system',msg);}
+/* Battle math — Evony-brutal. Garrison must be out-massed; defeat costs the whole army.
+   Camps are the weakest (bandits), Barbarians mid, Derelicts are true NPC castles.
+   NOTE FOR SERVER: battles + march lines are OWNER-ONLY. Never broadcast another
+   player's marches; other players see only outcomes (razed tiles). */
+function garrison(t){ if(t.res) return 60+t.lvl*40;                   // camp bandits  (Lv1 ≈ 100)
+  return t.kind==='Derelict'? t.lvl*300 : t.lvl*120; }                // castles: Derelict ≫ Barbarian
+function battle(comp,G){                                              // returns {win, frac lost}
+  const power=powerOf(comp)*forgeBoost()*(0.85+Math.random()*0.30);   // the gamble (Forge counts)
+  if(power<=G) return {win:false, f:1};                               // rout: the army is lost
+  const f=Math.min(0.9,(G/power)*0.45*(0.7+Math.random()*0.6));
+  return {win:true, f};}
+function applyLosses(comp,f){let lost=0;
+  for(const k in comp){const q=Math.min(comp[k],Math.ceil(comp[k]*f));comp[k]-=q;lost+=q;}
+  return lost;}
+function resolveMarch(m){const now=Date.now();
+  if(!m.resolved&&now>=m.arrive){m.resolved=true;
+    if(m.kind==='scout'){const n=npcs&&npcs.find(q=>q.id===m.tid);
+      const rpt=(n&&!S.razed[n.id])?
+        '🔍 '+n.kind+' Lv '+n.lvl+': garrison ~'+garrison(n)+' strong · loot ~'+(n.lvl*(n.kind==='Derelict'?600:250))+' · one victory razes it'
+        :'🔍 Report: only rubble remains.';
+      toast(rpt); addLog('scout',rpt);}
+    else if(m.kind==='raid'){const n=npcs&&npcs.find(q=>q.id===m.tid);
+      if(n&&!S.razed[n.id]){const G=garrison(n), r=battle(m.comp,G);
+        if(r.win){const lost=applyLosses(m.comp,r.f), loot=n.lvl*(n.kind==='Derelict'?600:250);
+          S.res.gold+=loot;S.res.food+=loot;S.razed[n.id]=1;
+          const msg='⚔️ VICTORY over '+n.kind+' '+n.lvl+'! +'+loot+' gold +'+loot+' food · '+lost+' fell · razed to flat land';
+          toast(msg);addLog('battle',msg);DBG.log('battle',m.tid+' WIN -'+lost);}
+        else{applyLosses(m.comp,1);
+          const msg='💀 DEFEAT at '+n.kind+' '+n.lvl+'. The garrison of '+G+' slaughtered the army. No one returns.';
+          toast(msg);addLog('battle',msg);DBG.log('battle',m.tid+' LOSS');}}
+      else{toast('⚔️ The army found only ruins.');addLog('battle','⚔️ The army found only ruins.');}}
+    else if(m.kind==='clearcamp'){const c=camps&&camps.find(q=>q.id===m.tid);
+      if(c&&!S.campClear[c.id]){const G=garrison(c), r=battle(m.comp,G);
+        if(r.win){S.campClear[c.id]=1;const lost=applyLosses(m.comp,r.f);
+          const msg='⚔️ Camp cleared! '+lost+' fell. Haulers may now work it.';
+          toast(msg);addLog('battle',msg);}
+        else{applyLosses(m.comp,1);
+          const msg='💀 The bandits ('+G+') wiped out your force.';toast(msg);addLog('battle',msg);}}
+      else if(c)toast('The camp was already clear.');}
+    else if(m.kind==='gather'){const c=camps&&camps.find(q=>q.id===m.tid);
+      if(c){const left=campLeft(c),take=Math.min(500*c.lvl,left);
+        if(take>0){S.mapRes[c.id]=left-take;S.res[c.res]=Math.min(cap(),(S.res[c.res]||0)+take);
+          const msg='⛏️ +'+take+' '+c.res+((left-take)<=0?' — camp exhausted, the land lies flat':'');
+          toast(msg);addLog('done',msg);}
+        else toast('⛏️ The camp was already bare.');}}
+    save();renderRes();}
+  if(m.resolved&&!m.home&&now>=m.ret){m.home=true;
+    let back=0; if(m.comp)for(const k in m.comp){S.army[k]=(S.army[k]||0)+(m.comp[k]||0);back+=m.comp[k]||0;}
+    S.scouts+=m.scouts;
+    const msg='🏠 March returned'+(back?' · '+compStr(m.comp)+' home':m.scouts?' · scout home':'');
+    toast(msg);addLog('done',msg);save();}}
+function tickMarches(){if(!S.marches||!S.marches.length)return;
+  for(const m of S.marches)resolveMarch(m);
+  S.marches=S.marches.filter(m=>!m.home);}
+function drawMarches(cam){if(!S.marches)return;const now=Date.now();
+  for(const m of S.marches){
+    const hx=VW/2-cam.x, hy=VH/2-cam.y, tx=VW/2-cam.x+m.tx*zoom, ty=VH/2-cam.y+m.ty*zoom;
+    ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(60,44,20,0.55)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(tx,ty);ctx.stroke();ctx.setLineDash([]);
+    let px,py;
+    if(now<m.arrive){const t=Math.min(1,(now-m.depart)/(m.arrive-m.depart));px=hx+(tx-hx)*t;py=hy+(ty-hy)*t;}
+    else{const t=Math.min(1,(now-m.arrive)/(m.ret-m.arrive));px=tx+(hx-tx)*t;py=ty+(hy-ty)*t;}
+    ctx.beginPath();ctx.ellipse(px,py+6,7,3,0,0,7);ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fill();
+    ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(m.kind==='scout'?'🔍':m.kind==='raid'?'⚔️':'⛏️',px,py);ctx.restore();}}
+function npcHp(n){return S.npcHp[n.id]!==undefined?S.npcHp[n.id]:2+Math.ceil(n.lvl/2);}
+function attackPlayer(n){
+  if(n.prot){toast('🛡️ '+n.name+' is under protection — cannot be attacked');return;}
+  const TT=troopTotal();
+  if(TT<1){toast('Train an army first');return;}
+  if(isProtected()){toast('You must drop your own protection to attack (raid an NPC first, or wait it out)');return;}
+  const mi=(Math.hypot(n.x,n.y)/14).toFixed(1);
+  modal('🏰 '+n.name+' · '+mi+' mi',[
+    {em:'🤝',label:'Add Friend',meta:'befriend this lord (they can betray you later…)',
+      fn:()=>{closeModal();srv('stonehold_friend_add',{name:n.name}).then(r=>toast(r&&r.ok?'🤝 '+n.name+' added':'Failed: '+((r&&r.error)||'').replace(/_/g,' ')));}},
+    {em:'⚔️',label:'Invite to Clan',meta:'recruit them (mail invite)',
+      fn:()=>{closeModal();srv('stonehold_mail_deliver',{to:n.name,subject:'Clan Invite',body:'You are invited to join my clan. Open Profile → Clan → Join and enter my tag.'}).then(r=>toast(r&&r.delivered?'Invite sent':'Saved'));}},
+    {em:'🔥',label:'RAZE — flatten to plains',meta:'needs siege · loot + labor',
+      fn:()=>{closeModal();doAttackPlayer(n,'raze');}},
+    {em:'🏰',label:'USURP — capture the castle',meta:'take it as a new city',
+      fn:()=>{closeModal();doAttackPlayer(n,'usurp');}},
+    {em:'❌',label:'Cancel',meta:'stand down',fn:closeModal},
+  ]);}
+async function doAttackPlayer(n,mode){
+  const TT=troopTotal();
+  const inp=prompt('Send how many troops? (1–'+TT+')',String(TT));
+  if(!inp)return;const amt=Math.max(1,Math.min(TT,Math.floor(parseInt(inp)||0)));if(!amt)return;
+  toast('⚔️ Marching on '+n.name+'…');
+  const r=await srv('stonehold_attack_player',{target:n.hid,mode,amount:amt});
+  if(r&&r.ok){
+    if(r.res)S.res=r.res; if(r.army)S.army=r.army; if(r.cities)S.cities=r.cities; save();renderRes();
+    toast(r.report||'Battle resolved'); addLog('battle',r.report||'Player attack resolved');
+    if(r.win&&mode==='usurp')toast('🏰 New castle added to your empire! Check the 🏰 tab.');
+    PLAYERS=PLAYERS.filter(p=>p.hid!==n.hid); // they're razed/taken; refresh next poll
+  } else { const e=(r&&r.error||'failed').replace(/_/g,' ');
+    toast('Attack failed: '+e);
+    if(e==='target protected')toast('🛡️ That lord is protected'); }
+}
+function scout(n){const hp=npcHp(n), mi=distMiles(n.x,n.y).toFixed(1);
+ if(activeMarchTo(n.id)){toast('A march is already on the road there');return;}
+ const TT=troopTotal();
+ const sF=marchFood(n.x,n.y,1), sT=marchDur(n.x,n.y,1,'scout');
+ const slotsFull=activeMarches()>=marchSlots(), CAPn=marchSizeCap();
+ const raidOpt=(q,tag)=>{const cp=slice(q),f=marchFood(n.x,n.y,q),t=marchDur(n.x,n.y,cp,'raid');
+   return {em:'⚔️',label:'Raid with '+q+(tag?' ('+tag+')':''),meta:compStr(cp)+' · '+f+'🌾 · '+fmtTime(t)+' each way',
+     dis:TT<q||q<1||S.res.food<f||slotsFull||q>CAPn,
+     lockMsg:slotsFull?'March queue full ('+marchSlots()+') — build a Rally Spot':q>CAPn?'Rally Spot too small (max '+CAPn+' per march)':TT<q?'Not enough soldiers':'Not enough provisions',
+     fn:()=>{S.res.food-=f;DISPATCH_CTX={tKind:n.kind,tLvl:n.lvl,amount:q,foodPaid:f};dispatch('raid',n.id,n.x,n.y,slice(q),0);closeModal();renderRes();}};};
+ const half=Math.floor(TT/2), sizes=[];
+ if(TT>=50&&50!==half&&50!==TT)sizes.push(raidOpt(50));
+ if(half>0&&half!==TT)sizes.push(raidOpt(half,'half'));
+ if(TT>0)sizes.push(raidOpt(TT,'all'));
+ modal(n.kind+' · Lv '+n.lvl+' · '+mi+' miles · scout it before you bleed',[
+  {em:'🔍',label:'Send scout',meta:'1 scout · '+sF+'🌾 · '+fmtTime(sT)+' each way',
+   dis:S.scouts<1||S.res.food<sF||slotsFull,
+   lockMsg:slotsFull?'March queue full — build a Rally Spot':S.scouts<1?'Train a scout at the Barracks':'Not enough provisions',
+   fn:()=>{S.res.food-=sF;DISPATCH_CTX={tKind:n.kind,tLvl:n.lvl,foodPaid:sF};dispatch('scout',n.id,n.x,n.y,0,1);closeModal();renderRes();}},
+  ...sizes,
+  {em:'✏️',label:'Raid custom amount…',meta:'you have '+compStr(S.army),dis:TT<1,lockMsg:'Train soldiers first',
+   fn:()=>{closeModal();const inp=prompt('Send how many troops? (1–'+TT+')','100');if(!inp)return;
+     const q=Math.max(1,Math.min(TT,parseInt(inp)||0));if(!q)return;
+     const f=marchFood(n.x,n.y,q);if(S.res.food<f){toast('Need '+f+'🌾 provisions');return;}
+     S.res.food-=f;DISPATCH_CTX={tKind:n.kind,tLvl:n.lvl,amount:q,foodPaid:f};dispatch('raid',n.id,n.x,n.y,slice(q),0);renderRes();}},
+]);}
+
+/* World is 1000×1000 coords (Evony-size). px = (coord-512)*14. Camera clamps to the border. */
+const WORLD={min:(0-512)*14, max:(999-512)*14};
+function clampMapCam(c){c.x=Math.max(WORLD.min,Math.min(WORLD.max,c.x));c.y=Math.max(WORLD.min,Math.min(WORLD.max,c.y));}
+
+/* ===================== INPUT ===================== */
+let drag=null, pinch=null;
+cv.addEventListener('pointerdown',e=>{const c=CAM();drag={x:e.clientX,y:e.clientY,cx:c.x,cy:c.y,moved:false};});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(Math.abs(dx)+Math.abs(dy)>6)drag.moved=true;const c=CAM();
+  if(view==='map'){c.x=drag.cx-dx;c.y=drag.cy-dy;clampMapCam(c);}else{c.x=drag.cx+dx;c.y=drag.cy+dy;}});
+cv.addEventListener('pointerup',e=>{if(drag&&!drag.moved){e.preventDefault();const r=cv.getBoundingClientRect();const px=e.clientX-r.left,py=e.clientY-r.top;
+  let best=null,bd=1e12;
+  for(let i=0;i<hots.length;i++){const h=hots[i],d2=(px-h.x)**2+(py-h.y)**2;
+    if(d2<=h.r*h.r&&d2<bd){bd=d2;best=h;}}
+  if(best)best.fn();}drag=null;});
+// pinch-zoom (two fingers) + wheel zoom
+const active=new Map();
+cv.addEventListener('pointerdown',e=>{active.set(e.pointerId,e);if(active.size===2){const p=[...active.values()];pinch={d:Math.hypot(p[0].clientX-p[1].clientX,p[0].clientY-p[1].clientY),z:zoom};drag=null;}});
+cv.addEventListener('pointermove',e=>{if(active.has(e.pointerId))active.set(e.pointerId,e);
+  if(pinch&&active.size===2){const p=[...active.values()];const d=Math.hypot(p[0].clientX-p[1].clientX,p[0].clientY-p[1].clientY);
+    zoom=Math.max(0.6,Math.min(2.2,pinch.z*d/pinch.d));}});
+cv.addEventListener('pointerup',e=>{active.delete(e.pointerId);if(active.size<2)pinch=null;});
+cv.addEventListener('pointercancel',e=>{active.delete(e.pointerId);if(active.size<2)pinch=null;});
+cv.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.6,Math.min(2.2,zoom*(e.deltaY<0?1.1:0.9)));},{passive:false});
+
+/* ===================== ACTIONS ===================== */
+const MAXLV=9;
+function upCost(base,lv){const c={};const m=Math.pow(1.8,lv);for(const k in base)c[k]=Math.round(base[k]*m);return c;}
+function upgradeMenu(kind,key){
+  const b=kind==='city'?S.city[key]:S.nodes[key]; if(!b)return;
+  const def=kind==='city'?CITY[b.type]:NODE[b.type]; const lv=b.lv||1;
+  const busy=S.queue.find(j=>j.kind==='up-'+kind&&j.slot===key);
+  const meta=kind==='node'?('+'+(def.rate*lv)+'/h '+def.gives):
+    (def.pop?'+'+def.pop*lv+' pop':def.troopCap?'+'+def.troopCap*lv+' troop cap':def.store?'+'+fmt(def.store*lv)+' storage':
+     def.gold?'+'+def.gold*lv+' gold/h':def.forge?'+'+(5*lv)+'% army power':def.rally?(1+lv)+' marches · '+(100*lv)+' max army':
+     def.emb?'alliance seat (soon)':'');
+  const items=[];
+  if(kind==='city'&&b.type==='market'){
+    items.push({em:'⚖️',label:'Open Marketplace',meta:'buy/sell resources · prices float',fn:()=>{closeModal();openMarket();}});
+  }
+  if(kind==='city'&&b.type==='forge'){
+    items.push({em:'📜',label:'Research (Academy)',meta:'tech tree · Forge Lv '+forgeMaxTech()+' caps tech',fn:()=>{closeModal();openResearch();}});
+  }
+  if(kind==='city'&&b.type==='barracks'){
+    items.push({em:'👥',label:'Population: '+popUsed()+' / '+popCap(),meta:idlePop()+' idle civilians · cottages raise the cap',fn:closeModal});
+    for(const uk in UNITS){const u=UNITS[uk];
+      items.push({em:u.em,label:'Train '+u.name+'s…',meta:costStr(u.cost)+' + '+u.t+'s each · you have '+(S.army[uk]||0),
+        dis:idlePop()<1,lockMsg:'No idle civilians — build or upgrade Cottages',
+        fn:()=>{closeModal();
+          const ip=idlePop();
+          const inp=prompt('Train how many '+u.name.toLowerCase()+'s? ('+ip+' idle civilians available)','100');if(!inp)return;
+          const q=Math.max(1,Math.min(ip,parseInt(inp)||0));if(!q){toast('No idle civilians — build Cottages');return;}
+          const c={};for(const rk in u.cost)c[rk]=Math.ceil(u.cost[rk]*q);
+          if(!afford(c)){toast('Need '+costStr(c));return;}
+          pay(c);enqueue({kind:'train-'+uk,n:q,dur:Math.max(10,Math.round(u.t*q*trainBuffMult())),label:q+' '+u.name.toLowerCase()+'s'});
+          save();renderRes();}});}
+    items.push({em:'🐴',label:'Train scouts…',meta:'80🌾 + 20🪙 + 90s each · you have '+S.scouts,
+      dis:idlePop()<1,lockMsg:'No idle civilians — build or upgrade Cottages',
+      fn:()=>{closeModal();const inp=prompt('Train how many scouts? (1–'+Math.min(20,idlePop())+')','1');if(!inp)return;
+        const q=Math.max(1,Math.min(Math.min(20,idlePop()),parseInt(inp)||0));if(!q)return;
+        const c={food:80*q,gold:20*q};
+        if(!afford(c)){toast('Need '+costStr(c));return;}
+        pay(c);enqueue({kind:'train-scout',n:q,dur:90*q,label:q+' scout'+(q>1?'s':'')});save();renderRes();}});}
+  if(busy) items.push({em:'⏳',label:'Upgrading… '+fmtTime((busy.end-Date.now())/1000),meta:'in progress',fn:()=>closeModal()});
+  else if(lv>=MAXLV) items.push({em:'⭐',label:'Lv '+lv+' — fully upgraded',meta:'max level',fn:()=>closeModal()});
+  else{const c=upCost(def.cost,lv),dur=Math.round(def.t*Math.pow(1.7,lv));
+    items.push({em:'⬆️',label:'Upgrade to Lv '+(lv+1),meta:costStr(c)+' · '+fmtTime(dur),dis:!afford(c),lockMsg:'Not enough resources',
+      fn:()=>{if(!pay(c))return;closeModal();
+        enqueue({kind:'up-'+kind,slot:key,dur,label:def.name+' Lv '+(lv+1)});save();renderRes();}});}
+  modal(def.name+' · Lv '+lv+(meta?' · '+meta:''),items);
+}
+function buildCityMenu(key){
+  const fields=Object.keys(S.nodes).length;
+  const opts=Object.entries(CITY).map(([k,d])=>{
+    const need=d.req||0, gated=fields<need, poor=!afford(d.cost);
+    return {em:'🏛️',label:d.name,
+      meta: gated?('🔒 needs '+need+' field'+(need>1?'s':'')) : (costStr(d.cost)+' · '+fmtTime(d.t)),
+      dis: gated||poor, lockMsg: gated?('Build '+need+' resource field'+(need>1?'s':'')+' first (FIELDS tab)'):'Not enough resources',
+      fn:()=>{ closeModal(); if(pay(d.cost)){enqueue({kind:'city',slot:key,type:k,dur:d.t,label:d.name});renderRes();DBG.log('build','city '+k+' @'+key);} }};
+  });
+  modal('Build in town',opts);}
+function nodeCount(t){let n=0;for(const k in S.nodes)if(S.nodes[k].type===t)n++;return n;}
+function buildNodeMenu(key){const opts=Object.entries(NODE).map(([k,d])=>{
+  const free=nodeCount(k)===0, c=free?{}:d.cost, dur=free?Math.min(30,d.t):d.t;   // first of each kind: free & fast
+  return {em:'🌾',label:d.name+' (+'+d.rate+'/h '+d.gives+')',
+    meta:(free?'FREE · first one':costStr(c))+' · '+fmtTime(dur),dis:!afford(c),lockMsg:'Not enough resources',
+    fn:()=>{ closeModal(); if(pay(c)){enqueue({kind:'node',slot:key,type:k,dur,label:d.name});renderRes();DBG.log('build','node '+k+' @'+key);} }};});
+  modal('Build a resource field',opts);}
+const GH_COST={food:300,wood:400,stone:250}, GH_T=90;
+function foundation(cx,cy,w){                                        // staked-out Grand Hall site
+  const fw=w*0.42, fh=fw*0.5;
+  gfill([[cx,cy-fh],[cx+fw,cy],[cx,cy+fh],[cx-fw,cy]],[196,188,168],1.05,0.95,null); // pale cobble, blends in
+  const pulse=0.45+0.35*Math.sin(performance.now()/450);              // can't-help-but-tap glow
+  ctx.save();ctx.strokeStyle='rgba(240,198,90,'+pulse.toFixed(2)+')';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(cx,cy-fh);ctx.lineTo(cx+fw,cy);ctx.lineTo(cx,cy+fh);ctx.lineTo(cx-fw,cy);
+  ctx.closePath();ctx.stroke();ctx.restore();
+  ctx.strokeStyle='rgba(110,90,60,0.6)';ctx.lineWidth=1.6;            // survey stakes + rope
+  const st=[[cx,cy-fh*0.7],[cx+fw*0.7,cy],[cx,cy+fh*0.7],[cx-fw*0.7,cy]];
+  for(const q of st){ctx.beginPath();ctx.moveTo(q[0],q[1]);ctx.lineTo(q[0],q[1]-8);ctx.stroke();}
+  ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(st[0][0],st[0][1]-6);
+  for(let i=1;i<4;i++)ctx.lineTo(st[i][0],st[i][1]-6);ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+  ctx.font='bold 15px Georgia';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(90,60,20,'+(0.5+pulse*0.5).toFixed(2)+')';ctx.fillText('🏛️ +',cx,cy-2);
+  ctx.font='bold 12px Georgia';ctx.fillStyle='#3a2914';
+  ctx.fillText('Grand Hall site',cx,cy+fh+13);}
+function buildGrandHall(){
+  if(S.queue.find(j=>j.kind==='gh')){toast('The Grand Hall is under construction');return;}
+  modal('🏗️ Raise the Grand Hall',[
+    {em:'🏛️',label:'Begin construction',meta:costStr(GH_COST)+' · '+fmtTime(GH_T),dis:!afford(GH_COST),lockMsg:'Gather more from your fields first',
+     fn:()=>{if(!pay(GH_COST))return;closeModal();enqueue({kind:'gh',dur:GH_T,label:'Grand Hall'});save();renderRes();}}]);}
+function showReports(){const items=(S.log||[]).filter(e=>e.k==='battle'||e.k==='scout').slice(0,10)
+    .map(e=>({em:e.k==='battle'?'⚔️':'🔍',label:e.x.slice(0,64),meta:ago(e.ts)+' ago',fn:closeModal}));
+  if(!items.length)items.push({em:'📜',label:'No reports yet',meta:'scout & raid to fill the archive',fn:closeModal});
+  modal('📜 War Reports — the Grand Hall archive',items);}
+function setTaxMenu(){
+  const inp=prompt('Set the tax rate (0–100%). Above 50% the people grumble and work slows. Current: '+S.tax+'%','20');
+  if(inp===null)return;
+  const t=Math.max(0,Math.min(100,parseInt(inp)||0));S.tax=t;save();renderRes();
+  const msg=t>80?'💰 Tax set to '+t+'% — the people seethe. Production collapses.':
+            t>50?'💰 Tax set to '+t+'% — grumbling in the streets, work slows.':
+            t===0?'💰 Tax abolished! The people rejoice (your coffers do not).':
+            '💰 Tax set to '+t+'%.';
+  toast(msg);addLog('system',msg);}
+function upgradeTH(){if(!S.thLevel){buildGrandHall();return;}
+  const items=[];
+  if(S.thLevel<3&&!S.queue.find(j=>j.kind==='th')){
+    const nl=S.thLevel+1,cost=TH_COST[nl];
+    items.push({em:'⬆️',label:'Upgrade to Lv '+nl,meta:costStr(cost)+' · '+fmtTime(TH_T[nl]),dis:!afford(cost),lockMsg:'Not enough resources',
+      fn:()=>{if(pay(cost)){closeModal();enqueue({kind:'th',dur:TH_T[nl],label:'Town Hall Lv '+nl});renderRes();}}});}
+  else if(S.queue.find(j=>j.kind==='th'))items.push({em:'⏳',label:'Upgrading…',meta:'in progress',fn:closeModal});
+  else items.push({em:'⭐',label:'Lv 3 — the seat of power',meta:'max level',fn:closeModal});
+  items.push({em:'📜',label:'War Reports',meta:'scout + battle archive',fn:()=>{closeModal();showReports();}});
+  items.push({em:'💰',label:'Set Tax Rate',meta:'current '+S.tax+'% · high taxes slow work',fn:()=>{closeModal();setTaxMenu();}});
+  modal('Grand Hall · Lv '+S.thLevel,items);}
+function upgradeWall(){if(S.wall>=4){toast('Walls maxed (Stage 4)');return;}
+  // Stage 0→1 raises the timber palisade + corner towers; 2+ turns to stone
+  if(S.queue.find(j=>j.kind==='wall')){toast('Walls already upgrading');return;}
+  const nl=S.wall+1,cost=WALL_COST[nl];
+  const items=[{em:'🧱',label:'Upgrade walls',meta:costStr(cost)+' · '+fmtTime(WALL_T[nl]),dis:!afford(cost),lockMsg:'Not enough resources',
+    fn:()=>{if(pay(cost)){closeModal();enqueue({kind:'wall',dur:WALL_T[nl],label:'Walls Stage '+nl});renderRes();}}}];
+  items.push({em:'🛡️',label:'Fortify Defenses',meta:'total defense: '+wallDefTotal()+' · build traps & towers',fn:()=>{closeModal();openDefenses();}});
+  modal('Walls · Stage '+S.wall+' → '+nl,items);}
+function openResearch(){
+  if(!S.research)S.research={};
+  const cap=forgeMaxTech();
+  if(cap<1){modal('📜 Research',[{em:'⚒️',label:'Build a Forge first',meta:'the Forge houses your researchers',fn:closeModal}]);return;}
+  const busy=S.queue.find(j=>j.kind&&j.kind.slice(0,4)==='tech');
+  const items=[{em:'📚',label:'Forge Lv '+cap+' · tech cap '+cap,meta:'raise the Forge to research higher',fn:closeModal}];
+  for(const k in TECH){const t=TECH[k];const lv=techLv(k);
+    const maxed=lv>=Math.min(10,cap);
+    const cost=researchCost(k,lv), dur=researchTime(k,lv);
+    items.push({em:t.em,label:t.name+' · Lv '+lv+(maxed?' (max)':''),
+      meta:maxed?t.desc:(costStr(cost)+' · '+fmtTime(dur)+' · '+t.desc),
+      dis:maxed||!!busy||!afford(cost),
+      lockMsg:maxed?(lv>=cap?'Raise Forge level to unlock':'Maxed'):busy?'A research is already underway':'Not enough resources',
+      fn:()=>{if(pay(cost)){closeModal();enqueue({kind:'tech-'+k,dur:dur,label:t.name+' Lv '+(lv+1)});renderRes();
+        toast('📜 Researching '+t.name+' Lv '+(lv+1));}}});}
+  modal('📜 Forge Research',items);}
+function openDefenses(){
+  if(!S.wallDef)S.wallDef={trap:0,abatis:0,archerTower:0,rollingLog:0};
+  const items=[{em:'🛡️',label:'Total wall defense: '+wallDefTotal(),meta:'higher = harder to raid · protects offline',fn:closeModal}];
+  for(const k in DEFS){const d=DEFS[k];const have=S.wallDef[k]||0;
+    items.push({em:d.em,label:'Build '+d.name+' ('+have+')',meta:costStr(d.cost)+' · +'+d.def+' def · '+d.desc,
+      dis:!afford(d.cost),lockMsg:'Not enough resources',
+      fn:()=>{if(pay(d.cost)){S.wallDef[k]=(S.wallDef[k]||0)+1;save();renderRes();openDefenses();
+        toast(d.em+' '+d.name+' built · +'+d.def+' defense');addLog('done',d.name+' fortification built');}}});}
+  modal('🛡️ Wall Defenses',items);}
+
+/* ===================== HUD ===================== */
+function renderRes(){const r=rates();
+  const ct=document.getElementById('cityTab');if(ct){const n=cityCount();if(n>1){ct.style.display='';document.getElementById('cityCount').textContent=n;}else ct.style.display='none';}
+  const el=document.getElementById('res');el.innerHTML='';
+  RES.forEach((R,i)=>{const d=document.createElement('div');d.className='rc';
+    const c=document.createElement('canvas');c.width=52;c.height=52;d.appendChild(c);
+    const box=document.createElement('div');box.innerHTML=`<div class="v">${fmt(S.res[R.k]||0)}</div><div class="r">+${fmt(Math.round(r[R.k]))}/h</div>`;
+    d.appendChild(box);el.appendChild(d);drawResIcon(c,i);});
+  renderDock();}
+function drawResIcon(canvas,i){const x=canvas.getContext('2d');x.clearRect(0,0,52,52);
+  const cols=['#e0a83a','#8a5a32','#9a9690','#7c8590','#f0c23a'];   // food wood stone iron gold
+  const em=['🌾','🪵','🪨','⛓️','🪙'][i];
+  x.beginPath();x.arc(26,26,20,0,7);x.fillStyle=cols[i];x.fill();
+  x.lineWidth=2;x.strokeStyle='rgba(60,44,30,0.5)';x.stroke();
+  x.font='20px system-ui';x.textAlign='center';x.textBaseline='middle';x.fillText(em,26,27);}
+function ctxIconG(c){return c.getContext('2d');}
+function renderDock(){const d=document.getElementById('dock');d.innerHTML='';
+  if(S.queue.length){for(const j of S.queue){const left=(j.end-Date.now())/1000;const tot=j.dur;const pct=Math.max(0,Math.min(100,100*(1-left/tot)));
+    const s=document.createElement('div');s.className='slot act';
+    s.innerHTML=`<div class="t">BUILDING</div><div>${j.label}</div><div>${fmtTime(left)}</div><div class="bar"><i style="width:${pct}%"></i></div>`;d.appendChild(s);}}
+  const openSlots=queueMax()-S.queue.length;
+  if(S.queue.length===0){
+    // Idle: guide the player instead of showing a dead button.
+    const s=document.createElement('div');s.className='slot';
+    s.style.cursor='pointer';
+    s.innerHTML='<div class="t">READY TO BUILD</div><div>Tap a plot to construct</div>';
+    s.onclick=()=>{setView(S.thLevel?'town':'fields');toast('Tap any + plot to build');};
+    d.appendChild(s);
+  } else if(openSlots>0){
+    // Building something, and free queue slots remain.
+    const s=document.createElement('div');s.className='slot';
+    s.innerHTML='<div class="t">QUEUE</div><div>'+openSlots+' free slot'+(openSlots>1?'s':'')+'</div>';
+    d.appendChild(s);
+  } else {
+    // Queue full → offer the real upgrade path (more Town Hall = more slots).
+    const s=document.createElement('div');s.className='slot';s.style.cursor='pointer';
+    s.innerHTML='<div class="t">QUEUE FULL</div><div>Upgrade Grand Hall for +slots</div>';
+    s.onclick=()=>{setView('town');upgradeTH();};
+    d.appendChild(s);
+  }}
+function setHint(t){document.getElementById('hint').textContent=view==='shop'?'':t;}
+
+/* ===================== MODAL/TOAST ===================== */
+let modalGuardUntil=0;
+function modal(title,opts){const m=document.getElementById('modal');let h=`<h3>${title}</h3>`;
+  opts.forEach((o,i)=>{h+=`<div class="opt ${o.dis?'dis':''}" data-i="${i}"><span class="em">${o.em}</span>${o.label}<span class="meta">${o.meta||''}</span></div>`;});
+  h+=`<button id="mClose">Close</button>`;m.innerHTML=h;
+  modalGuardUntil=Date.now()+350; // swallow the ghost click that follows the opening tap
+  m.querySelectorAll('.opt').forEach(el=>el.onclick=()=>{ if(Date.now()<modalGuardUntil)return;
+    const o=opts[+el.dataset.i]; if(o.dis){toast(o.lockMsg||'Locked');return;} o.fn(); });
+  m.querySelector('#mClose').onclick=()=>{if(Date.now()<modalGuardUntil)return;closeModal();};
+  document.getElementById('scrim').style.display='block';m.style.display='block';}
+function modalHTML(title,bodyHTML){const m=document.getElementById('modal');
+  m.innerHTML='<h3>'+title+'</h3>'+bodyHTML+'<button id="mClose">Close</button>';
+  modalGuardUntil=Date.now()+350;
+  m.querySelector('#mClose').onclick=()=>{if(Date.now()<modalGuardUntil)return;closeModal();};
+  document.getElementById('scrim').style.display='block';m.style.display='block';}
+function closeModal(){modalGuardUntil=0;
+  document.getElementById('scrim').style.display='none';
+  document.getElementById('modal').style.display='none';}
+document.getElementById('scrim').onclick=()=>{if(Date.now()<modalGuardUntil)return;closeModal();};
+let toastT;function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity=0,1800);}
+
+/* ===================== SHOP (tier-scaled: fairness/convenience only) ===================== */
+function protectedUntil(){return Math.max(S.shieldUntil||0, S.truceUntil||0);}
+function isProtected(){return protectedUntil()>Date.now();}
+function protLabel(){const ms=protectedUntil()-Date.now();if(ms<=0)return '';
+  const h=Math.floor(ms/3600e3), d=Math.floor(h/24);
+  return d>0? (d+'d '+(h%24)+'h') : (h>0? (h+'h') : (Math.ceil(ms/60000)+'m'));}
+function monthKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1);}
+function monthlyReady(){return (tierMult().monthly>0) && (S.monthlyClaim!==monthKey());}
+function claimMonthly(){const m=tierMult().monthly;
+  if(m<=0){toast('Monthly stipend is a member perk 👑');return;}
+  if(S.monthlyClaim===monthKey()){toast('Monthly stipend already claimed this month');return;}
+  const amt=m*1000; for(const k in S.res)S.res[k]+=amt;
+  S.monthlyClaim=monthKey(); save(); renderRes();
+  toast('👑 Monthly stipend: +'+fmt(amt)+' of each resource ('+tierMult().name+')');
+  addLog('done','Monthly member stipend claimed (+'+fmt(amt)+' each)');}
+function spinsLeft(){const day=new Date().toDateString();if(S.spinDay!==day){S.spinDay=day;S.spinsUsed=0;}
+  return Math.max(0, tierMult().spins - (S.spinsUsed||0));}
+function renderShop(){const sh=document.getElementById('shop');const T=tierMult();const bundle=50000*T.shop;
+  sh.innerHTML=`<h2>🎡 THE COUNTING HOUSE</h2><div class="sub">Premium "Cents" — 100% satire, nothing costs real money 😄</div>
+    <div class="sub" style="color:#e7b24a">Tier: <b>${T.name}</b> · ${T.spins} daily spin${T.spins>1?'s':''} · ${T.shop}× shop value${T.name==='FREE'?' · members get more 👑':''}</div>
+    <canvas id="wheel" width="240" height="240"></canvas><button id="spinBtn">🎡 SPIN (${spinsLeft()} left)</button>
+    <div class="sub">Wheel of Fortune — the alpha already has gacha 💀</div>
+    <div class="card"><div><b>Peasant's Starter Bundle</b><br>${fmt(bundle)} of each resource${T.shop>1?` <span style="color:#3f8a3a">(${T.shop}× member bonus)</span>`:''}<br><i style="color:#b06a2a">Only $4.99! (it's free, this is a joke)</i></div>
+      <div class="price" id="bundleBtn" style="background:#d24d84;color:#fff;border-radius:10px;padding:10px 16px;font-weight:800">FREE 💎</div></div>
+    <div class="shopSec">🛡️ Protection <span style="font-weight:400;color:#b06a2a">· never get offline-raided</span></div>
+    <div class="card" style="border-color:#4a8ac0"><div><b>🛡️ Base Shield</b> ${isProtected()?'<span style="color:#3f8a3a;font-weight:800">ACTIVE · '+protLabel()+'</span>':'<span style="color:#b06a2a">exposed</span>'}<br><span style="font-size:13px">${isProtected()?'Your castle cannot be attacked while shielded.':'New lords get 3 days free peace. Extend it below.'}</span></div></div>
+    ${truceCards()}
+    <div class="shopSec">🎁 Buff Items <span style="font-weight:400;color:#b06a2a">· priced in Σ · one shared balance with the site</span></div>
+    <div class="card" style="border-color:#e7b24a"><div><b>Σ Sigma balance</b><br><span style="font-size:13px">${ONLINE?fmt(SIGMA)+' Σ available · buy more on the S5 site':'log in to use your Σ'}</span></div>
+      <div class="price" style="background:#6e4c14;color:#f2cd72;border-radius:10px;padding:10px 16px;font-weight:800">Σ ${ONLINE?fmt(SIGMA):'—'}</div></div>
+    ${buffCards()}
+    <div class="shopSec">👑 Membership — unlocks your whole Hilbert Mesh profile</div>
+    ${T.monthly>0?`<div class="card"><div><b>👑 Monthly Stipend</b> ${monthlyReady()?'<span style="color:#3f8a3a;font-weight:800">READY</span>':'<span style="color:#b06a2a">claimed</span>'}<br><span style="font-size:13px">+${fmt(T.monthly*1000)} of each resource · once per month · ${T.name} perk</span></div>
+      <div class="price" id="monthlyBtn" style="background:${monthlyReady()?'#3f8a3a':'#7a7a55'};color:#fff;border-radius:10px;padding:10px 16px;font-weight:800">${monthlyReady()?'CLAIM':'✓'}</div></div>`:''}
+    ${memberCards(T)}
+    <div class="card"><div><b>Your profile</b><br><span style="font-size:13px">${ONLINE?('Lord '+(S.lord||'—')+' · '+(localStorage.getItem('hm_tier')||'CIVILIAN')):'Offline — log in on hilbertmesh.com'}</span></div>
+      <div class="price" id="profBtn" style="background:#6e4c14;color:#fff;border-radius:10px;padding:10px 16px;font-weight:800">👤 Open</div></div>`;
+  wheelRot=0;drawWheel();document.getElementById('spinBtn').onclick=spin;
+  document.getElementById('bundleBtn').onclick=()=>{for(const k in S.res)S.res[k]+=bundle;save();toast('Bundle claimed (+'+fmt(bundle)+' each)');renderRes();};
+  document.querySelectorAll('[data-buff]').forEach(b=>b.onclick=()=>buyBuff(b.dataset.buff));
+  document.querySelectorAll('[data-truce]').forEach(b=>b.onclick=()=>buyTruce(b.dataset.truce));
+  document.querySelectorAll('[data-member]').forEach(b=>b.onclick=()=>buyMembership(b.dataset.member));
+  document.getElementById('profBtn').onclick=openProfile;
+  const mb=document.getElementById('monthlyBtn');if(mb)mb.onclick=()=>{claimMonthly();renderShop();};}
+function truceCards(){
+  const items=[
+    {k:'truce_day',em:'🕊️',name:'Truce — 1 Day',desc:'Your base is untouchable for 24 hours',price:'$5'},
+    {k:'truce_week',em:'🏰',name:'Truce — 1 Week',desc:'Untouchable for 7 days · best value',price:'$10',best:1},
+  ];
+  return items.map(t=>`<div class="card"><div><b>${t.em} ${t.name}</b> ${t.best?'<span style="color:#3f8a3a;font-weight:800">BEST</span>':''}<br><span style="font-size:13px">${t.desc}</span></div>
+    <div class="price" data-truce="${t.k}" style="background:#4a8ac0;color:#fff;border-radius:10px;padding:10px 16px;font-weight:800">${t.price}</div></div>`).join('');}
+function buffCards(){
+  const items=[
+    {id:'res1',em:'📦',name:'Supply Crate',desc:'+20,000 of each resource',tag:'small',sig:1},
+    {id:'res24',em:'🚚',name:'Merchant Caravan',desc:'+150,000 of each — best value',tag:'BIG',sig:5},
+    {id:'prod2',em:'⚡',name:'Overseer (2h)',desc:'2× production for 2 hours',tag:'small',sig:1},
+    {id:'prod24',em:'⚡',name:'Overseer (24h)',desc:'2× production for 24 hours — best value',tag:'BIG',sig:3},
+    {id:'train24',em:'⚔️',name:'Drillmaster (24h)',desc:'2× training speed for 24 hours',tag:'BIG',sig:3},
+  ];
+  return items.map(i=>`<div class="card"><div><b>${i.em} ${i.name}</b> ${i.tag==='BIG'?'<span style="color:#3f8a3a;font-weight:800">BEST DEAL</span>':''}<br><span style="font-size:13px">${i.desc}</span><br><i style="color:#b06a2a">${i.sig} Σ</i></div>
+    <div class="price" data-buff="${i.id}" data-sig="${i.sig}" style="background:#d24d84;color:#fff;border-radius:10px;padding:10px 16px;font-weight:800">${i.sig} Σ</div></div>`).join('');}
+function memberCards(T){
+  const cur=(localStorage.getItem('hm_tier')||'').toUpperCase();
+  const tiers=[
+    {k:'agent',name:'AGENT',price:'$20/mo',sig:'30 Σ',perk:'+1 daily spin · 1.5× bundles'},
+    {k:'senior_agent',name:'SENIOR AGENT',price:'$50/mo',sig:'90 Σ',perk:'+2 spins · 2× bundles · SENIOR lab'},
+    {k:'s5_agent',name:'S5 AGENT',price:'$90/mo',sig:'200 Σ',perk:'+3 spins · 3× bundles · full S5 lab · gift pack'},
+  ];
+  return tiers.map(t=>{const owned=cur===t.name.replace(' ','_');
+    return `<div class="card"><div><b>👑 ${t.name}</b> ${owned?'<span style="color:#3f8a3a;font-weight:800">ACTIVE</span>':''}<br><span style="font-size:13px">${t.price} · ${t.sig}/mo · ${t.perk}</span></div>
+    <div class="price" data-member="${t.k}" style="background:${owned?'#7a7a55':'#6e4c14'};color:#fff;border-radius:10px;padding:10px 16px;font-weight:800">${owned?'✓':'BUY'}</div></div>`;}).join('');}
+const BUFF_SIG={res1:1,res24:5,prod2:1,prod24:3,train24:3};
+function applyBuff(id){
+  if(id==='res1'){for(const k in S.res)S.res[k]+=20000;toast('📦 +20k each');}
+  else if(id==='res24'){for(const k in S.res)S.res[k]+=150000;toast('🚚 +150k each');}
+  else if(id==='prod2'){grantBuff('prod2',2*3600e3);toast('⚡ 2× production · 2h');}
+  else if(id==='prod24'){grantBuff('prod4',24*3600e3);toast('⚡ 2× production · 24h');}
+  else if(id==='train24'){grantBuff('train2',24*3600e3);toast('⚔️ 2× training · 24h');}
+  save();renderRes();renderShop();}
+async function buyBuff(id){
+  const cost=BUFF_SIG[id]||1;
+  if(!ONLINE){ // offline single-player: free, no shared ledger
+    applyBuff(id); return; }
+  if(SIGMA<cost){toast('Need '+cost+' Σ — buy Sigma on the S5 site');return;}
+  const r=await srv('stonehold_spend_sigma',{amount:cost});
+  if(r&&r.ok){ SIGMA=Number(r.balance)||0; applyBuff(id);
+    toast('−'+cost+' Σ · balance '+fmt(SIGMA)); }
+  else toast('Purchase failed: '+((r&&r.error)||'try again').replace(/_/g,' '));}
+async function buyTruce(kind){
+  if(!ONLINE){toast('Log in on hilbertmesh.com to buy protection');return;}
+  const days = kind==='truce_week'?7:1;
+  // Alpha: grant the truce locally and record server-side; real Stripe billing
+  // rides the same checkout endpoint as memberships (wire product at launch).
+  const r=await srv('stonehold_truce',{days});
+  if(r&&r.ok){ S.truceUntil=Date.now()+days*24*3600e3; save(); renderRes(); renderShop();
+    toast('🕊️ Truce active — untouchable for '+days+' day'+(days>1?'s':''));
+    addLog('system','Truce agreement active for '+days+' day'+(days>1?'s':'')); }
+  else if(r&&r.url){ location.href=r.url; }
+  else toast('Protection unavailable — try the site shop');}
+async function buyMembership(key){
+  if(!ONLINE){toast('Log in on hilbertmesh.com to purchase membership');return;}
+  toast('Opening secure checkout…');
+  const r=await srv('checkout',{product:key});
+  if(r&&r.ok&&r.checkoutEndpoint&&API_BASE){
+    try{const c=await fetch(API_BASE+r.checkoutEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code:S5_CODE,productType:r.productType,returnContext:r.returnContext})});
+      const cj=await c.json();
+      if(cj&&cj.url){location.href=cj.url;return;}}catch(e){}
+    toast('Checkout unavailable — try the site shop at hilbertmesh.com');
+  } else toast('Checkout unavailable — try the site shop');}
+let MKT_TAB='food', MKT_QUOTES=null;
+async function openMarket(){
+  if(!ONLINE){toast('Marketplace needs the realm online — log in on the site');return;}
+  const q=await srv('stonehold_market_quote',{});
+  if(q&&q.ok)MKT_QUOTES=q.quotes;
+  renderMarket();
+}
+function renderMarket(){
+  const RES=['food','wood','stone','iron'];
+  const EM={food:'🌾',wood:'🪵',stone:'⛰️',iron:'⛓️'};
+  const q=MKT_QUOTES&&MKT_QUOTES[MKT_TAB]||{buy:0.1,sell:0.09,mult:1};
+  const pending=(S.marketTrades||[]).filter(t=>!t.done);
+  const tabRow=RES.map(r=>`<span data-mtab="${r}" style="display:inline-block;padding:6px 12px;margin:0 2px;border:2px solid #b9822b;border-bottom:${r===MKT_TAB?'none':'2px solid #b9822b'};border-radius:7px 7px 0 0;background:${r===MKT_TAB?'#fdf3d5':'#e3c98f'};color:#5a3c14;font-weight:800;cursor:pointer;font-size:13px">${EM[r]} ${r}</span>`).join('');
+  const have=Math.round((S.res&&S.res[MKT_TAB])||0), gold=Math.round((S.res&&S.res.gold)||0);
+  const pendRows = pending.length
+    ? pending.map(t=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed #b9822b55"><span>${t.kind==='gold'?'🪙 gold':EM[t.res]+' '+t.res}</span><span>+${fmt(t.amount)}</span><span style="color:#8a5f22">${mktEta(t.ready)}</span></div>`).join('')
+    : '<div style="font-size:12px;color:#8a7a55;padding:6px 0">No pending trades. Orders complete ~30 min after posting.</div>';
+  const html=`
+    <div style="text-align:left">
+      <div style="font-size:11px;color:#8a5f22;margin-bottom:8px">Trades complete in ~30 min · prices float on realm-wide supply &amp; demand</div>
+      <div style="margin-bottom:-2px">${tabRow}</div>
+      <div style="border:2px solid #b9822b;border-radius:0 8px 8px 8px;padding:12px;background:#fdf6e6">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a5f22;font-weight:700;border-bottom:1px solid #b9822b55;padding-bottom:4px;margin-bottom:8px">
+          <span>STATUS</span><span>UNIT PRICE (🪙)</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Buy ${MKT_TAB}</span><span style="font-weight:800">${q.buy} 🪙</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>Sell ${MKT_TAB}</span><span style="font-weight:800">${q.sell} 🪙</span></div>
+        <div style="font-size:11px;color:${q.mult>1.15?'#b3382a':q.mult<0.9?'#3f6d28':'#8a7a55'};margin-bottom:10px">Market ${q.mult>1.05?'▲ high demand':q.mult<0.95?'▼ oversupplied':'· stable'} (×${q.mult})</div>
+        <div style="font-size:12px;color:#5a3c14;margin-bottom:10px">You hold: ${EM[MKT_TAB]} ${fmt(have)} · 🪙 ${fmt(gold)}</div>
+        <div style="display:flex;gap:8px">
+          <button id="mktBuy" style="flex:1;background:linear-gradient(180deg,#3f8a3a,#2c6329);color:#fff;border:2px solid #24521f;border-radius:8px;padding:10px;font-weight:800;cursor:pointer">BUY</button>
+          <button id="mktSell" style="flex:1;background:linear-gradient(180deg,#c0413a,#8f2f2a);color:#fff;border:2px solid #6e211d;border-radius:8px;padding:10px;font-weight:800;cursor:pointer">SELL</button>
+        </div>
+      </div>
+      <div style="margin-top:12px;border:2px solid #b9822b;border-radius:8px;padding:10px;background:#fdf6e6">
+        <div style="font-weight:800;color:#5a3c14;font-size:13px;margin-bottom:6px">📋 Pending Orders</div>
+        ${pendRows}
+      </div>
+    </div>`;
+  modalHTML('⚖️ Marketplace', html);
+  document.querySelectorAll('[data-mtab]').forEach(t=>t.onclick=()=>{MKT_TAB=t.dataset.mtab;renderMarket();});
+  const bb=document.getElementById('mktBuy'), sb=document.getElementById('mktSell');
+  if(bb)bb.onclick=()=>mktTrade('buy');
+  if(sb)sb.onclick=()=>mktTrade('sell');
+}
+function mktEta(ms){const s=Math.max(0,Math.round((ms-Date.now())/1000));const m=Math.floor(s/60);return m>0?m+'m':'<1m';}
+async function mktTrade(side){
+  const q=MKT_QUOTES&&MKT_QUOTES[MKT_TAB]||{buy:0.1,sell:0.09};
+  const unit=side==='buy'?q.buy:q.sell;
+  const prompt_txt=side==='buy'
+    ? 'Buy how much '+MKT_TAB+'? ('+q.buy+' 🪙 each · you have '+fmt(Math.round(S.res.gold))+' 🪙)'
+    : 'Sell how much '+MKT_TAB+'? ('+q.sell+' 🪙 each · you have '+fmt(Math.round(S.res[MKT_TAB]))+')';
+  const inp=prompt(prompt_txt, side==='buy'?'10000':String(Math.round(S.res[MKT_TAB]||0)));
+  if(!inp)return;
+  const amount=Math.max(1,Math.floor(parseInt(inp)||0));if(!amount)return;
+  const r=await srv('stonehold_market_trade',{side,res:MKT_TAB,amount});
+  if(r&&r.ok){ if(r.res)S.res=r.res; if(r.trades)S.marketTrades=r.trades; save();renderRes();
+    if(r.price)MKT_QUOTES[MKT_TAB]=r.price; renderMarket();
+    toast(side==='buy'?'🛒 Buy order posted — delivers in ~30 min':'💰 Sell order posted — gold in ~30 min');
+    addLog('done',(side==='buy'?'Market buy ':'Market sell ')+fmt(amount)+' '+MKT_TAB);
+  } else { const e=(r&&r.error||'failed').replace(/_/g,' '); toast('Trade failed: '+e); }
+}
+function openProfile(){
+  const tier=(localStorage.getItem('hm_tier')||'CIVILIAN');
+  modal('👤 '+(S.lord||'Lord')+' · '+tier,[
+    {em:'📬',label:'Mail Inbox',meta:ONLINE?'read messages & war plans':'offline',dis:!ONLINE,lockMsg:'Connect online to receive mail',fn:()=>{closeModal();openInbox();}},
+    {em:'✍️',label:'Send Mail / PM',meta:ONLINE?'message another lord':'offline',dis:!ONLINE,lockMsg:'Connect online first',fn:()=>{closeModal();openMail();}},
+    {em:'💬',label:'World Chat',meta:ONLINE?'talk to the realm':'offline',dis:!ONLINE,lockMsg:'Connect online first',fn:()=>{closeModal();openChat();}},
+    {em:'🎒',label:'My Items',meta:itemCount()+' items',fn:()=>{closeModal();openItems();}},
+    {em:'👥',label:'Friends',meta:ONLINE?'see who is online':'offline',dis:!ONLINE,lockMsg:'Connect online',fn:()=>{closeModal();openFriends();}},
+    {em:'⚔️',label:'Clan',meta:ONLINE?'create or manage':'offline',dis:!ONLINE,lockMsg:'Connect online',fn:()=>{closeModal();openClan();}},
+    {em:'🏆',label:'Leaderboard',meta:'top fighters by prestige',fn:()=>{closeModal();openLeaderboard();}},
+    {em:'👑',label:'Membership: '+tier,meta:'manage at hilbertmesh.com',fn:closeModal},
+  ]);}
+const CLAN_COST={gold:500000,iron:200000,stone:200000};   // endgame gate
+function openClan(){
+  srv('stonehold_clan_info',{}).then(r=>{
+    if(r&&r.ok&&r.clan){const c=r.clan;
+      const items=[{em:'⚔️',label:'['+c.tag+'] '+c.name,meta:c.members.length+' members · led by '+c.leaderName,fn:closeModal}];
+      c.members.sort((a,b)=>(b.loyalty||0)-(a.loyalty||0)).forEach(m=>items.push({
+        em:m.rank==='Leader'?'👑':m.loyalty>=75?'🛡️':m.loyalty>=40?'⚔️':'⚠️',
+        label:m.name+' · '+m.rank,meta:'loyalty '+(m.loyalty||0)+'%'+(m.loyalty<40?' · wavering!':''),fn:closeModal}));
+      modal('⚔️ Your Clan',items);
+    } else {
+      modal('⚔️ Clans',[
+        {em:'🏰',label:'Found a Clan',meta:costStr(CLAN_COST)+' · endgame prestige',dis:!afford(CLAN_COST),lockMsg:'Founding a clan is a major endeavor — '+costStr(CLAN_COST),
+          fn:()=>{closeModal();
+            const name=prompt('Clan name:','');if(!name)return;
+            const tag=prompt('Clan tag (2-5 letters):','');if(!tag)return;
+            if(!afford(CLAN_COST)){toast('Not enough to found a clan');return;}
+            srv('stonehold_clan_create',{name,tag}).then(r2=>{
+              if(r2&&r2.ok){pay(CLAN_COST);save();renderRes();toast('⚔️ Clan ['+r2.clan.tag+'] founded!');addLog('done','Founded clan ['+r2.clan.tag+'] '+name);}
+              else toast('Clan failed: '+((r2&&r2.error)||'error').replace(/_/g,' '));});}},
+        {em:'🤝',label:'Join a Clan',meta:'enter a clan tag',fn:()=>{closeModal();
+          const tag=prompt('Clan tag to join:','');if(!tag)return;
+          srv('stonehold_clan_join',{tag}).then(r2=>toast(r2&&r2.ok?'Joined ['+tag.toUpperCase()+']':'Join failed: '+((r2&&r2.error)||'').replace(/_/g,' ')));}},
+      ]);
+    }
+  });}
+function openFriends(){
+  srv('stonehold_friend_list',{}).then(r=>{
+    const items=[{em:'👥',label:'Friends',meta:(r&&r.friends?r.friends.length:0)+' total',fn:closeModal}];
+    if(r&&r.friends&&r.friends.length)r.friends.forEach(f=>items.push({em:f.online?'🟢':'⚫',label:f.name,meta:f.online?'online now':'offline',fn:()=>{closeModal();
+      const msg=prompt('PM to '+f.name+':','');if(msg)srv('stonehold_mail_deliver',{to:f.name,subject:'PM',body:msg}).then(()=>toast('PM sent'));}}));
+    else items.push({em:'🕳️',label:'No friends yet',meta:'add lords from the map',fn:closeModal});
+    modal('👥 Friends',items);});}
+function openLeaderboard(){
+  srv('stonehold_leaderboard',{}).then(r=>{
+    const items=[{em:'🏆',label:'Top Fighters',meta:'prestige from PvP victories',fn:closeModal}];
+    if(r&&r.fighters&&r.fighters.length)r.fighters.forEach((f,i)=>items.push({
+      em:i===0?'🥇':i===1?'🥈':i===2?'🥉':'⚔️',label:(i+1)+'. '+f.name,meta:f.prestige+' prestige',fn:closeModal}));
+    else items.push({em:'🕳️',label:'No fighters ranked yet',meta:'win PvP battles to climb',fn:closeModal});
+    modal('🏆 Leaderboard',items);});}
+// ── ITEMS (buffs/consumables you own; wheel & shop grant them) ────────────
+function itemCount(){if(!S.items)S.items={};let n=0;for(const k in S.items)n+=S.items[k]||0;return n;}
+function grantItem(id,n){if(!S.items)S.items={};S.items[id]=(S.items[id]||0)+(n||1);save();}
+const ITEM_DEFS={
+  crate:{em:'📦',name:'Supply Crate',desc:'+20k each resource',use:()=>{for(const k in S.res)S.res[k]+=20000;}},
+  speed1:{em:'⚡',name:'Overseer 2h',desc:'2× production 2h',use:()=>grantBuff('prod2',2*3600e3)},
+  drill:{em:'⚔️',name:'Drillmaster',desc:'2× training 24h',use:()=>grantBuff('train2',24*3600e3)},
+};
+function openItems(){
+  if(!S.items)S.items={};
+  const items=[{em:'🎒',label:'Your Items',meta:itemCount()+' total · won from the wheel & shop',fn:closeModal}];
+  let any=false;
+  for(const id in ITEM_DEFS){const have=S.items[id]||0;if(have<=0)continue;any=true;const d=ITEM_DEFS[id];
+    items.push({em:d.em,label:d.name+' ×'+have,meta:d.desc+' · tap to use',
+      fn:()=>{if((S.items[id]||0)>0){S.items[id]--;d.use();save();renderRes();toast(d.em+' '+d.name+' used');openItems();}}});}
+  if(!any)items.push({em:'🕳️',label:'No items yet',meta:'spin the wheel or buy from the shop',fn:closeModal});
+  modal('🎒 My Items',items);}
+function openInbox(){
+  toast('📬 Checking mail…');
+  srv('stonehold_mail_inbox',{}).then(r=>{
+    const items=[{em:'📬',label:'Inbox',meta:(r&&r.mail?r.mail.length:0)+' messages',fn:closeModal}];
+    if(r&&r.ok&&r.mail&&r.mail.length){
+      r.mail.forEach(m=>items.push({em:m.subject&&m.subject.indexOf('War')>=0?'⚔️':'✉️',
+        label:(m.subject||'Message')+' — '+(m.from||'Lord'),
+        meta:new Date(m.t).toLocaleString().slice(0,17),
+        fn:()=>{modal('✉️ '+(m.subject||'Message'),[
+          {em:'👤',label:'From: '+(m.from||'Lord'),meta:new Date(m.t).toLocaleString(),fn:closeModal},
+          {em:'📄',label:m.body.slice(0,90),meta:m.body.length>90?'…':'',fn:closeModal},
+          {em:'↩️',label:'Back to inbox',meta:'',fn:()=>{closeModal();openInbox();}},
+        ]);}}));
+    } else items.push({em:'🕳️',label:'No mail yet',meta:'war plans & PMs arrive here',fn:closeModal});
+    modal('📬 Mail Inbox',items);
+  });}
+function openChat(){
+  srv('stonehold_chat_poll',{}).then(r=>{
+    const lines=(r&&r.msgs||[]).slice(0,30).reverse().map(m=>
+      '<div style="padding:2px 0;font-size:12.5px"><b style="color:#8a5f22">'+m.name+':</b> '+
+      m.text.replace(/</g,'&lt;')+'</div>').join('')||'<div style="color:#8a7a55;font-size:12px">No messages yet — say hello to the realm!</div>';
+    modalHTML('💬 World Chat',
+      '<div style="max-height:260px;overflow-y:auto;border:2px solid #b9822b;border-radius:8px;padding:8px;background:#fdf6e6;margin-bottom:8px">'+lines+'</div>'+
+      '<div style="display:flex;gap:6px"><input id="chatIn" maxlength="200" placeholder="Message the realm…" style="flex:1;padding:9px;border:2px solid #b9822b;border-radius:8px;font-size:13px"><button id="chatSend" style="background:linear-gradient(180deg,#3f8a3a,#2c6329);color:#fff;border:2px solid #24521f;border-radius:8px;padding:9px 14px;font-weight:800">Send</button></div>');
+    const send=()=>{const inp=document.getElementById('chatIn');const t=(inp.value||'').trim();if(!t)return;
+      inp.value='';srv('stonehold_chat_post',{channel:'world',text:t}).then(r2=>{if(r2&&r2.ok){openChat();}else toast('Chat failed');});};
+    const sb=document.getElementById('chatSend');if(sb)sb.onclick=send;
+    const ci=document.getElementById('chatIn');if(ci)ci.onkeydown=(e)=>{if(e.key==='Enter')send();};
+  });}
+function openMail(){
+  modal('✍️ Send Mail',[
+    {em:'⚔️',label:'War Plan order',meta:'battle-plan template',fn:()=>{closeModal();
+      const to=prompt('Recipient lord name:','');if(!to)return;
+      const tpl='WAR PLAN\nObjective: \nTarget X,Y: \nMuster by: \nUnits: __sword __archer __horse\nMarch order: \nFallback: ';
+      const body=prompt('Order body:',tpl);if(body===null)return;
+      srv('stonehold_mail_deliver',{to,subject:'War Plan',body}).then(r=>toast(r&&r.ok?(r.delivered?'📬 Orders delivered to '+to:'Saved (lord not found)'):'Failed'));}},
+    {em:'✉️',label:'Plain message / PM',meta:'to another lord',fn:()=>{closeModal();
+      const to=prompt('Recipient lord name:','');if(!to)return;const body=prompt('Message:','');if(body===null)return;
+      srv('stonehold_mail_deliver',{to,subject:'Message',body}).then(r=>toast(r&&r.ok?(r.delivered?'Sent to '+to:'Saved (lord not found)'):'Failed'));}},
+  ]);}
+let wheelRot=0,spinning=false;
+function drawWheel(){const c=document.getElementById('wheel');if(!c)return;const x=c.getContext('2d');
+  const cols=['#c0413a','#d9a531','#3f8a3a','#3a6bd9','#a23a3a','#d98a2f','#7a3fa0','#5a8a3a'];
+  x.clearRect(0,0,240,240);
+  x.save();x.translate(120,124);x.beginPath();x.arc(0,0,112,0,7);      // drop shadow (2007 obligatory)
+  x.fillStyle='rgba(0,0,0,0.35)';x.fill();x.restore();
+  x.save();x.translate(120,120);x.rotate(wheelRot);
+  for(let i=0;i<8;i++){                                                // segments w/ radial depth + hard rims
+    const g=x.createRadialGradient(0,0,20,0,0,108);
+    g.addColorStop(0,cols[i]);g.addColorStop(1,'#00000055');
+    x.beginPath();x.moveTo(0,0);x.arc(0,0,104,i*Math.PI/4,(i+1)*Math.PI/4);
+    x.fillStyle=cols[i];x.fill();x.fillStyle=g;x.fill();
+    x.strokeStyle='rgba(30,18,6,0.7)';x.lineWidth=2;x.stroke();}
+  // prize icons riding each segment (what you can actually win)
+  const WHEEL_ITEMS=['🎉','💰','⚡','⚔️','🌾','💰','⚡','💎'];
+  for(let i=0;i<8;i++){const a=i*Math.PI/4+Math.PI/8;
+    x.save();x.rotate(a);x.translate(72,0);x.rotate(-a-wheelRot);
+    x.font='19px system-ui';x.textAlign='center';x.textBaseline='middle';
+    x.fillText(WHEEL_ITEMS[i],0,0);x.restore();}
+  x.restore();
+  // beveled gold rim + rivet studs
+  x.beginPath();x.arc(120,120,109,0,7);x.lineWidth=10;x.strokeStyle='#8a5f22';x.stroke();
+  x.beginPath();x.arc(120,120,107,0,7);x.lineWidth=6;
+  const rg=x.createLinearGradient(0,10,0,230);rg.addColorStop(0,'#f2cd72');rg.addColorStop(1,'#a5751f');
+  x.strokeStyle=rg;x.stroke();
+  x.save();x.translate(120,120);x.rotate(wheelRot);
+  for(let i=0;i<8;i++){const a=i*Math.PI/4+Math.PI/8;                  // studs ride the rim
+    const sx=Math.cos(a)*107,sy=Math.sin(a)*107;
+    x.beginPath();x.arc(sx,sy,3.4,0,7);x.fillStyle='#6e4c14';x.fill();
+    x.beginPath();x.arc(sx-1,sy-1,1.6,0,7);x.fillStyle='#ffe9ae';x.fill();}
+  x.restore();
+  x.save();                                                            // the Flash gloss: white sheen on top half
+  x.beginPath();x.ellipse(120,86,88,52,0,0,7);
+  const gl=x.createLinearGradient(0,30,0,140);gl.addColorStop(0,'rgba(255,255,255,0.34)');gl.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=gl;x.fill();x.restore();
+  x.beginPath();x.arc(120,120,26,0,7);x.fillStyle='#6e4c14';x.fill();  // wooden hub, beveled
+  x.beginPath();x.arc(120,120,22,0,7);
+  const hg=x.createRadialGradient(114,112,4,120,120,22);hg.addColorStop(0,'#f2cd72');hg.addColorStop(1,'#b9822b');
+  x.fillStyle=hg;x.fill();
+  poly2=(pp)=>{x.beginPath();x.moveTo(pp[0][0],pp[0][1]);for(let i=1;i<pp.length;i++)x.lineTo(pp[i][0],pp[i][1]);x.closePath();};
+  poly2([[120,6],[131,24],[109,24]]);x.fillStyle='#c0413a';x.fill();   // pointer
+  x.strokeStyle='#5a1f1a';x.lineWidth=2;x.stroke();}
+let poly2;
+function spin(){if(spinning)return;
+  if(spinsLeft()<=0){toast('No spins left today — members get more 👑');return;}
+  spinning=true;S.spinsUsed=(S.spinsUsed||0)+1;const mult=tierMult().shop;let v=0.4+Math.random()*0.3;
+  const iv=setInterval(()=>{wheelRot+=v;v*=0.965;drawWheel();if(v<0.004){clearInterval(iv);spinning=false;
+    const roll=Math.random();
+    if(roll<0.18){for(const k in S.res)S.res[k]+=Math.round(50000*mult);toast('🎉 JACKPOT! +'+fmt(Math.round(50000*mult))+' all');addLog('done','Wheel JACKPOT — resources all round');}
+    else if(roll<0.40){S.res.gold+=Math.round(8000*mult);toast('💰 +'+fmt(Math.round(8000*mult))+' gold');}
+    else if(roll<0.58){grantItem('speed1',1);toast('⚡ Won item: Overseer (check 🎒 My Items)!');}
+    else if(roll<0.72){grantItem('drill',1);toast('⚔️ Won item: Drillmaster (check 🎒 My Items)!');}
+    else if(roll<0.84){S.res.food+=Math.round(12000*mult);S.res.wood+=Math.round(12000*mult);toast('🌾 +food & wood');}
+    else toast('Better luck next spin 💀');
+    save();renderRes();document.getElementById('spinBtn').textContent='🎡 SPIN ('+spinsLeft()+' left)';}},16);}
+
+/* Buffs: convenience only, never applied to attack OUTCOMES (marches ignore prod/train buffs).
+   Absolute expiry → survive reload + offline. */
+function grantBuff(id,durMs){if(!S.buffs)S.buffs={};S.buffs[id]=Date.now()+durMs;save();addLog('system','Buff active: '+(BUFFS[id]?BUFFS[id].name:id));}
+const BUFFS={prod2:{name:'2× Production',em:'⚡'},train2:{name:'2× Training',em:'⚔️'},prod4:{name:'2× Production',em:'⚡'}};
+function buffActive(id){return S.buffs&&S.buffs[id]&&S.buffs[id]>Date.now();}
+function prodBuffMult(){return buffActive('prod2')||buffActive('prod4')?2:1;}
+function trainBuffMult(){return buffActive('train2')?0.5:1;}
+
+function applyWorld(w){if(!w)return;SRVWORLD=w;
+  S.razed=S.razed||{}; S.campClear=S.campClear||{}; S.mapRes=S.mapRes||{};
+  for(const id in (w.razed||{}))S.razed[id]=1;
+  for(const id in (w.clear||{}))S.campClear[id]=1;
+  for(const id in (w.camp||{}))S.mapRes[id]=Number(w.camp[id]);}
+
+/* ===================== CONSOLE LOG ===================== */
+function addLog(kind,txt){ if(!S.log)S.log=[];
+  S.log.unshift({k:kind,x:txt,ts:Date.now()});
+  if(S.log.length>60)S.log.length=60;
+  renderLog();}
+function ago(ts){const m=Math.floor((Date.now()-ts)/60000);
+  return m<1?'now':m<60?m+'m':Math.floor(m/60)+'h';}
+function renderLog(){const L=document.getElementById('logList'),H=document.getElementById('logLatest');
+  if(!L||!S.log)return;
+  H.innerHTML='📜 <span>'+(S.log[0]?('['+S.log[0].k+'] '+S.log[0].x):'The realm awaits your first decree.')+'</span>';
+  L.innerHTML=S.log.map(e=>'<div class="lg '+e.k+'"><span class="t">'+ago(e.ts)+'</span>['+e.k+'] '+e.x+'</div>').join('');}
+// ── CHAT CONSOLE (Evony-style bottom bar: global/local/clan/trade/system) ──
+let CHAT_CH='global';
+const CHAT_LOG={global:[],local:[],clan:[],trade:[],system:[]};
+function chatPush(ch,name,text,isSys){if(!CHAT_LOG[ch])CHAT_LOG[ch]=[];
+  CHAT_LOG[ch].push({name,text,sys:isSys,t:Date.now()});
+  if(CHAT_LOG[ch].length>60)CHAT_LOG[ch].shift();
+  if(ch===CHAT_CH)paintChat();}
+function paintChat(){const box=document.getElementById('chatMsgs');if(!box)return;
+  const arr=CHAT_LOG[CHAT_CH]||[];
+  box.innerHTML=arr.map(m=>m.sys
+    ?'<div class="chatline sys">🔔 '+esc(m.text)+'</div>'
+    :'<div class="chatline"><span class="who">'+esc(m.name)+':</span> '+esc(m.text)+'</div>').join('')
+    ||'<div style="color:#8a7a55">No messages in '+CHAT_CH+' yet.</div>';
+  box.scrollTop=box.scrollHeight;}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function switchChat(ch){CHAT_CH=ch;
+  document.querySelectorAll('.chtab').forEach(t=>t.classList.toggle('on',t.dataset.ch===ch));
+  paintChat();}
+async function pollChat(){ if(!ONLINE)return;
+  try{const r=await srv('stonehold_chat_poll',{});
+    if(r&&r.ok&&r.msgs){ CHAT_LOG.global=[]; 
+      r.msgs.slice().reverse().forEach(m=>CHAT_LOG.global.push({name:m.name,text:m.text,t:m.t}));
+      // proximity → local channel (within ~120 map units of home)
+      const HX=(S.home&&S.home.x)||512,HY=(S.home&&S.home.y)||512;
+      CHAT_LOG.local=r.msgs.slice().reverse().filter(m=>Math.hypot((m.x||512)-HX,(m.y||512)-HY)<120).map(m=>({name:m.name,text:m.text,t:m.t}));
+      if(CHAT_CH==='global'||CHAT_CH==='local')paintChat(); }
+  }catch(e){}}
+function sendChat(raw){
+  let text=raw.trim(); if(!text)return; let ch=CHAT_CH;
+  // slash commands
+  const m=text.match(/^\/(g|l|c|t|p)\b\s*(.*)$/i);
+  if(m){const cmd=m[1].toLowerCase();
+    if(cmd==='g')ch='global'; else if(cmd==='l')ch='local'; else if(cmd==='c')ch='clan';
+    else if(cmd==='t')ch='trade';
+    else if(cmd==='p'){ // /p name message  → private mail
+      const pm=m[2].match(/^(\S+)\s+(.+)$/); if(pm){ srv('stonehold_mail_deliver',{to:pm[1],subject:'PM',body:pm[2]})
+        .then(r=>chatPush('system',null,r&&r.delivered?('PM sent to '+pm[1]):'PM saved (lord not found)',true)); }
+      else chatPush('system',null,'Usage: /p LordName your message',true);
+      return; }
+    text=m[2]; switchChat(ch);
+  }
+  if(!text)return;
+  if(!ONLINE){chatPush('system',null,'You are offline — connect to chat with the realm.',true);return;}
+  if(ch==='clan'){ // clan chat (local echo for now; server clan channel scaffolded)
+    chatPush('clan',(S.lord||'You'),text); return; }
+  if(ch==='trade'){ chatPush('trade',(S.lord||'You'),text); return; }
+  // global/local → server
+  srv('stonehold_chat_post',{channel:ch==='local'?'local':'world',text}).then(r=>{
+    if(r&&r.ok){pollChat();} else chatPush('system',null,'Message failed to send.',true);});
+}
+function wireChat(){
+  document.querySelectorAll('.chtab').forEach(t=>t.onclick=(e)=>{e.stopPropagation();switchChat(t.dataset.ch);});
+  const inp=document.getElementById('chatInput'), btn=document.getElementById('chatSendBtn');
+  if(inp){inp.onclick=(e)=>e.stopPropagation();
+    inp.onkeydown=(e)=>{if(e.key==='Enter'){sendChat(inp.value);inp.value='';}};}
+  if(btn)btn.onclick=(e)=>{e.stopPropagation();if(inp){sendChat(inp.value);inp.value='';}};
+}
+document.getElementById('logbar').onclick=(e)=>{
+  // don't toggle when interacting with chat controls
+  if(e&&e.target&&(e.target.id==='chatInput'||e.target.id==='chatSendBtn'||e.target.classList.contains('chtab')))return;
+  const lb=document.getElementById('logbar');lb.classList.toggle('open');
+  renderLog();wireChat();paintChat();
+  if(lb.classList.contains('open')&&ONLINE)pollChat();
+  setTimeout(fit,200);};
+setInterval(()=>{if(document.getElementById('logbar').classList.contains('open'))pollChat();},8000);
+
+/* ===================== TABS ===================== */
+document.querySelectorAll('.tab[data-v]').forEach(t=>t.onclick=()=>setView(t.dataset.v));
+function setView(v){view=v;DBG.log('view',v);document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelector(`.tab[data-v="${v}"]`)?.classList.add('on');
+  document.getElementById('shop').style.display=v==='shop'?'block':'none';
+  document.getElementById('wallBtn').style.display=v==='town'?'block':'none';
+  if(v==='shop')renderShop();setHint('');}
+document.getElementById('wallBtn').onclick=upgradeWall;
+document.getElementById('dbgBtn').onclick=()=>DBG.download();
+document.getElementById('zoomIn').onclick=()=>{zoom=Math.min(2.2,zoom*1.15);};
+document.getElementById('zoomOut').onclick=()=>{zoom=Math.max(0.6,zoom*0.87);};
+document.querySelectorAll('[data-skip]').forEach(b=>b.onclick=()=>{const hrs=+b.dataset.skip,r=rates();
+  for(const k in r)S.res[k]=Math.min(cap(),Math.round(S.res[k]+r[k]*hrs));
+  // also advance queue by hrs
+  for(const j of S.queue)j.end-=hrs*3600*1000; processQueue();
+  if(S.marches)for(const m of S.marches){m.depart-=hrs*36e5;m.arrive-=hrs*36e5;m.ret-=hrs*36e5;}
+  if(S.transports)for(const t of S.transports){t.arrive-=hrs*36e5;} tickTransports();
+  tickMarches();
+  save();renderRes();toast('+'+hrs+'h skipped (builds + marches)');});
+document.getElementById('refreshBtn').onclick=()=>{applyElapsed();renderRes();toast('Refreshed');};
+
+/* ===================== DEV MODE ===================== */
+function fillFullCity(){const types=Object.keys(CITY);let i=0;S.city={};
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){if(cornerLocked(c,r))continue;if(c===CENTER&&r===CENTER)continue;
+    S.city[c+'_'+r]={type:types[i++%types.length]};}
+  const nt=Object.keys(NODE);S.nodes={};for(let k=0;k<6;k++)S.nodes[''+k]={type:nt[k%nt.length]};
+  S.wall=4;S.thLevel=3;S.queue=[];}
+function emptyCity(){const f=fresh();S.res={food:5000,wood:4000,stone:3000,iron:1500,gold:800};S.city={};S.nodes={};S.queue=[];S.wall=1;S.thLevel=1;S.army={sword:60,archer:40,horse:20};S.scouts=2;S.marches=[];S.log=[];}
+const GALLERY=['cottage','barracks','market','warehouse','beacon','keep','th1','th2','th3','farm','sawmill','quarry','mine','cast1','cast2','cast3','cast4','barb','derelict'];
+function renderGallery(){ctx.clearRect(0,0,VW,VH);
+  const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,'#6f8f40');g.addColorStop(1,'#5c7a36');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.font='800 15px system-ui';ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.strokeText('ART GALLERY · every building — tap 🛠️ to exit',VW/2,10);ctx.fillText('ART GALLERY · every building — tap 🛠️ to exit',VW/2,10);
+  const cols=4,rows=Math.ceil(GALLERY.length/cols),top=40,cw=VW/cols,ch=(VH-top-6)/rows;
+  for(let i=0;i<GALLERY.length;i++){const cx=(i%cols)*cw+cw/2, cyc=top+Math.floor(i/cols)*ch, cy=cyc+ch*0.62;
+    const W=Math.min(cw,ch)*0.82, tw=W*0.42, thh=tw*0.5;
+    poly([[cx,cy-thh],[cx+tw,cy],[cx,cy+thh],[cx-tw,cy]],'rgba(255,255,255,0.10)','rgba(0,0,0,0.16)',1);
+    draw(GALLERY[i],cx,cy,W*0.78);
+    ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.font='700 11px system-ui';ctx.textBaseline='alphabetic';
+    ctx.strokeText(GALLERY[i],cx,cyc+ch-4);ctx.fillText(GALLERY[i],cx,cyc+ch-4);}}
+async function openOverwatch(){
+  closeModal();toast('🛰️ Scanning the realm…');
+  const r=await srv('stonehold_overwatch',{});
+  if(!r||!r.ok){toast('Overwatch unavailable'+(r&&r.error?': '+r.error:''));return;}
+  const flagged=r.rows.filter(x=>x.flags.length), clean=r.rows.filter(x=>!x.flags.length);
+  const rowItem=(x)=>({em:x.flags.length?'⚠️':(x.isDev?'🛠️':'🏰'),
+    label:x.name+' · '+x.tier+' · ('+x.home+')',
+    meta:(x.flags.length?('⚠️ '+x.flags.join(' · ')+' · '):'')+
+      '🌾'+fmt(x.res.food)+' 🪵'+fmt(x.res.wood)+' ⛰️'+fmt(x.res.stone)+' ⛓️'+fmt(x.res.iron)+' 🪙'+fmt(x.res.gold)+
+      ' · army '+(x.army.s+x.army.a+x.army.h)+' · TH'+x.th,
+    fn:closeModal});
+  const items=[{em:'📊',label:r.count+' lords · '+r.flagged+' flagged',meta:'tap any to dismiss',fn:closeModal}]
+    .concat(flagged.map(rowItem)).concat(clean.slice(0,40).map(rowItem));
+  modal('🛰️ Realm Overwatch',items);}
+document.getElementById('devBtn').onclick=()=>{
+  if(!SRV_DEV){return;}   // hard gate — the menu itself refuses without server-confirmed dev
+  modal('🛠️ Dev Mode',[
+    {em:'🏚️',label:'Empty City',meta:'test the build loop',fn:()=>{closeModal();galleryOn=false;emptyCity();save();setView('town');toast('Empty city — build away');renderRes();}},
+    ...(SRV_DEV?[
+    {em:'🛰️',label:'Overwatch — all players',meta:'resources + anomaly flags',fn:openOverwatch},
+    {em:'👥',label:'+500 population cap',meta:'dev: house phantom civilians',fn:()=>{S.popBonus=(S.popBonus||0)+500;save();closeModal();toast('👥 +500 population cap (dev)');renderRes();}},
+    {em:'🪖',label:'Muster test army',meta:'dev: +200🗡️ +100🏹 +50🐎 +3 scouts',fn:()=>{S.army.sword+=200;S.army.archer+=100;S.army.horse+=50;S.scouts+=3;S.popBonus=(S.popBonus||0)+500;save();closeModal();toast('🪖 Test army mustered');renderRes();}},
+    ]:[]),
+    {em:'🧨',label:'Reset Save',meta:'wipe save + fresh start',fn:()=>{localStorage.removeItem(SAVE);DBG.log('dev','reset-save');location.reload();}},
+    {em:'🏰',label:'Full City',meta:'all buildings + walls',fn:()=>{closeModal();galleryOn=false;fillFullCity();save();setView('town');toast('Full city');renderRes();}},
+    {em:'🖼️',label:galleryOn?'Exit Gallery':'Art Gallery',meta:'review every building',fn:()=>{closeModal();galleryOn=!galleryOn;toast(galleryOn?'Gallery — tap 🛠️ to exit':'Back to game');}},
+  ]);
+};
+
+/* ===================== LOOP ===================== */
+lastSave=Date.now();
+let galleryOn=false;
+function loop(){try{
+  if(galleryOn){renderGallery();requestAnimationFrame(loop);return;}
+  if(view!=='shop'){ctx.clearRect(0,0,VW,VH);
+  if(view==='town')renderTown();else if(view==='outside')renderOutside();else if(view==='map')renderMap();}
+  _renderFails=0;}
+  catch(err){
+    _renderFails++;
+    if(!_renderErrLogged){DBG.log('RENDER-ERR',(err&&err.message)+' | '+(err&&err.stack||'').split('\n')[1]);_renderErrLogged=true;}
+    // Self-heal: if the active view keeps throwing, repair state and show a readable
+    // message on the canvas instead of a silent black screen.
+    try{
+      if(_renderFails===3){ if(!S||!S.res){S=fresh();} if(typeof migrateCities==='function')migrateCities(S);
+        if(S.wall==null||S.wall<0)S.wall=0; if(S.thLevel==null)S.thLevel=0; }
+      if(_renderFails>1&&ctx){ctx.clearRect(0,0,VW,VH);
+        ctx.fillStyle='#2c2114';ctx.font='600 14px system-ui';ctx.textAlign='center';
+        ctx.fillText('Loading your realm…',VW/2,VH/2-10);
+        ctx.font='11px system-ui';ctx.fillStyle='#8a5f22';
+        ctx.fillText('If this persists, tap TOWN or FIELDS above',VW/2,VH/2+14);}
+    }catch(e2){}
+  }
+  requestAnimationFrame(loop);}
+function tick(){applyElapsed();processQueue();tickMarches();tickTransports();renderRes();if(Date.now()-lastSave>15000){save();lastSave=Date.now();}}
+setInterval(tick,1000);
+function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+function tutHint(){
+  if(S.thLevel)return null;
+  if(S.queue.find(j=>j.kind==='gh'))return '🏗️ The Grand Hall rises…';
+  if(!nodeCount('farm'))return '📜 Tap a plot and build a Farm — your first field of each kind is FREE';
+  if(!nodeCount('sawmill'))return '📜 Now a Sawmill (free) — the Hall needs timber';
+  if(!nodeCount('quarry'))return '📜 A Quarry too (free) — stone for the foundations';
+  if(!afford(GH_COST))return '⏳ Let the fields work: '+costStr(GH_COST)+' for the Grand Hall';
+  return '🏛️ You have enough! Go to TOWN and raise the Grand Hall';}
+
+/* Tab-return hardening: Chrome can resize/starve the canvas while backgrounded.
+   On every return: re-fit the canvas and catch up timers/marches. */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){
+  fit();applyElapsed();processQueue();tickMarches();tickTransports();renderRes();DBG.log('sys','tab-return refit');}});
+window.addEventListener('focus',()=>fit());
+window.addEventListener('pageshow',()=>fit());
+
+/* ===================== BOOT ===================== */
+fit();applyElapsed();
+// catch up any queue finished while away
+if(!S.log||!S.log.length){
+  addLog('system','If you want to whisper to a lord, the realm must first come online. Reports for scouting, battles and valleys are shown here — only you can see this channel.');
+  addLog('world','The realm of Server SS37 stirs. New lords raise their halls across the land…');}
+processQueue();renderRes();renderLog();setView(S.thLevel===0?'outside':'town');save();
+bootOnline();
+setTimeout(()=>{if(S.thLevel===0&&!S.tutSeen){S.tutSeen=1;save();
+  modal('📜 Welcome, Lord of Nothing',[
+   {em:'🌾',label:'Break ground on your first fields',meta:'first of each kind is free',fn:closeModal},
+   {em:'🏛️',label:'Gather '+costStr(GH_COST),meta:'to raise the Grand Hall',fn:closeModal},
+   {em:'⚔️',label:'Then: barracks, scouts, marches',meta:'the realm awaits',fn:closeModal}]);}},700);
+</script>
+</body>
+</html>
