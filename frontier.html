@@ -812,6 +812,39 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 #inventoryPanel.inventory-split:not(.inv-swapped){left:0!important;right:50%!important;border-right:1px solid rgba(200,120,0,0.3)!important;border-left:none!important;}
 #inventoryPanel.inventory-split.inv-swapped{left:50%!important;right:0!important;border-left:1px solid rgba(200,120,0,0.3)!important;border-right:none!important;}
 </style>
+<style id="hf-dayz-ui">
+/* HFUI patch-46: DAYZ INVENTORY PALETTE — kills the brown/orange RPG look.
+   Cold desaturated grey-green military UI. Applied as a final override. */
+#inventoryPanel,#chestPanel{background:rgba(14,17,15,0.97)!important;}
+.equipSlot{background:rgba(26,30,27,0.75)!important;border:1px dashed rgba(140,155,140,0.35)!important;
+  color:rgba(160,175,158,0.6)!important;border-radius:4px!important;}
+.equipSlot.filled{background:rgba(30,40,32,0.9)!important;border:1px solid rgba(120,180,130,0.5)!important;
+  color:#b8ccb4!important;}
+.invItem,.itemCard,.chestItem{background:rgba(24,28,25,0.9)!important;
+  border:1px solid rgba(120,135,120,0.3)!important;border-radius:4px!important;color:#b8c4b4!important;}
+.invItem .eqName,.itemName{color:#c2cebe!important;}
+/* buttons: muted olive, not orange */
+#inventoryPanel button,#chestPanel button{
+  background:rgba(30,38,32,0.9)!important;border:1px solid rgba(130,160,130,0.4)!important;
+  color:#b8ccb4!important;border-radius:3px!important;}
+#inventoryPanel button:active,#chestPanel button:active{background:rgba(50,68,52,0.95)!important;}
+/* destructive stays red-ish but desaturated */
+#inventoryPanel button[onclick*="drop"],#inventoryPanel button[onclick*="Drop"],
+#inventoryPanel .dropBtn,#chestPanel .dropBtn{
+  border-color:rgba(170,90,70,0.45)!important;color:#c98a76!important;}
+/* headers / labels */
+#inventoryPanel .slotsLabel,#inventoryPanel h3,#chestPanel h3{color:#8fae8c!important;}
+/* magazine row → military green */
+#hf-mag-row{border-color:rgba(130,160,130,0.35)!important;background:rgba(20,26,21,0.6)!important;}
+#hf-mag-row div{color:#a8bca4!important;}
+/* tabs */
+#inventoryPanel .tabBtn,#inventoryPanel .invTab{background:rgba(26,32,28,0.9)!important;
+  border-color:rgba(130,160,130,0.35)!important;color:#a8bca4!important;}
+#inventoryPanel .tabBtn.active,#inventoryPanel .invTab.active{background:rgba(46,62,48,0.95)!important;
+  color:#d8e8d4!important;border-color:rgba(150,200,150,0.6)!important;}
+/* rarity accents stay, just desaturated a touch */
+.rarity-common{color:#9aa89a!important;} .rarity-uncommon{color:#8cc08c!important;}
+</style>
 </head>
 <body>
 <script>
@@ -877,8 +910,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
           }
         }
       }
-      window.addEventListener('touchstart',onTap,{passive:true});
-      window.addEventListener('mousedown',onTap,{passive:true});
+      // capture phase — fires before any game handler can stopPropagation
+      window.addEventListener('touchstart',onTap,{passive:true,capture:true});
+      window.addEventListener('mousedown',onTap,{passive:true,capture:true});
     })();
   }catch(e){}
 })();
@@ -3552,7 +3586,7 @@ window._hfBootForceMenu = function() {
         });
 
         // v15.3: ITEM READINESS MAP
-        var _ITEM_READY = {'Stick': true, 'Tinder': true, 'Matches': true, 'Campfire': true, 'Scrappy Fire': true, 'Scrap Metal': true, 'Nails': true, 'Tape': true, 'Rags': true, 'Rope': true, 'Bandage': true, 'Painkillers': true, 'Canned Food': true, 'Water Bottle': true, 'Soda Can': true, 'Juice Box': true, 'Dried Fruit': true, 'Granola Bar': true, 'Raw Meat': true, 'Fish': true, 'Cooked Fish': true, 'Pipe': true, 'Shiv': true, 'Knife': true, 'Hatchet': true, 'Crowbar': true, 'Wrench': true, 'Torch': true, 'Splint': true, 'Lockpick': true, 'Sharp Stick': true, 'Makeshift Rod': true, 'Fur Cloak': true, 'Jacket': true, 'Fur Coat': true, 'Scrap Spear': true, 'Wood Wall': true, 'Stick Shelter': true, 'Plank': true, 'Saw': true, 'Wood Door': true, 'MRE': true, 'Charcoal': true, 'Empty Bottle': true, 'Fur Pelt': true, 'Thick Hide': true, 'Flashlight': true, 'First Aid Kit': true, 'Antibiotics': true, 'Thermal Paste': true, 'Machete': true, 'Pistol': true, 'Pistol Ammo': true, 'Frontier Mk.2': true};
+        var _ITEM_READY = {'Stick': true, 'Tinder': true, 'Matches': true, 'Campfire': true, 'Scrappy Fire': true, 'Scrap Metal': true, 'Nails': true, 'Tape': true, 'Rags': true, 'Rope': true, 'Bandage': true, 'Painkillers': true, 'Canned Food': true, 'Water Bottle': true, 'Soda Can': true, 'Juice Box': true, 'Dried Fruit': true, 'Granola Bar': true, 'Raw Meat': true, 'Fish': true, 'Cooked Fish': true, 'Pipe': true, 'Shiv': true, 'Knife': true, 'Hatchet': true, 'Crowbar': true, 'Wrench': true, 'Torch': true, 'Splint': true, 'Lockpick': true, 'Sharp Stick': true, 'Makeshift Rod': true, 'Fur Cloak': true, 'Jacket': true, 'Fur Coat': true, 'Scrap Spear': true, 'Wood Wall': true, 'Stick Shelter': true, 'Plank': true, 'Saw': true, 'Wood Door': true, 'MRE': true, 'Charcoal': true, 'Empty Bottle': true, 'Fur Pelt': true, 'Thick Hide': true, 'Flashlight': true, 'First Aid Kit': true, 'Antibiotics': true, 'Thermal Paste': true, 'Machete': true, 'Pistol': true, 'Pistol Ammo': true, 'Frontier Mk.2': true, 'MK Rifle': true, 'MK Rounds': true, 'MK Rifle Mk.2': true, 'Laser Rifle': true, 'Laser Pistol': true, 'Laser Cartridge': true, 'Rifle Mag': true, 'Pistol Mag': true, 'Laser Cell': true, 'Gas Suit': true, 'Gas Mask': true, 'Antidote': true, 'Shovel': true, 'Barrel': true, 'Hilbert Core': true};
         // v15.3: cheat spawn — full item list with readiness dots + SPAWN button + enter key
         var cheatSpawnSrc = document.getElementById('v14-cheat-spawn-search');
         var _lastSpawnSelected = null;
@@ -6754,11 +6788,9 @@ const ITEMS={
 'Pistol':{icon:'🔫',cat:'weapon',rarity:RARITY.ULTRARARE,dmg:35,range:200,cone:0.8,kb:2,maxGlobal:2,zones:['military','hilbert']},
 'Pistol Ammo':{icon:'🎯',cat:'ammo',rarity:RARITY.RARE,maxGlobal:6,zones:['military','badlands']},
 // patch-45: MAGAZINES — one per slot, hold rounds. Loose ammo must be loaded into them.
-'Rifle Mag':{icon:'🧰',cat:'ammo',rarity:RARITY.RARE,maxGlobal:8,zones:['military','badlands','hilbert']},
-'Pistol Mag':{icon:'🧰',cat:'ammo',rarity:RARITY.UNCOMMON,maxGlobal:10,zones:['military','badlands','town']},
-'Rifle Ammo':{icon:'🎯',cat:'ammo',rarity:RARITY.RARE,maxGlobal:8,zones:['military','badlands','hilbert']},
-'Shotgun Shells':{icon:'🎯',cat:'ammo',rarity:RARITY.UNCOMMON,maxGlobal:10,zones:['military','badlands']},
-'Shotgun Tube':{icon:'🧰',cat:'ammo',rarity:RARITY.UNCOMMON,maxGlobal:6,zones:['military','badlands']},
+'Rifle Mag':{icon:'🧰',cat:'ammo',rarity:RARITY.RARE,maxGlobal:8,zones:['military','badlands','hilbert'],desc:'Holds 30 MK Rounds'},
+'Pistol Mag':{icon:'🧰',cat:'ammo',rarity:RARITY.UNCOMMON,maxGlobal:10,zones:['military','badlands','town'],desc:'Holds 15 Pistol Ammo'},
+'Laser Cell':{icon:'🔋',cat:'ammo',rarity:RARITY.ULTRARARE,maxGlobal:3,zones:['hilbert'],desc:'Holds 60 Laser Cartridges'},
 'Frontier Mk.2':{icon:'🔫',cat:'weapon',rarity:RARITY.ULTRARARE,dmg:50,range:300,cone:0.4,kb:3,maxGlobal:1,zones:['hilbert']},
 // Clothing (v11: temperature resistance)
 'Jacket':{icon:'🧥',cat:'clothing',rarity:RARITY.UNCOMMON,warmth:8,maxGlobal:10,zones:['town','outskirts']},
@@ -6894,7 +6926,7 @@ shop:[{item:'Canned Food',w:15},{item:'Soda Can',w:15},{item:'Tape',w:15},{item:
 warehouse:[{item:'Scrap Metal',w:20},{item:'Nails',w:15},{item:'Rope',w:10},{item:'Tape',w:10},{item:'Canned Food',w:10},{item:'Pipe',w:8},{item:'MRE',w:5},{item:'Crowbar',w:5}],
 shed:[{item:'Hatchet',w:26},{item:'Scrap Metal',w:22},{item:'Nails',w:18},{item:'Rope',w:12},{item:'Tape',w:8},{item:'Wrench',w:8},{item:'Stick',w:18},{item:'Tinder',w:10},{item:'Crowbar',w:5},{item:'Saw',w:8},{item:'Shovel',w:7},{item:'Barrel',w:2}],
 // v11: POI loot tables
-military:[{item:'Gas Mask',w:5},{item:'Antidote',w:8},{item:'Pistol Ammo',w:20},{item:'Rifle Mag',w:8},{item:'Pistol Mag',w:12},{item:'Rifle Ammo',w:14},{item:'Shotgun Shells',w:10},{item:'MRE',w:15},{item:'Machete',w:8},{item:'Pistol',w:3},{item:'First Aid Kit',w:8},{item:'Knife',w:12},{item:'Rope',w:10},{item:'Bandage',w:15}],
+military:[{item:'Gas Mask',w:5},{item:'Antidote',w:8},{item:'Pistol Ammo',w:20},{item:'Rifle Mag',w:8},{item:'Pistol Mag',w:12},{item:'MK Rounds',w:14},{item:'MRE',w:15},{item:'Machete',w:8},{item:'Pistol',w:3},{item:'First Aid Kit',w:8},{item:'Knife',w:12},{item:'Rope',w:10},{item:'Bandage',w:15}],
 ruins:[{item:'Scrap Metal',w:25},{item:'Nails',w:20},{item:'Rags',w:15},{item:'Charcoal',w:10},{item:'Matches',w:10},{item:'Thermal Paste',w:8},{item:'Jacket',w:6}],
 hilbert:[{item:'Gas Suit',w:6},{item:'Gas Mask',w:10},{item:'Antidote',w:14},{item:'Hilbert Core',w:5},{item:'Auto-Defense Module',w:2},{item:'Laser Rifle',w:1},{item:'Frontier Mk.2',w:2},{item:'Pistol Ammo',w:15},{item:'First Aid Kit',w:10},{item:'MRE',w:12}],
 // v19: Scrap Yard Belt loot table
@@ -7899,8 +7931,19 @@ const PROJ_WEAPONS={
 
 function _fireProjectile(wName,aimX,aimY){
   var pd=PROJ_WEAPONS[wName];if(!pd)return false;
-  if(pd.ammo&&!(player.inv[pd.ammo]>0)){showMsg('No '+pd.ammo+'!');failSfx();return false;}
-  if(pd.ammo)removeItem(pd.ammo,1);
+  // patch-46: MAGAZINE FEED — the gun draws from a loaded mag first. Loose rounds
+  // in your pack do NOT chamber; you must load them into a mag (DayZ rule).
+  var _magType=(window.HFMAG&&window.HFMAG.weaponMag)?window.HFMAG.weaponMag[wName]:null;
+  if(_magType&&window.HFMAG){
+    if(!window.HFMAG.consume(_magType)){
+      var _loose=(player.inv&&player.inv[pd.ammo])||0;
+      showMsg(_loose>0?('Empty mag! Load '+_magType+' ('+_loose+' loose rounds)'):('No ammo — need a loaded '+_magType));
+      failSfx();return false;
+    }
+  } else {
+    if(pd.ammo&&!(player.inv[pd.ammo]>0)){showMsg('No '+pd.ammo+'!');failSfx();return false;}
+    if(pd.ammo)removeItem(pd.ammo,1);
+  }
   window._bullets.push({
     x:player.x,y:player.y,
     vx:aimX*pd.spd,vy:aimY*pd.spd,
@@ -24972,15 +25015,20 @@ body.hfgfx-on #hfgfx-sky{display:block;}
 <script>
 (function(){
   // patch-45: kits grant LOADED MAGS (mag system), not raw ammo numbers
+  // patch-46: kits use REAL weapons that exist in ITEMS + PROJ_WEAPONS.
   var KITS={
-    assault:{name:'ASSAULT',items:{'Rifle':1,'Bandage':4,'Grenade':2},
+    assault:{name:'ASSAULT',desc:'MK Rifle · 3 mags · gas mask',
+      items:{'MK Rifle':1,'Bandage':4,'Machete':1},equip:'MK Rifle',
       mags:[{type:'Rifle Mag',rounds:30},{type:'Rifle Mag',rounds:30},{type:'Rifle Mag',rounds:30}],clothing:'Gas Mask'},
-    breacher:{name:'BREACHER',items:{'Shotgun':1,'Sledgehammer':1,'Bandage':4},
-      mags:[{type:'Shotgun Tube',rounds:8},{type:'Shotgun Tube',rounds:8}],clothing:'Gas Mask'},
-    recon:{name:'RECON',items:{'Pistol':1,'Knife':1,'Bandage':3},
-      mags:[{type:'Pistol Mag',rounds:15},{type:'Pistol Mag',rounds:15}],clothing:'Gas Mask'},
-    heavy:{name:'HEAVY',items:{'Frontier Mk.2':1,'Pistol':1,'Bandage':5},
-      mags:[{type:'Rifle Mag',rounds:30},{type:'Pistol Mag',rounds:15}],clothing:'Gas Suit'},
+    breacher:{name:'BREACHER',desc:'Frontier Mk.2 · crowbar · breach gear',
+      items:{'Frontier Mk.2':1,'Crowbar':1,'Bandage':4},equip:'Frontier Mk.2',
+      mags:[{type:'Pistol Mag',rounds:15},{type:'Pistol Mag',rounds:15},{type:'Pistol Mag',rounds:15}],clothing:'Gas Mask'},
+    recon:{name:'RECON',desc:'Pistol · knife · fast & quiet',
+      items:{'Pistol':1,'Knife':1,'Bandage':3},equip:'Pistol',
+      mags:[{type:'Pistol Mag',rounds:15},{type:'Pistol Mag',rounds:15}],clothing:'Jacket'},
+    heavy:{name:'HEAVY',desc:'Laser Rifle · full hazmat · endgame gear',
+      items:{'Laser Rifle':1,'Pistol':1,'Bandage':5,'First Aid Kit':1},equip:'Laser Rifle',
+      mags:[{type:'Laser Cell',rounds:60},{type:'Pistol Mag',rounds:15}],clothing:'Gas Suit'},
   };
   function pickKit(){
     var wrap=document.createElement('div');wrap.id='hf-ffa-picker';
@@ -24988,8 +25036,8 @@ body.hfgfx-on #hfgfx-sky{display:block;}
     var html='<div style="color:#f96;font-size:22px;letter-spacing:3px;margin-bottom:6px;">⚔ FFA ARENA</div>'
       +'<div style="color:#9fe8b8;font-size:12px;margin-bottom:20px;opacity:0.8;">CHOOSE YOUR LOADOUT — combat-first sandbox</div>';
     for(var k in KITS){var kit=KITS[k];
-      html+='<button class="hf-kit-btn" data-kit="'+k+'" style="width:260px;background:rgba(12,18,12,0.9);border:1px solid rgba(60,255,120,0.35);color:#9fe8b8;font-family:monospace;font-size:13px;padding:12px;margin:5px;border-radius:6px;text-align:left;">'
-        +'<b style="color:#f96;">'+kit.name+'</b><br><span style="font-size:10px;opacity:0.7;">'+Object.keys(kit.items).slice(0,3).join(', ')+'…</span></button>';
+      html+='<button class="hf-kit-btn" data-kit="'+k+'" style="width:260px;background:rgba(14,18,15,0.9);border:1px solid rgba(120,150,120,0.4);color:#b8c4b4;font-family:monospace;font-size:13px;padding:12px;margin:5px;border-radius:6px;text-align:left;">'
+        +'<b style="color:#e8935a;">'+kit.name+'</b><br><span style="font-size:10px;opacity:0.7;">'+(kit.desc||'')+'</span></button>';
     }
     html+='<button id="hf-ffa-cancel" style="margin-top:16px;background:none;border:1px solid rgba(255,120,60,0.4);color:#f96;font-family:monospace;padding:8px 20px;border-radius:5px;">CANCEL</button>';
     wrap.innerHTML=html;document.body.appendChild(wrap);
@@ -25018,6 +25066,9 @@ body.hfgfx-on #hfgfx-sky{display:block;}
           // grant loaded magazines
           if(kit.mags){player.mags=player.mags||[];
             kit.mags.forEach(function(m){player.mags.push({type:m.type,rounds:m.rounds});});}
+          // AUTO-EQUIP the kit weapon so you spawn combat-ready (no fumbling)
+          if(kit.equip){player.equippedWeapon=kit.equip;
+            if(typeof refreshInventory==='function')try{refreshInventory();}catch(e){}}
           // arena tuning: full stats, faster respawn intent, combat focus
           player.health=100;player.hunger=100;player.thirst=100;player.stamina=100;
           window._gasPoison=0;
@@ -25075,10 +25126,15 @@ body.hfgfx-on #hfgfx-sky{display:block;}
      • This is the mechanic that makes looting ammo meaningful instead of a number. -->
 <script>
 (function(){
-  var MAG_CAP={ 'Rifle Mag':30, 'Pistol Mag':15, 'Shotgun Tube':8, 'SMG Mag':25 };
-  var AMMO_FOR={ 'Rifle Mag':'Rifle Ammo', 'Pistol Mag':'Pistol Ammo', 'Shotgun Tube':'Shotgun Shells', 'SMG Mag':'SMG Ammo' };
+  // patch-46: mapped to the game's REAL ammo items
+  var MAG_CAP={ 'Rifle Mag':30, 'Pistol Mag':15, 'Laser Cell':60 };
+  var AMMO_FOR={ 'Rifle Mag':'MK Rounds', 'Pistol Mag':'Pistol Ammo', 'Laser Cell':'Laser Cartridge' };
+  // which mag each weapon feeds from
+  var WEAPON_MAG={ 'MK Rifle':'Rifle Mag', 'Pistol':'Pistol Mag', 'Frontier Mk.2':'Pistol Mag',
+                   'Laser Rifle':'Laser Cell', 'Laser Pistol':'Laser Cell' };
+  window.HFMAG_WEAPON_MAG=WEAPON_MAG;
   var LOOSE_CAP=60;   // loose rounds per inventory stack
-  window.HFMAG={cap:MAG_CAP,ammoFor:AMMO_FOR,looseCap:LOOSE_CAP};
+  window.HFMAG={cap:MAG_CAP,ammoFor:AMMO_FOR,looseCap:LOOSE_CAP,weaponMag:WEAPON_MAG};
 
   // magazine instances live on player.mags = [{type,rounds}] — one per slot
   function mags(){ if(!player.mags)player.mags=[]; return player.mags; }
@@ -25183,6 +25239,121 @@ body.hfgfx-on #hfgfx-sky{display:block;}
     // weather softens shadows
     try{if(typeof currentWeather!=='undefined'&&currentWeather>=2)strength*=0.35;}catch(e){}
     return {dx:Math.cos(ang)*len,dy:Math.sin(ang)*len*0.4,len:len,ang:0,strength:strength};
+  };
+})();
+</script>
+<!-- HFDEVPANEL patch-46: SELF-CONTAINED dev panel. Does not depend on the game's own
+     debug drawer (which was never appearing). Own UI, own item spawner, own log export.
+     Only exists when HF_IS_DEV. Unlock: 5 taps in the top-left corner. -->
+<script>
+(function(){
+  if(localStorage.getItem('hf_dev_mode')!=='1')return;
+  function panel(){
+    if(document.getElementById('hf-devpanel'))return document.getElementById('hf-devpanel');
+    var p=document.createElement('div');p.id='hf-devpanel';
+    p.style.cssText='position:fixed;inset:6% 4%;z-index:500000;background:rgba(4,8,5,0.98);border:1px solid rgba(60,255,120,0.5);border-radius:8px;display:none;flex-direction:column;font-family:monospace;color:#9fe8b8;padding:10px;overflow-y:auto;';
+    p.innerHTML=''
+      +'<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(60,255,120,0.3);padding-bottom:6px;margin-bottom:8px;">'
+      +'<b style="color:#3cff78;letter-spacing:2px;">⬢ OPERATOR DEV PANEL</b>'
+      +'<button id="hfdp-close" style="background:rgba(180,60,0,0.3);border:1px solid rgba(255,120,60,0.5);color:#f96;font:11px monospace;padding:4px 12px;border-radius:4px;">CLOSE</button></div>'
+      +'<div style="font-size:10px;color:#5fa;margin:4px 0;">SPAWN ITEM</div>'
+      +'<div style="display:flex;gap:4px;margin-bottom:8px;">'
+      +'<input id="hfdp-item" placeholder="item name (e.g. MK Rifle)" style="flex:1;background:rgba(0,0,0,0.5);border:1px solid rgba(60,255,120,0.3);color:#cfe;font:11px monospace;padding:5px;border-radius:3px;">'
+      +'<input id="hfdp-qty" value="1" style="width:44px;background:rgba(0,0,0,0.5);border:1px solid rgba(60,255,120,0.3);color:#cfe;font:11px monospace;padding:5px;border-radius:3px;">'
+      +'<button id="hfdp-spawn" style="background:none;border:1px solid #3f6;color:#9fe8b8;font:11px monospace;padding:5px 10px;border-radius:3px;">GIVE</button></div>'
+      +'<div id="hfdp-quick" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;"></div>'
+      +'<div style="font-size:10px;color:#5fa;margin:4px 0;">WORLD</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">'
+      +'<button class="hfdp-b" data-a="noon">☀ Noon</button><button class="hfdp-b" data-a="dusk">🌆 Dusk</button>'
+      +'<button class="hfdp-b" data-a="night">🌙 Night</button><button class="hfdp-b" data-a="dawn">🌄 Dawn</button>'
+      +'<button class="hfdp-b" data-a="clear">☁ Clear</button><button class="hfdp-b" data-a="rain">🌧 Rain</button>'
+      +'<button class="hfdp-b" data-a="storm">⛈ Storm</button><button class="hfdp-b" data-a="filter">🎨 Filter</button>'
+      +'<button class="hfdp-b" data-a="heal">❤ Heal</button><button class="hfdp-b" data-a="godmode">🛡 God</button>'
+      +'<button class="hfdp-b" data-a="loot">📦 Respawn Loot</button></div>'
+      +'<div style="font-size:10px;color:#5fa;margin:4px 0;">DIAGNOSTICS</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">'
+      +'<button class="hfdp-b" data-a="log">📋 Copy Log</button>'
+      +'<button class="hfdp-b" data-a="state">🔍 Dump State</button>'
+      +'<button class="hfdp-b" data-a="devoff">⬢ Dev OFF</button></div>'
+      +'<pre id="hfdp-out" style="flex:1;min-height:80px;background:rgba(0,0,0,0.5);border:1px solid rgba(60,255,120,0.2);border-radius:4px;padding:6px;font-size:9px;line-height:1.5;overflow:auto;color:#8fd;margin:0;">ready.</pre>';
+    document.body.appendChild(p);
+    var st=document.createElement('style');
+    st.textContent='.hfdp-b{background:rgba(12,20,14,0.9);border:1px solid rgba(60,255,120,0.35);color:#9fe8b8;font:10px monospace;padding:5px 9px;border-radius:4px;}';
+    document.head.appendChild(st);
+    // quick-spawn buttons for the items that matter
+    var QUICK=['MK Rifle','MK Rounds','Rifle Mag','Pistol','Pistol Ammo','Pistol Mag','Laser Rifle','Laser Cartridge','Laser Cell','Gas Suit','Gas Mask','Antidote','Shovel','Hatchet','Crowbar','Bandage','First Aid Kit','Canned Food','Water Bottle','Torch','Lighter','Matches'];
+    var q=p.querySelector('#hfdp-quick');
+    QUICK.forEach(function(it){
+      var b=document.createElement('button');b.className='hfdp-b';b.textContent=it;
+      b.onclick=function(){give(it,1);};q.appendChild(b);
+    });
+    function out(s){var o=p.querySelector('#hfdp-out');o.textContent=String(s).slice(0,4000);}
+    function give(item,n){
+      try{
+        if(typeof addItem!=='function'){out('addItem() not ready — start a game first.');return;}
+        // mags are objects, not inventory items
+        if(window.HFMAG&&window.HFMAG.cap&&window.HFMAG.cap[item]){
+          window.HFMAG.addMag(item);out('gave magazine: '+item);return;
+        }
+        addItem(item,n||1);out('gave '+n+'x '+item);
+        if(typeof refreshInventory==='function')refreshInventory();
+      }catch(e){out('give error: '+e.message);}
+    }
+    p.querySelector('#hfdp-close').onclick=function(){p.style.display='none';};
+    p.querySelector('#hfdp-spawn').onclick=function(){
+      give(p.querySelector('#hfdp-item').value.trim(),parseInt(p.querySelector('#hfdp-qty').value)||1);
+    };
+    p.querySelectorAll('.hfdp-b').forEach(function(b){
+      var a=b.getAttribute('data-a');if(!a)return;
+      b.onclick=function(){
+        try{
+          if(a==='noon'&&window.HFDAY)HFDAY.noon();
+          else if(a==='dusk'&&window.HFDAY)HFDAY.dusk();
+          else if(a==='night'&&window.HFDAY)HFDAY.night();
+          else if(a==='dawn'&&window.HFDAY)HFDAY.dawn();
+          else if(a==='clear'&&window.HFWX)HFWX(0);
+          else if(a==='rain'&&window.HFWX)HFWX(3);
+          else if(a==='storm'&&window.HFWX)HFWX(4);
+          else if(a==='filter'&&window.HFGFX)HFGFX.cycleFilter();
+          else if(a==='heal'){player.health=100;player.hunger=100;player.thirst=100;player.stamina=100;player.bodyTemp=37;window._gasPoison=0;out('healed');}
+          else if(a==='godmode'){window._godMode=!window._godMode;out('god mode: '+(window._godMode?'ON':'OFF'));}
+          else if(a==='loot'&&window.HFLOOT_NOW){out('respawned '+HFLOOT_NOW()+' containers');}
+          else if(a==='log'){
+            var lg=(window._hfLogBuf||[]).slice(-160).join('\n');
+            if(!lg)lg='(no log buffer — devLog may not be capturing)';
+            try{navigator.clipboard.writeText(lg);out('LOG COPIED to clipboard ('+lg.length+' chars)\n\n'+lg.slice(-1200));}
+            catch(e){out(lg.slice(-2500));}
+          }
+          else if(a==='state'){
+            var s={pos:[Math.round(player.x),Math.round(player.y)],floor:player.floor,zone:(typeof getZone==='function'?getZone(Math.floor(player.x/TILE),Math.floor(player.y/TILE)):'?'),
+              hp:Math.round(player.health),weapon:player.equippedWeapon,clothing:player.equippedClothing,
+              mags:(player.mags||[]).map(function(m){return m.type+':'+m.rounds;}),
+              online:!!(window.HFNET&&HFNET.on),ffa:!!window._ffaMode,seed:window.HF_FORCED_SEED,
+              inv:Object.keys(player.inv||{}).length+' items'};
+            out(JSON.stringify(s,null,1));
+          }
+          else if(a==='devoff'){localStorage.removeItem('hf_dev_mode');location.reload();}
+        }catch(e){out(a+' error: '+e.message);}
+      };
+    });
+    return p;
+  }
+  // floating opener
+  window.addEventListener('load',function(){
+    setTimeout(function(){
+      if(document.getElementById('hf-devopen'))return;
+      var b=document.createElement('button');b.id='hf-devopen';b.textContent='⬢ DEV';
+      b.style.cssText='position:fixed;bottom:6px;left:6px;z-index:499999;background:rgba(10,20,12,0.95);border:1px solid #3f6;color:#9fe8b8;font:11px monospace;padding:6px 12px;border-radius:5px;';
+      b.onclick=function(e){e.preventDefault();e.stopPropagation();var p=panel();p.style.display=(p.style.display==='none'||!p.style.display)?'flex':'none';};
+      document.body.appendChild(b);
+    },1200);
+  });
+  // capture devLog into a buffer we can export
+  window._hfLogBuf=window._hfLogBuf||[];
+  var _origDevLog=window.devLog;
+  window.devLog=function(tag,msg){
+    try{window._hfLogBuf.push('['+tag+'] '+msg);if(window._hfLogBuf.length>400)window._hfLogBuf.shift();}catch(e){}
+    if(typeof _origDevLog==='function')try{return _origDevLog.apply(this,arguments);}catch(e){}
   };
 })();
 </script>
