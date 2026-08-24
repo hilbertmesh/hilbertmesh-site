@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ASHGATE — alpha</title>
+<style>
+:root{
+  --bg:#171310; --panel:#231d18; --panel2:#2b241d; --line:#4a3f2e;
+  --gold:#c9a24b; --gold-dim:#8a713a; --cream:#e7ddc6; --dim:#a89a7c;
+  --red:#b5462f; --green:#5c8a4a; --blue:#4a7a94;
+  --safe:#2f3a26; --wild:#3a1f1c;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);
+  font-family:"Courier New",ui-monospace,Consolas,monospace;overflow:hidden;}
+button{font-family:inherit;cursor:pointer;}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+
+/* ── Top bar ─────────────────────────────────────── */
+#topbar{display:flex;align-items:center;gap:10px;padding:7px 10px;
+  background:linear-gradient(180deg,#2b241a,#1c160f);border-bottom:2px solid #4a3f2e;
+  box-shadow:inset 0 1px 0 rgba(255,235,190,.08),inset 0 -2px 4px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.35);
+  flex:0 0 auto;font-size:12px;position:relative;z-index:5;}
+#topbar .title{color:var(--gold);font-weight:bold;letter-spacing:1px;}
+#topbar .stat{color:var(--dim);}
+#topbar .stat b{color:var(--cream);}
+#hpbar{width:70px;height:9px;background:#000;border:1px solid var(--line);position:relative;}
+#hpbar i{display:block;height:100%;background:var(--red);width:100%;}
+#zoneTag{margin-left:auto;padding:2px 8px;border:1px solid var(--line);border-radius:3px;font-size:11px;}
+#zoneTag.wild{background:var(--wild);border-color:#7a3a2e;color:#e0a08a;}
+#zoneTag.safe{background:var(--safe);border-color:#5a7a44;color:#cfe0ad;}
+
+/* ── World canvas ────────────────────────────────── */
+#world{flex:1 1 auto;position:relative;overflow:hidden;background:#0e0c0a;}
+#cv{width:100%;height:100%;display:block;}
+#log{position:absolute;left:8px;bottom:8px;width:min(260px,54%);max-height:26%;
+  overflow-y:auto;font-size:11px;line-height:1.5;color:var(--dim);
+  background:rgba(10,8,6,.35);border-radius:4px;padding:2px 4px;
+  text-shadow:0 1px 2px #000;touch-action:pan-y;overscroll-behavior:contain;}
+#log div.hit{color:#e8b45a;}
+#log div.lvl{color:#8fd16a;font-weight:bold;}
+#log div.dead{color:#e07060;}
+#log div.gold{color:#d8c470;}
+
+/* ── Engagement bar (the "attack option on the side") ────────────── */
+#engageBar{position:absolute;top:8px;right:8px;width:150px;background:linear-gradient(180deg,#2a1216,#180a0c);
+  border:1px solid #7a3a2e;box-shadow:inset 0 1px 0 rgba(255,180,180,.08),inset 0 -3px 6px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4);
+  border-radius:5px;padding:8px;display:none;z-index:25;text-align:center;}
+#engageBar.on{display:block;}
+#engageBar .eName{color:#ff9db3;font-size:11px;margin-bottom:4px;}
+#engageBar .eHpWrap{height:8px;background:#000;border:1px solid #7a3a2e;border-radius:2px;margin-bottom:6px;overflow:hidden;}
+#engageBar .eHpWrap i{display:block;height:100%;background:linear-gradient(90deg,#ff2d5a,#ff6f8f);width:100%;}
+#engageBar button{width:100%;background:linear-gradient(180deg,#4a1520,#2a0c12);border:1px solid #ff2d5a;
+  color:#ffb8c8;padding:8px;border-radius:4px;font-size:12px;font-weight:bold;}
+#engageBar button:active{background:#5a1a28;}
+
+/* ── D-pad (touch movement) ─────────────────────── */
+#dpad{position:absolute;right:8px;bottom:8px;display:grid;
+  grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px);gap:3px;z-index:20;}
+#dpad button{background:rgba(35,29,24,.55);border:1px solid rgba(74,63,46,.7);color:var(--gold);
+  font-size:14px;border-radius:5px;display:flex;align-items:center;justify-content:center;padding:0;
+  backdrop-filter:blur(1px);}
+#dpad button:active{background:rgba(80,60,30,.85);}
+#dpad .up{grid-column:2;grid-row:1;} #dpad .left{grid-column:1;grid-row:2;}
+#dpad .interact{grid-column:2;grid-row:2;color:var(--cream);border-color:rgba(138,113,58,.8);font-size:10px;}
+#dpad .right{grid-column:3;grid-row:2;} #dpad .down{grid-column:2;grid-row:3;}
+
+/* ── Character creation / spawn moment ───────────── */
+#spawn{position:fixed;inset:0;background:rgba(10,8,6,.94);display:none;
+  align-items:center;justify-content:center;z-index:90;text-align:center;padding:20px;}
+#spawn.open{display:flex;}
+#spawn .box{max-width:360px;padding:22px;background:linear-gradient(180deg,#2b2418,#1a150e);
+  border:1px solid #5a4a30;border-radius:8px;
+  box-shadow:inset 0 1px 0 rgba(255,235,190,.08),inset 0 -3px 8px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.5);}
+#spawn h2{color:var(--gold);font-size:20px;letter-spacing:1px;margin:0 0 10px;}
+#spawn p{color:var(--dim);font-size:13px;line-height:1.7;margin:0 0 18px;}
+#spawn button{background:linear-gradient(180deg,#3a2f1f,#2a2116);border:1px solid var(--gold-dim);
+  color:var(--gold);padding:12px 30px;font-size:14px;letter-spacing:1px;border-radius:4px;}
+
+/* ── Bottom tab dock ─────────────────────────────── */
+#dock{flex:0 0 auto;background:linear-gradient(180deg,#241d15,#1a140d);border-top:2px solid #4a3f2e;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.45),inset 0 -1px 0 rgba(0,0,0,.5);display:flex;flex-direction:column;}
+/* ── Big overall level bar, Hilbert green, pinned above the tabs ─────── */
+#lvlBar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#12170f;border-bottom:1px solid #2e4022;}
+#lvlBar span{font-size:10px;color:#9fd08a;letter-spacing:1px;white-space:nowrap;}
+.lvlBarTrack{flex:1;height:12px;background:#0a0d08;border:1px solid #2e4022;border-radius:6px;overflow:hidden;}
+.lvlBarTrack i{display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,#3a6b28,#6ecb44,#9de86a);
+  box-shadow:0 0 8px rgba(110,203,68,.5);transition:width .4s ease;}
+#tabs{display:flex;}
+#tabs button{flex:1;padding:9px 4px;background:linear-gradient(180deg,#2b241a,#1e1810);color:var(--dim);
+  border:none;border-right:1px solid rgba(0,0,0,.4);box-shadow:inset 0 1px 0 rgba(255,235,190,.05);
+  font-size:11px;letter-spacing:.5px;}
+#tabs button.active{background:linear-gradient(180deg,#3a2f1f,#2b2416);color:var(--gold);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.4),inset 0 -1px 0 rgba(201,162,75,.2);}
+#panel{max-height:38vh;overflow-y:auto;background:linear-gradient(180deg,#231d17,#1e1911);padding:8px;display:none;
+  box-shadow:inset 0 3px 6px rgba(0,0,0,.35);}
+#panel.open{display:block;}
+
+.grid28{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.slot{aspect-ratio:1;background:linear-gradient(180deg,#1c1712,#100d09);border:1px solid var(--line);border-radius:3px;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.5),inset 0 -1px 0 rgba(255,255,255,.03);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;
+  color:var(--dim);position:relative;padding:2px;text-align:center;}
+.slot .qty{position:absolute;bottom:1px;right:2px;color:var(--gold);font-size:9px;}
+.slot.filled{color:var(--cream);border-color:var(--gold-dim);}
+.slot.filled:active{background:#332a20;}
+
+.skillrow{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--line);font-size:12px;}
+.skillrow .nm{flex:1;color:var(--cream);}
+.skillrow .lvl{color:var(--gold);font-weight:bold;width:34px;text-align:right;}
+.skillrow .bar{flex:0 0 90px;height:6px;background:#000;border:1px solid var(--line);}
+.skillrow .bar i{display:block;height:100%;background:var(--gold-dim);}
+
+.equiprow{display:flex;justify-content:space-between;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:12px;}
+.equiprow .lbl{color:var(--dim);width:60px;}
+.equiprow .val{flex:1;color:var(--cream);}
+.equiprow button{background:var(--panel);border:1px solid var(--line);color:var(--red);font-size:10px;padding:3px 6px;border-radius:3px;}
+
+.rowbtn{display:block;width:100%;text-align:left;background:linear-gradient(180deg,#211b15,#15110c);
+  border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,235,190,.05),inset 0 -2px 4px rgba(0,0,0,.4);
+  color:var(--cream);padding:8px;margin-bottom:5px;border-radius:3px;font-size:12px;}
+.rowbtn .p{float:right;color:var(--gold);}
+.rowbtn:active{background:#332a20;}
+
+.chatsub{display:flex;gap:6px;margin-bottom:6px;}
+.chatsub button{flex:1;background:#171310;border:1px solid var(--line);color:var(--dim);padding:6px;border-radius:3px;font-size:11px;}
+.chatsub button.on{color:var(--gold);border-color:var(--gold-dim);}
+#chatLog{height:26vh;overflow-y:auto;background:#171310;border:1px solid var(--line);border-radius:3px;
+  padding:6px;font-size:11px;line-height:1.6;margin-bottom:6px;}
+#chatLog .m{margin-bottom:3px;}
+#chatLog .nm{color:var(--gold);}
+#chatLog .nm.dev{color:#ff6f8f;}
+#chatLog .cb{color:var(--dim);font-size:9px;}
+.chatRow{display:flex;gap:6px;}
+.chatRow input{flex:1;background:#171310;border:1px solid var(--line);color:var(--cream);
+  padding:8px;border-radius:3px;font-size:12px;}
+.chatRow button{background:var(--panel);border:1px solid var(--gold-dim);color:var(--gold);
+  padding:0 14px;border-radius:3px;font-size:12px;}
+#partyCodeRow{display:none;gap:6px;margin-bottom:6px;}
+#partyCodeRow input{flex:1;background:#171310;border:1px solid var(--line);color:var(--cream);
+  padding:6px;border-radius:3px;font-size:11px;text-transform:uppercase;}
+
+/* ── Action sheet (context menu on tap) ───────────── */
+#sheet{position:absolute;inset:auto 0 0 0;background:linear-gradient(180deg,#241d15,#1a140d);
+  border-top:2px solid var(--gold-dim);box-shadow:inset 0 3px 8px rgba(0,0,0,.4),0 -4px 14px rgba(0,0,0,.35);
+  padding:10px;display:none;z-index:30;}
+#sheet.open{display:block;}
+#sheet h4{margin:0 0 8px;color:var(--gold);font-size:13px;}
+#sheet button{display:block;width:100%;background:linear-gradient(180deg,#211b15,#15110c);border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,235,190,.05);color:var(--cream);
+  padding:9px;margin-bottom:6px;border-radius:3px;font-size:12px;text-align:left;}
+#sheet button:active{background:#332a20;}
+#sheet .cancel{color:var(--dim);text-align:center;}
+
+/* ── Login gate ──────────────────────────────────── */
+#gate{position:fixed;inset:0;background:#0e0c0a;display:flex;align-items:center;justify-content:center;z-index:100;}
+#gate .box{max-width:340px;text-align:center;padding:24px;border:1px solid var(--line);background:var(--panel);}
+#gate h1{color:var(--gold);font-size:18px;letter-spacing:2px;margin:0 0 6px;}
+#gate p{color:var(--dim);font-size:12px;line-height:1.6;}
+#gate a{color:var(--gold);}
+
+#toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:#000c;
+  color:var(--gold);padding:6px 14px;border-radius:4px;font-size:12px;z-index:60;display:none;border:1px solid var(--gold-dim);}
+
+/* ── Level-up flash — the "cool XP gained" moment ─────────────── */
+#lvlFlash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:80;opacity:0;}
+#lvlFlash.show{animation:lvlPop 1.8s ease-out forwards;}
+#lvlFlash .box{text-align:center;text-shadow:0 0 24px rgba(255,45,90,.6),0 2px 8px #000;}
+#lvlFlash .skill{color:#ffb8c8;font-size:15px;letter-spacing:3px;text-transform:uppercase;}
+#lvlFlash .num{color:#fff5d8;font-size:52px;font-weight:900;line-height:1;
+  background:linear-gradient(180deg,#ffe8b0,#ff2d5a);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;}
+@keyframes lvlPop{
+  0%{opacity:0;transform:scale(.6);}
+  15%{opacity:1;transform:scale(1.08);}
+  25%{transform:scale(1);}
+  75%{opacity:1;}
+  100%{opacity:0;transform:scale(1.15);}
+}
+</style>
+</head>
+<body>
+<div id="lvlFlash"><div class="box"><div class="skill" id="lvlFlashSkill">Combat</div><div class="num" id="lvlFlashNum">2</div></div></div>
+<div id="app">
+
+  <div id="topbar">
+    <span class="title">ASHGATE</span>
+    <span id="memberBadge" style="display:none;color:#d8c470;font-size:10px;border:1px solid #8a713a;border-radius:3px;padding:1px 5px;">★ MEMBER</span>
+    <span class="stat">CB <b id="tCb">1</b></span>
+    <span class="stat">HP <span id="hpbar"><i id="hpfill"></i></span> <b id="tHp">20/20</b></span>
+    <span class="stat">G <b id="tGold">0</b></span>
+    <span id="zoneTag" class="safe">Ashgate</span>
+  </div>
+
+  <div id="world">
+    <canvas id="cv"></canvas>
+    <div id="log"></div>
+    <div id="engageBar">
+      <div class="eName" id="engName">—</div>
+      <div class="eHpWrap"><i id="engHpFill"></i></div>
+      <button id="engAttackBtn" onclick="stopAutoAttack()">⏹ STOP</button>
+    </div>
+    <div id="dpad">
+      <button class="up" data-dx="0" data-dy="-1">▲</button>
+      <button class="left" data-dx="-1" data-dy="0">◀</button>
+      <button class="interact" id="interactBtn">USE</button>
+      <button class="right" data-dx="1" data-dy="0">▶</button>
+      <button class="down" data-dx="0" data-dy="1">▼</button>
+    </div>
+  </div>
+
+  <div id="sheet">
+    <h4 id="sheetTitle">—</h4>
+    <div id="sheetBody"></div>
+    <button class="cancel" onclick="closeSheet()">close</button>
+  </div>
+
+  <div id="dock">
+    <div id="lvlBar">
+      <span id="lvlBarLabel">LEVEL 1</span>
+      <div class="lvlBarTrack"><i id="lvlBarFill"></i></div>
+      <span id="lvlBarPct">0%</span>
+    </div>
+    <div id="tabs">
+      <button data-t="skills" class="active">SKILLS</button>
+      <button data-t="inv">PACK</button>
+      <button data-t="equip">GEAR</button>
+      <button data-t="world">TOWN</button>
+      <button data-t="chat">CHAT</button>
+    </div>
+    <div id="panel" class="open"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="spawn">
+  <div class="box">
+    <h2 id="spawnName">—</h2>
+    <p>You wake at the edge of Ashgate with a bronze blade, a pickaxe, a hatchet, a net, and 25 gold to your name — the same start every soul here gets. What you level, trade, and survive from here on is yours.</p>
+    <button onclick="closeSpawn()">▸ WAKE UP</button>
+  </div>
+</div>
+
+<div id="gate">
+  <div class="box">
+    <h1>⚔ ASHGATE — ALPHA</h1>
+    <p id="gateMsg">No Hilbert Mesh session found.<br>Log in at <a href="https://hilbertmesh.com" target="_blank">hilbertmesh.com</a>, then reopen this game.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ═══════════════════════════════════════════════════════════════
+   AUTH — identical pattern to stonehold.html / frontier client:
+   read the shared S5 session out of storage, hit the same backend.
+   ═══════════════════════════════════════════════════════════════ */
+const S5_SESSION_KEYS=['hmf_s5_session','s5_session','HILBERT_S5_SESSION'];
+function readS5Session(){for(const k of S5_SESSION_KEYS){const v=(sessionStorage.getItem(k)||localStorage.getItem(k));if(v&&v.length>=12)return v;}return '';}
+const API_BASE=(new URLSearchParams(location.search).get('api')||'https://hilbert-backend.vercel.app').replace(/\/$/,'');
+let S5_SESSION=readS5Session();
+const S5_CODE=localStorage.getItem('hm_code')||localStorage.getItem('s5code')||new URLSearchParams(location.search).get('code')||'';
+const HAS_AUTH=!!(S5_SESSION||S5_CODE);
+
+const DEBUG_LOG=[]; // rolling log of every server call, for the dev console
+function debugPush(action,payload,result){
+  DEBUG_LOG.push({t:Date.now(),action,payload,result});
+  if(DEBUG_LOG.length>300)DEBUG_LOG.shift();
+}
+async function srv(action,payload){
+  if(!HAS_AUTH)return {ok:false,offline:true};
+  const auth=S5_SESSION?{s5SessionId:S5_SESSION}:{s5Code:S5_CODE};
+  try{
+    const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),8000);
+    const r=await fetch(API_BASE+'/api/profile',{method:'POST',
+      headers:{'Content-Type':'application/json'},cache:'no-store',credentials:'omit',
+      body:JSON.stringify({action,...auth,...payload}),signal:ctl.signal});
+    clearTimeout(to);
+    const j=await r.json();
+    debugPush(action,payload,j);
+    return j;
+  }catch(e){
+    const err={ok:false,error:e&&e.name==='AbortError'?'timeout':'net'};
+    debugPush(action,payload,err);
+    return err;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ITEM / NODE / MONSTER DATA — mirrors the server tables exactly.
+   Client never invents outcomes, just requests + renders results.
+   ═══════════════════════════════════════════════════════════════ */
+const ITEMS={
+  gold:{n:"Gold Coins"},
+  copper_ore:{n:"Copper Ore"},tin_ore:{n:"Tin Ore"},iron_ore:{n:"Iron Ore"},coal_ore:{n:"Coal"},uncut_sapphire:{n:"Uncut Sapphire"},
+  logs:{n:"Logs"},oak_logs:{n:"Oak Logs"},willow_logs:{n:"Willow Logs"},bird_nest:{n:"Bird's Nest"},
+  raw_shrimp:{n:"Raw Shrimp"},raw_trout:{n:"Raw Trout"},old_boot:{n:"Old Boot"},
+  cooked_shrimp:{n:"Cooked Shrimp",food:1},cooked_trout:{n:"Cooked Trout",food:1},burnt_food:{n:"Burnt Food",food:1},
+  bones:{n:"Bones"},feather:{n:"Feather"},raw_chicken:{n:"Raw Chicken"},
+  bronze_pickaxe:{n:"Bronze Pickaxe",slot:"tool"},iron_pickaxe:{n:"Iron Pickaxe",slot:"tool"},
+  bronze_hatchet:{n:"Bronze Hatchet",slot:"tool"},iron_hatchet:{n:"Iron Hatchet",slot:"tool"},
+  small_net:{n:"Small Net",slot:"tool"},fishing_rod:{n:"Fishing Rod",slot:"tool"},
+  bronze_sword:{n:"Bronze Sword",slot:"weapon"},iron_sword:{n:"Iron Sword",slot:"weapon"},steel_sword:{n:"Steel Sword",slot:"weapon"},
+  blightfang_blade:{n:"Blightfang Blade",slot:"weapon"},
+  bronze_helm:{n:"Bronze Helm",slot:"head"},bronze_chest:{n:"Bronze Chestplate",slot:"chest"},bronze_legs:{n:"Bronze Legs",slot:"legs"},
+  iron_helm:{n:"Iron Helm",slot:"head"},iron_chest:{n:"Iron Chestplate",slot:"chest"},iron_legs:{n:"Iron Legs",slot:"legs"},
+  blighted_shard:{n:"Blighted Shard"},warden_seal:{n:"Warden's Seal"},
+};
+const SHOP_STOCK=["bronze_pickaxe","iron_pickaxe","bronze_hatchet","iron_hatchet","small_net","fishing_rod",
+  "bronze_sword","iron_sword","bronze_helm","bronze_chest","bronze_legs","iron_helm","iron_chest","iron_legs"];
+const SHOP_PRICE={bronze_pickaxe:40,iron_pickaxe:180,bronze_hatchet:40,iron_hatchet:180,small_net:25,fishing_rod:120,
+  bronze_sword:50,iron_sword:220,bronze_helm:35,bronze_chest:70,bronze_legs:55,iron_helm:140,iron_chest:280,iron_legs:220};
+
+// zone layout: grid coords for nodes / monster spawns / gates. Kept small & readable.
+// Ashgate is the hub — one gate in every cardinal direction, like you asked.
+const ZONES={
+  ashgate:{w:12,h:8,safe:true,bg:"#26301f",label:"Ashgate",
+    nodes:[{id:"copper_rock",x:2,y:3,label:"Copper"},{id:"tin_rock",x:3,y:3,label:"Tin"},
+           {id:"tree",x:9,y:3,label:"Tree"},{id:"shrimp_spot",x:2,y:6,label:"Fishing"},
+           {id:"shrimp_spot_b",x:5,y:4,label:"Fishing"},{id:"shrimp_spot_c",x:7,y:6,label:"Fishing"}],
+    mobs:[{id:"goose",x:5,y:5,label:"Mad Goose"}],
+    feats:[{type:"bank",x:5,y:2,label:"Bank"},{type:"shop",x:7,y:2,label:"Shop"}],
+    gates:[{to:"fields",x:5,y:0,label:"↑ North Fields (N)"},{to:"riverside",x:11,y:4,label:"→ Riverside (E)"},
+           {to:"quarry",x:5,y:7,label:"↓ Quarry (S)"},{to:"oldwood",x:0,y:4,label:"← Old Wood (W)"},
+           {to:"ashgate_hall",x:6,y:1,label:"🚪 Enter Ashgate Hall"}],
+    river:{y:4,w:0.35}, buildings:[{x:4,y:1,w:5,h:1,label:"Ashgate Hall"}]},
+  ashgate_hall:{w:8,h:5,safe:true,bg:"#1e1a12",label:"Ashgate Hall",interior:true,
+    nodes:[], mobs:[],
+    feats:[{type:"map",x:4,y:1,label:"Town Map"}],
+    gates:[{to:"ashgate",x:4,y:4,label:"🚪 Leave"}],
+    river:null, buildings:[]},
+  fields:{w:12,h:8,safe:true,bg:"#2c2f1c",label:"North Fields",
+    nodes:[],
+    mobs:[{id:"chicken",x:6,y:3,label:"Chicken"},{id:"rat",x:3,y:6,label:"Giant Rat"}],
+    feats:[],
+    gates:[{to:"ashgate",x:5,y:7,label:"↓ Ashgate (S)"},{to:"wilderness",x:5,y:0,label:"↑ Wilderness (N)"}],
+    river:{y:5,w:0.3}, buildings:[{x:1,y:1,w:2,h:1,label:"Windmill"},{x:1,y:6,w:3,h:1,label:"Greenhollow Farm"}]},
+  riverside:{w:12,h:8,safe:true,bg:"#22322f",label:"Riverside",
+    nodes:[{id:"trout_spot",x:6,y:3,label:"Trout"}],
+    mobs:[{id:"bandit",x:9,y:3,label:"River Bandit"}],
+    feats:[],
+    gates:[{to:"ashgate",x:0,y:4,label:"← Ashgate (W)"}],
+    river:{y:2,w:0.7}, buildings:[{x:9,y:0,w:3,h:1,label:"Eastwatch"}]},
+  quarry:{w:12,h:8,safe:true,bg:"#2a271f",label:"Quarry",
+    nodes:[{id:"iron_rock",x:3,y:3,label:"Iron"},{id:"coal_rock",x:7,y:4,label:"Coal"}],
+    mobs:[{id:"cave_rat",x:9,y:2,label:"Cave Rat"}],
+    feats:[],
+    gates:[{to:"ashgate",x:5,y:0,label:"↑ Ashgate (N)"}],
+    river:null, buildings:[{x:1,y:5,w:3,h:2,label:"Quarry Camp"},{x:5,y:6,w:3,h:1,label:"Pine Hollow"}]},
+  oldwood:{w:12,h:8,safe:true,bg:"#242c1f",label:"Old Wood",
+    nodes:[{id:"oak_tree",x:3,y:2,label:"Oak"},{id:"willow_tree",x:8,y:2,label:"Willow"}],
+    mobs:[{id:"wolf",x:6,y:2,label:"Timber Wolf"}],
+    feats:[],
+    gates:[{to:"ashgate",x:11,y:4,label:"→ Ashgate (E)"},{to:"huntercamp",x:3,y:5,label:"🚪 Enter Hunter's Camp"}],
+    river:{y:6,w:0.25}, buildings:[{x:2,y:5,w:3,h:1,label:"Hunter's Camp"}]},
+  huntercamp:{w:8,h:5,safe:true,bg:"#1c140d",label:"Hunter's Camp",interior:true,
+    nodes:[], mobs:[],
+    feats:[
+      {type:"lore",x:2,y:1,label:"Trophies",
+       text:"Pelts and antlers line the wall — a timber wolf hide, a boar's tusk, something with too many claws to name. Whoever runs this camp hunts things bigger than chickens."},
+      {type:"bounty",x:6,y:1,label:"Bounty Board"}
+    ],
+    gates:[{to:"oldwood",x:4,y:4,label:"🚪 Leave"}],
+    river:null, buildings:[{x:1,y:0,w:2,h:1,label:"Trophies"},{x:5,y:0,w:2,h:1,label:"Bounty Board"}]},
+  wilderness:{w:12,h:8,safe:false,bg:"#301c18",label:"Wilderness",
+    nodes:[],
+    mobs:[{id:"goblin",x:5,y:2,label:"Goblin"},{id:"wight",x:8,y:3,label:"Barrow Wight"}],
+    feats:[],
+    gates:[{to:"fields",x:5,y:7,label:"↓ Fields (S)"},
+           {to:"ruined_watch",x:8,y:2,label:"🚪 Enter Ruined Watch"},
+           {to:"blighted_ruins",x:2,y:7,label:"🚪 Enter Blighted Ruins"}],
+    river:null, buildings:[{x:7,y:0,w:3,h:2,label:"Ruined Watch"},{x:1,y:5,w:3,h:2,label:"Blighted Ruins"}]},
+  blighted_ruins:{w:8,h:5,safe:false,bg:"#2a1a14",label:"Blighted Ruins",interior:true,
+    nodes:[], mobs:[{id:"blight_wretch",x:4,y:2,label:"Blight Wretch"}], feats:[],
+    gates:[{to:"wilderness",x:4,y:4,label:"🚪 Leave"}],
+    river:null, buildings:[]},
+  ruined_watch:{w:8,h:5,safe:false,bg:"#241016",label:"Ruined Watch",interior:true,
+    nodes:[], mobs:[{id:"hollow_warden",x:4,y:1,label:"Hollow Warden"}], feats:[],
+    gates:[{to:"wilderness",x:4,y:4,label:"🚪 Leave"}],
+    river:null, buildings:[]},
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+let ST=null;         // last known server state (publicState shape)
+let OTHERS=[];        // other players in current zone
+let GROUND=[];         // ground loot in current zone: [{x,y,items}]
+let SPAWNS={};          // rolled respawn positions this zone: {monsterId:{x,y}}
+let DEPLETED=[];         // nodeIds currently depleted in this zone
+function mobPos(m){ return SPAWNS[m.id] || m; }
+// chase pace per monster, tiles/frame-ish (eased) — chickens are slow, wolves aren't
+const MOB_SPEED={goose:0.025,chicken:0.015,rat:0.025,cave_rat:0.03,bandit:0.045,wolf:0.055,goblin:0.05,wight:0.035,blight_wretch:0.04,hollow_warden:0.06};
+let chasePos={id:null,x:0,y:0};
+let ZONE="ashgate";
+let PX=6, PY=6;        // player px, py in tile units — logical position (server-synced)
+let PXf=6, PYf=6;       // eased visual position, trails PX/PY for a walking feel
+let lastFrameT=performance.now();
+let BUSY=false;
+
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+function fitCanvas(){cv.width=cv.clientWidth*devicePixelRatio;cv.height=cv.clientHeight*devicePixelRatio;}
+addEventListener('resize',fitCanvas);
+new ResizeObserver(fitCanvas).observe(document.getElementById('world'));
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
+  clearTimeout(toast._h);toast._h=setTimeout(()=>t.style.display='none',2200);}
+
+function flashLevelUp(skillName,lvl){
+  const el=document.getElementById('lvlFlash');
+  document.getElementById('lvlFlashSkill').textContent=skillName+' Level Up';
+  document.getElementById('lvlFlashNum').textContent=lvl;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+}
+function openLootSheet(loot){
+  const rows=(loot.items||[]).map(i=>`<div class="rowbtn" style="pointer-events:none">${itemName(i.id)} <span class="p">x${i.qty}</span></div>`).join('');
+  const goldRow=loot.gold?`<div class="rowbtn" style="pointer-events:none">Gold <span class="p">+${loot.gold}</span></div>`:'';
+  openSheet('Loot',`${goldRow}${rows}<button onclick="doPickup(${loot.x},${loot.y})">💰 Loot All</button>`);
+}
+
+function logLine(msg,cls){const el=document.getElementById('log');const d=document.createElement('div');
+  if(cls)d.className=cls; d.textContent=msg; el.prepend(d);
+  while(el.children.length>40)el.removeChild(el.lastChild);}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER — world canvas
+   ═══════════════════════════════════════════════════════════════ */
+function tileSize(){const z=ZONES[ZONE];
+  return Math.min(cv.width/z.w,cv.height/z.h);}
+
+// zone ground texture — mottled blotches, generated once per zone (deterministic,
+// so it doesn't shimmer/change every frame) then just redrawn cheaply each frame
+const zoneTexture={};
+function getZoneTexture(zoneKey){
+  if(zoneTexture[zoneKey])return zoneTexture[zoneKey];
+  const z=ZONES[zoneKey];
+  let seed=0; for(let i=0;i<zoneKey.length;i++)seed=(seed*31+zoneKey.charCodeAt(i))>>>0;
+  const rand=()=>{ seed=(seed*1103515245+12345)>>>0; return (seed>>>8)/16777216; };
+  const blotches=[];
+  for(let i=0;i<60;i++)blotches.push({x:rand()*z.w,y:rand()*z.h,r:0.4+rand()*0.7,dark:rand()>0.45,a:0.03+rand()*0.05});
+  zoneTexture[zoneKey]=blotches;
+  return blotches;
+}
+
+function draw(){
+  const z=ZONES[ZONE]; if(!z)return;
+  const ts=tileSize(); const ox=(cv.width-ts*z.w)/2, oy=(cv.height-ts*z.h)/2;
+  const t0=performance.now();
+
+  // base ground with a soft vertical light gradient instead of a flat fill
+  const bgGrad=ctx.createLinearGradient(0,oy,0,oy+z.h*ts);
+  bgGrad.addColorStop(0,shade(z.bg,14)); bgGrad.addColorStop(1,shade(z.bg,-10));
+  ctx.fillStyle=bgGrad; ctx.fillRect(0,0,cv.width,cv.height);
+  // mottled texture blotches — organic, not flat-color-screams-placeholder
+  for(const bl of getZoneTexture(ZONE)){
+    ctx.fillStyle=bl.dark?`rgba(0,0,0,${bl.a})`:`rgba(255,255,255,${bl.a})`;
+    ctx.beginPath(); ctx.ellipse(ox+bl.x*ts,oy+bl.y*ts,bl.r*ts,bl.r*ts*0.7,0,0,7); ctx.fill();
+  }
+
+  // ease the visual position toward the logical tile — real walk pace,
+  // not a snap. ~3 tiles/sec.
+  const now=performance.now(); const dt=Math.min(0.1,(now-lastFrameT)/1000); lastFrameT=now;
+  const WALK_SPEED=2.0;
+  {
+    const dx=PX-PXf, dy=PY-PYf, dist=Math.hypot(dx,dy);
+    if(dist<0.02){
+      PXf=PX; PYf=PY;
+      if(pendingArrival){ const fn=pendingArrival; pendingArrival=null; fn(); }
+    }
+    else{
+      const step=WALK_SPEED*dt;
+      if(step>=dist){ PXf=PX; PYf=PY; } else { PXf+=dx/dist*step; PYf+=dy/dist*step; }
+    }
+  }
+
+  // river — wavy edges, current gradient, drifting sparkle instead of a flat band
+  if(z.river){
+    const ry=oy+z.river.y*ts, rh=ts*z.river.w, flow=(t0/900)%(Math.PI*2);
+    ctx.save(); ctx.beginPath();
+    ctx.moveTo(ox,ry);
+    for(let x=0;x<=z.w;x+=0.5)ctx.lineTo(ox+x*ts, ry+Math.sin(x*0.8+flow)*ts*0.05);
+    for(let x=z.w;x>=0;x-=0.5)ctx.lineTo(ox+x*ts, ry+rh+Math.sin(x*0.8+flow+1)*ts*0.05);
+    ctx.closePath(); ctx.clip();
+    const rg=ctx.createLinearGradient(0,ry,0,ry+rh);
+    rg.addColorStop(0,"#3a6478"); rg.addColorStop(0.5,"#2a4a5c"); rg.addColorStop(1,"#20394a");
+    ctx.fillStyle=rg; ctx.fillRect(ox,ry-ts*0.1,z.w*ts,rh+ts*0.2);
+    ctx.fillStyle="rgba(160,210,225,0.25)";
+    for(let i=0;i<z.w*2.5;i++){
+      const sx=(i*47+ (t0/40))%(z.w*ts);
+      ctx.fillRect(ox+sx, ry+((Math.sin(i*3+flow)+1)/2)*rh, ts*0.22, 1.4);
+    }
+    ctx.restore();
+  }
+
+  // buildings — simple gabled roof + door instead of a bare labeled box
+  for(const b of (z.buildings||[])){
+    const bx=ox+b.x*ts, by=oy+b.y*ts, bw=b.w*ts, bh=b.h*ts;
+    ctx.fillStyle="#241a10"; ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle="#5a4a30"; ctx.lineWidth=2; ctx.strokeRect(bx,by,bw,bh);
+    // roof strip along the top
+    ctx.fillStyle="#3a2a18";
+    ctx.beginPath(); ctx.moveTo(bx-bw*0.03,by); ctx.lineTo(bx+bw*0.5,by-bh*0.22); ctx.lineTo(bx+bw*1.03,by); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle="#6a5638"; ctx.stroke();
+    // door
+    const dw=bw*0.1,dh=bh*0.4;
+    ctx.fillStyle="#171008"; ctx.fillRect(bx+bw/2-dw/2, by+bh-dh, dw, dh);
+    ctx.fillStyle="#cbb888"; ctx.font=(ts*0.2)+"px monospace"; ctx.textAlign="center";
+    ctx.fillText(b.label, bx+bw/2, by+bh*0.35);
+  }
+
+  // grid — faint, just enough to read tile boundaries
+  ctx.strokeStyle="rgba(255,255,255,0.04)"; ctx.lineWidth=1;
+  for(let x=0;x<=z.w;x++){ctx.beginPath();ctx.moveTo(ox+x*ts,oy);ctx.lineTo(ox+x*ts,oy+z.h*ts);ctx.stroke();}
+  for(let y=0;y<=z.h;y++){ctx.beginPath();ctx.moveTo(ox,oy+y*ts);ctx.lineTo(ox+z.w*ts,oy+y*ts);ctx.stroke();}
+
+  const shadowUnder=(cx,cy,r)=>{
+    ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.beginPath();
+    ctx.ellipse(cx,cy+r*0.75,r*0.85,r*0.32,0,0,7); ctx.fill();
+  };
+  const drawLabel=(cx,cy,ry,text,color)=>{
+    ctx.fillStyle=color||"#d8cba8"; ctx.font=(ts*0.19)+"px monospace"; ctx.textAlign="center";
+    ctx.fillText(text,cx,cy+ry);
+  };
+
+  // resource nodes — real little shapes per skill instead of a glyph-in-a-circle
+  for(const n of z.nodes){
+    const cx=ox+(n.x+0.5)*ts, cy=oy+(n.y+0.5)*ts, r=ts*0.26;
+    const down=DEPLETED.includes(n.id);
+    const skill=(NODE_META[n.id]||{}).skill;
+    shadowUnder(cx,cy,r);
+    ctx.globalAlpha=down?0.4:1;
+    if(skill==="Mining"){
+      ctx.fillStyle=down?"#4a463c":"#8a8378"; ctx.strokeStyle=down?"#2e2c26":"#5a5448"; ctx.lineWidth=1.5;
+      for(const[dx,dy,rr]of[[-0.35,0.1,0.62],[0.3,0.15,0.55],[0,-0.2,0.5]]){
+        ctx.beginPath(); ctx.arc(cx+dx*r*2,cy+dy*r*2,r*rr,0,7); ctx.fill(); ctx.stroke();
+      }
+      if(!down){ctx.fillStyle="rgba(255,215,140,.55)";ctx.beginPath();ctx.arc(cx-r*0.15,cy-r*0.35,r*0.14,0,7);ctx.fill();}
+    } else if(skill==="Woodcutting"){
+      ctx.fillStyle=down?"#4a3a26":"#6b4a2a"; ctx.fillRect(cx-r*0.14,cy+r*0.1,r*0.28,r*0.9);
+      ctx.fillStyle=down?"#3a4a30":"#4a7a3a";
+      for(const[dx,dy,rr]of[[0,-0.55,0.6],[-0.28,-0.25,0.5],[0.28,-0.25,0.5]]){
+        ctx.beginPath(); ctx.arc(cx+dx*r*2,cy+dy*r*2,r*rr,0,7); ctx.fill();
+      }
+      ctx.strokeStyle=down?"#2e2c26":"#2e5a24"; ctx.lineWidth=1; ctx.stroke();
+    } else if(skill==="Fishing"){
+      ctx.fillStyle=down?"#2a3236":"#3a6478"; ctx.beginPath(); ctx.arc(cx,cy,r*0.9,0,7); ctx.fill();
+      ctx.strokeStyle="rgba(200,230,240,.5)"; ctx.lineWidth=1.4;
+      for(const rr of[0.35,0.6])if(!down){ctx.beginPath();ctx.arc(cx,cy,r*rr,0.3,2.6);ctx.stroke();}
+    } else {
+      ctx.fillStyle=down?"#4a463c":"#8a713a"; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    drawLabel(cx,cy,r+ts*0.24,down?n.label+" (spent)":n.label,down?"#6a6458":"#d8cba8");
+  }
+
+  // features — bank / shop / lore
+  for(const f of z.feats){
+    const cx=ox+(f.x+0.5)*ts, cy=oy+(f.y+0.5)*ts, r=ts*0.27;
+    shadowUnder(cx,cy,r);
+    const isBank=f.type==="bank", isLore=f.type==="lore", isBounty=f.type==="bounty", isMap=f.type==="map";
+    const g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,r*0.1,cx,cy,r);
+    if(isLore){ g.addColorStop(0,"#c8a888"); g.addColorStop(1,"#6a4a34"); }
+    else if(isBounty){ g.addColorStop(0,"#e0a850"); g.addColorStop(1,"#8a5a1c"); }
+    else if(isMap){ g.addColorStop(0,"#9dc888"); g.addColorStop(1,"#4a6a34"); }
+    else { g.addColorStop(0,isBank?"#e8c878":"#7ab8d8"); g.addColorStop(1,isBank?"#a8862c":"#3a6a84"); }
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
+    ctx.strokeStyle=isLore?"#3a2818":isBounty?"#5a3a0c":isMap?"#2a4a1c":(isBank?"#5a4a1c":"#1a3a4a"); ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle="#241a10"; ctx.font="bold "+(ts*0.26)+"px monospace"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(isMap?"🗺️":isBounty?"📜":isLore?"📖":(isBank?"$":"⚒"),cx,cy+1);
+    drawLabel(cx,cy,r+ts*0.24,f.label);
+  }
+
+  // monsters — a body blob with eyes, tinted by zone danger
+  const drawMob=(cx,cy,r,wild,label,dim)=>{
+    shadowUnder(cx,cy,r);
+    ctx.globalAlpha=dim?0.85:1;
+    const g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,r*0.1,cx,cy,r);
+    g.addColorStop(0,wild?"#d05a42":"#8a9a5a"); g.addColorStop(1,wild?"#7a2a1a":"#4a5a2e");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
+    ctx.strokeStyle=wild?"#4a1206":"#2a3a16"; ctx.lineWidth=1.4; ctx.stroke();
+    ctx.fillStyle="#171008";
+    ctx.beginPath(); ctx.arc(cx-r*0.32,cy-r*0.08,r*0.14,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*0.32,cy-r*0.08,r*0.14,0,7); ctx.fill();
+    ctx.globalAlpha=1;
+    drawLabel(cx,cy,r+ts*0.24,label,"#e8d8b8");
+  };
+  for(const m of z.mobs){
+    const r=ts*0.24;
+    if(engagedMonsterId===m.id){
+      const spd=MOB_SPEED[m.id]||0.08;
+      const targetX=Math.max(0,Math.min(z.w-1,PXf+(PXf<z.w-1?0.8:-0.8))), targetY=PYf;
+      if(chasePos.id!==m.id){ const p0=mobPos(m); chasePos.id=m.id; chasePos.x=p0.x; chasePos.y=p0.y; }
+      chasePos.x+=(targetX-chasePos.x)*spd; chasePos.y+=(targetY-chasePos.y)*spd;
+      drawMob(ox+(chasePos.x+0.5)*ts,oy+(chasePos.y+0.5)*ts,r,true,m.label+" ⚡",false);
+    } else {
+      const p=mobPos(m);
+      drawMob(ox+(p.x+0.5)*ts,oy+(p.y+0.5)*ts,r,!z.safe,m.label,false);
+    }
+  }
+
+  // gates — a little stone archway with a glowing arrow
+  for(const g of z.gates){
+    const cx=ox+(g.x+0.5)*ts, cy=oy+(g.y+0.5)*ts, r=ts*0.28;
+    ctx.fillStyle="#2a241c"; ctx.fillRect(cx-r,cy-r,r*2,r*2.1);
+    ctx.strokeStyle="#5a4a30"; ctx.lineWidth=1.5; ctx.strokeRect(cx-r,cy-r,r*2,r*2.1);
+    const pulse=0.6+Math.sin(t0/260)*0.4;
+    ctx.fillStyle=`rgba(201,162,75,${pulse})`; ctx.font="bold "+(ts*0.3)+"px monospace";
+    ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("›",cx,cy);
+    drawLabel(cx,cy,r+ts*0.32,g.label,"#a89a7c");
+  }
+
+  // ground loot — pulses so it actually catches your eye
+  for(const p of GROUND){
+    const cx=ox+(p.x+0.5)*ts, cy=oy+(p.y+0.5)*ts, pulse=1+Math.sin(t0/220)*0.14, r=ts*0.22*pulse;
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.PI/4);
+    const g=ctx.createLinearGradient(-r,-r,r,r);
+    g.addColorStop(0,"#fff0c0"); g.addColorStop(1,"#d8a840");
+    ctx.fillStyle=g; ctx.fillRect(-r*0.7,-r*0.7,r*1.4,r*1.4);
+    ctx.strokeStyle="#a87820"; ctx.lineWidth=1.5; ctx.strokeRect(-r*0.7,-r*0.7,r*1.4,r*1.4);
+    ctx.restore();
+    drawLabel(cx,cy,ts*0.28,"loot","#f0d888");
+  }
+
+  // other players
+  for(const o of OTHERS){
+    const cx=ox+(o.x+0.5)*ts, cy=oy+(o.y+0.5)*ts, r=ts*0.22;
+    shadowUnder(cx,cy,r);
+    const g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,r*0.1,cx,cy,r);
+    g.addColorStop(0,"#7ab8d8"); g.addColorStop(1,"#2e5a72");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
+    ctx.strokeStyle="#1a3a4a"; ctx.lineWidth=1.4; ctx.stroke();
+    ctx.fillStyle="#cfe0ee"; ctx.font=(ts*0.18)+"px monospace"; ctx.textAlign="center";
+    ctx.fillText(o.name.slice(0,10)+" (cb"+o.cl+")",cx,cy-ts*0.35);
+  }
+
+  // self — a bit more shape than a flat circle: gradient body + facing nub
+  {
+    const cx=ox+(PXf+0.5)*ts, cy=oy+(PYf+0.5)*ts, r=ts*0.26;
+    shadowUnder(cx,cy,r);
+    const g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,r*0.1,cx,cy,r);
+    g.addColorStop(0,"#f0d888"); g.addColorStop(1,"#a87c2c");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
+    ctx.strokeStyle="#6a4a18"; ctx.lineWidth=1.6; ctx.stroke();
+    ctx.fillStyle="#241a0c"; ctx.font="bold "+(ts*0.22)+"px monospace"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText("Y",cx,cy+1);
+  }
+
+  requestAnimationFrame(draw);
+}
+function shade(hex,amt){
+  const n=parseInt(hex.slice(1),16);
+  let r=(n>>16)+amt, g=(n>>8&0xff)+amt, b=(n&0xff)+amt;
+  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
+  return `rgb(${r},${g},${b})`;
+}
+
+/* tap handling: find nearest interactive thing at tap, or just walk there */
+/* Hit-testing is done entirely in CSS-pixel space via getBoundingClientRect(),
+   independent of the canvas's internal bitmap resolution. This is what fixes
+   "clicking a square moves me somewhere random" — that happened whenever the
+   dock/panel resized #world without the bitmap being re-fit to match. */
+function screenToTile(px,py){
+  const z=ZONES[ZONE];
+  const rect=cv.getBoundingClientRect();
+  const ts=Math.min(rect.width/z.w, rect.height/z.h);
+  const ox=(rect.width-ts*z.w)/2, oy=(rect.height-ts*z.h)/2;
+  return {x:Math.floor((px-rect.left-ox)/ts), y:Math.floor((py-rect.top-oy)/ts)};
+}
+const cheby=(x1,y1,x2,y2)=>Math.max(Math.abs(x1-x2),Math.abs(y1-y2));
+function featureAt(x,y){
+  const z=ZONES[ZONE];
+  const loot=GROUND.find(o=>o.x===x&&o.y===y); if(loot)return{kind:'loot',o:loot};
+  const n=z.nodes.find(o=>o.x===x&&o.y===y); if(n)return{kind:'node',o:n};
+  const f=z.feats.find(o=>o.x===x&&o.y===y); if(f)return{kind:'feat',o:f};
+  const m=z.mobs.find(o=>{const p=mobPos(o);return Math.round(p.x)===x&&Math.round(p.y)===y;}); if(m)return{kind:'mob',o:m};
+  const g=z.gates.find(o=>o.x===x&&o.y===y); if(g)return{kind:'gate',o:g};
+  const p=OTHERS.find(o=>Math.round(o.x)===x&&Math.round(o.y)===y); if(p)return{kind:'player',o:p};
+  return null;
+}
+let pendingArrival=null; // fires once the walk animation actually reaches PX,PY
+function openFeature(f){
+  if(f.kind==='loot')doPickup(f.o.x,f.o.y);
+  else if(f.kind==='node')openNodeSheet(f.o);
+  else if(f.kind==='feat'){
+    if(f.o.type==='bank')openBankSheet();
+    else if(f.o.type==='lore')openSheet(f.o.label,`<p style="color:var(--cream);font-size:13px;line-height:1.6">${f.o.text}</p>`);
+    else if(f.o.type==='bounty')openBountySheet();
+    else if(f.o.type==='map')openTownMapSheet();
+    else openShopSheet();
+  }
+  else if(f.kind==='mob')openMobSheet(f.o);
+  else if(f.kind==='gate')walkThenGate(f.o);
+  else if(f.kind==='player')openPlayerSheet(f.o);
+}
+const TOWN_MAP_ZONES=["ashgate","fields","riverside","quarry","oldwood","wilderness"];
+const ZONE_MIN_LEVEL_CLIENT={wilderness:5};
+function openTownMapSheet(){
+  const cb=(ST&&ST.combatLevel)||1;
+  const rows=TOWN_MAP_ZONES.map(zk=>{
+    const z=ZONES[zk], here=zk===ZONE;
+    const need=ZONE_MIN_LEVEL_CLIENT[zk];
+    const locked=need&&cb<need;
+    if(here) return `<div class="rowbtn" style="pointer-events:none;color:var(--gold)">📍 ${z.label} — you are here</div>`;
+    if(locked) return `<div class="rowbtn" style="pointer-events:none;opacity:.45">🔒 ${z.label} (needs combat lvl ${need})</div>`;
+    return `<button class="rowbtn" onclick="fastTravel('${zk}')">${z.label}<span class="p">Travel →</span></button>`;
+  }).join('');
+  openSheet("Town Map",`${rows}<p style="font-size:11px;color:var(--dim);margin-top:8px">Doesn't cover Hunter's Camp, Ruined Watch, or Blighted Ruins — those are found by walking in through their own doors.</p>`);
+}
+async function fastTravel(zk){
+  closeSheet();
+  await travel(zk);
+}
+function openBountySheet(){
+  const b=ST&&ST.bounty;
+  if(b){
+    const done=b.have>=b.need;
+    openSheet("Bounty Board",`
+      <p style="color:var(--cream);font-size:13px;line-height:1.6">Contract: slay ${b.need}x ${b.monsterName}<br>
+      Progress: <b style="color:${done?'#8fd16a':'var(--gold)'}">${b.have}/${b.need}</b><br>
+      Reward: ${b.gold} gold, ${b.xp} combat xp</p>
+      ${done?`<button onclick="doBountyTurnin()">✅ Turn In</button>`:`<p style="font-size:11px;color:var(--dim)">Go hunt — progress tracks automatically.</p>`}`);
+  } else {
+    openSheet("Bounty Board",`<p style="color:var(--cream);font-size:13px;line-height:1.6">No active contract. The board rotates through targets across every safe zone — take one and go hunting.</p>
+      <button onclick="doBountyTake()">📜 Take a Contract</button>`);
+  }
+}
+async function doBountyTake(){
+  const r=await srv('lucy_bounty_take',{});
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); openBountySheet();
+}
+async function doBountyTurnin(){
+  const r=await srv('lucy_bounty_turnin',{});
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); closeSheet();
+  toast(`Contract complete: +${r.reward.gold}g, +${r.reward.xp}xp`);
+  if(r.leveled)flashLevelUp('Combat',r.leveled);
+}
+function walkThenGate(gate){
+  // gates fire on actual visual arrival, not on the instant logical position —
+  // that's what was letting a single far-off click bounce you between zones
+  walkTo(gate.x,gate.y);
+  pendingArrival=()=>travel(gate.to);
+}
+async function doPickup(x,y){
+  const r=await srv('lucy_pickup',{x,y});
+  if(!r.ok){toast(errMsg(r));return;}
+  closeSheet();
+  applyState(r.state);
+  (r.log||[]).forEach(m=>logLine(m,"gold"));
+  await heartbeat();
+}
+
+// nearest free tile next to a target, so walking toward something doesn't
+// stack you on top of it
+function adjacentFreeTile(tx,ty){
+  const z=ZONES[ZONE];
+  const opts=[[tx,ty+1],[tx,ty-1],[tx+1,ty],[tx-1,ty]];
+  for(const [x,y] of opts) if(x>=0&&x<z.w&&y>=0&&y<z.h&&!featureAt(x,y)) return {x,y};
+  return {x:Math.max(0,Math.min(z.w-1,tx)),y:Math.max(0,Math.min(z.h-1,ty))};
+}
+function interactNearby(){
+  // exact tile first, then the 8 tiles around the player
+  let f=featureAt(PX,PY);
+  if(!f){
+    for(let dy=-1;dy<=1&&!f;dy++)for(let dx=-1;dx<=1&&!f;dx++){
+      if(!dx&&!dy)continue; f=featureAt(PX+dx,PY+dy);
+    }
+  }
+  if(f) openFeature(f); else toast("Nothing nearby to use.");
+}
+cv.addEventListener('click',(e)=>{
+  const t=screenToTile(e.clientX,e.clientY);
+  const z=ZONES[ZONE];
+  if(t.x<0||t.x>=z.w||t.y<0||t.y>=z.h)return;
+  const f=featureAt(t.x,t.y);
+  if(f){
+    if(f.kind==='gate'){ walkThenGate(f.o); return; } // always walk-then-arrive, never instant
+    if(cheby(PX,PY,t.x,t.y)<=1){ openFeature(f); return; }
+    const step=adjacentFreeTile(t.x,t.y);
+    walkTo(step.x,step.y);
+    return;
+  }
+  walkTo(t.x,t.y);
+});
+
+/* ── Movement: click-to-walk with a real animated travel time, plus a
+   D-pad for step movement. No keyboard tile-jumping — that's what was
+   both "teleport-y" feeling AND spamming the server rate limit into the
+   ground (every step fired a heartbeat; attacks share that same bucket
+   server-side, so machine-gunning movement could starve your own attacks
+   for several seconds — that's the bug from the debug log). Heartbeats
+   are now throttled to catch up periodically during movement instead of
+   firing on every single step. ─────────────────────────────────────── */
+const MOVE_COOLDOWN=170; let lastMove=0;
+let hbTimer=null;
+function heartbeatSoon(){
+  if(hbTimer)return;
+  hbTimer=setTimeout(()=>{ hbTimer=null; heartbeat(); }, 400);
+}
+function walkTo(tx,ty){
+  const z=ZONES[ZONE];
+  PX=Math.max(0,Math.min(z.w-1,tx)); PY=Math.max(0,Math.min(z.h-1,ty));
+  heartbeatSoon();
+}
+function stepMove(dx,dy){
+  const t=Date.now(); if(t-lastMove<MOVE_COOLDOWN)return; lastMove=t;
+  const z=ZONES[ZONE];
+  walkTo(PX+dx,PY+dy);
+}
+addEventListener('keydown',(e)=>{
+  // movement is click/D-pad only now — keyboard just does interact
+  const k=e.key.toLowerCase();
+  if(k==='e'||k===' '){ interactNearby(); e.preventDefault(); }
+});
+// D-pad: press-and-hold to keep walking, not one tap per tile
+let dpadHoldTimer=null;
+function dpadStart(dx,dy){
+  stepMove(dx,dy);
+  clearInterval(dpadHoldTimer);
+  dpadHoldTimer=setInterval(()=>stepMove(dx,dy), MOVE_COOLDOWN);
+}
+function dpadStop(){ clearInterval(dpadHoldTimer); dpadHoldTimer=null; }
+const dpadEl=document.getElementById('dpad');
+dpadEl.addEventListener('pointerdown',(e)=>{
+  const b=e.target.closest('button'); if(!b)return;
+  if(b.id==='interactBtn'){interactNearby();return;}
+  dpadStart(parseInt(b.dataset.dx),parseInt(b.dataset.dy));
+});
+addEventListener('pointerup',dpadStop);
+addEventListener('pointercancel',dpadStop);
+dpadEl.addEventListener('pointerleave',dpadStop,true);
+
+/* ═══════════════════════════════════════════════════════════════
+   ACTION SHEETS
+   ═══════════════════════════════════════════════════════════════ */
+function openSheet(title,html){document.getElementById('sheetTitle').textContent=title;
+  document.getElementById('sheetBody').innerHTML=html; document.getElementById('sheet').classList.add('open');}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');}
+
+const NODE_META={
+  copper_rock:{skill:"Mining",tool:"a pickaxe"},tin_rock:{skill:"Mining",tool:"a pickaxe"},
+  iron_rock:{skill:"Mining",tool:"a pickaxe"},coal_rock:{skill:"Mining",tool:"a pickaxe"},
+  tree:{skill:"Woodcutting",tool:"a hatchet"},oak_tree:{skill:"Woodcutting",tool:"a hatchet"},willow_tree:{skill:"Woodcutting",tool:"a hatchet"},
+  shrimp_spot:{skill:"Fishing",tool:"a net"},shrimp_spot_b:{skill:"Fishing",tool:"a net"},shrimp_spot_c:{skill:"Fishing",tool:"a net"},trout_spot:{skill:"Fishing",tool:"a rod"},
+};
+function openNodeSheet(n){
+  const meta=NODE_META[n.id]||{};
+  openSheet(n.label,`<button onclick="doGather('${n.id}')">${meta.skill||'Gather'} here (needs ${meta.tool||'a tool'})</button>`);
+}
+function openMobSheet(m){
+  openSheet(m.label,`<button onclick="startAutoAttack('${m.id}')">⚔ Engage</button>`);
+}
+function openPlayerSheet(o){
+  const wild=ZONES[ZONE].safe===false;
+  let html=`<button onclick="openTrade('${o.id}','${o.name.replace(/'/g,"")}')">Trade with ${o.name}</button>`;
+  if(wild) html+=`<button style="color:#e07060" onclick="doAttackPlayer('${o.id}')">⚔ Attack ${o.name} (PvP)</button>`;
+  openSheet(o.name+" (cb "+o.cl+")",html);
+}
+function openBankSheet(){
+  let rows=(ST.bank||[]).map(r=>`<button class="rowbtn" onclick="bankAct('withdraw','${r.id}')">${itemName(r.id)}<span class="p">x${r.qty} — withdraw</span></button>`).join('')||'<p style="color:var(--dim)">Bank is empty.</p>';
+  let inv=(ST.inv||[]).filter(r=>!ITEMS[r.id]?.slot).map(r=>`<button class="rowbtn" onclick="bankAct('deposit','${r.id}')">${itemName(r.id)}<span class="p">x${r.qty} — deposit</span></button>`).join('');
+  openSheet("Bank",`<div style="max-height:40vh;overflow-y:auto">${rows}<hr style="border-color:var(--line)">${inv||'<p style="color:var(--dim)">Nothing to deposit.</p>'}</div>`);
+}
+function openShopSheet(){
+  let rows=SHOP_STOCK.map(id=>`<button class="rowbtn" onclick="shopAct('buy','${id}')">${itemName(id)}<span class="p">${SHOP_PRICE[id]}g</span></button>`).join('');
+  openSheet("General Store",`<div style="max-height:40vh;overflow-y:auto">${rows}</div>`);
+}
+function itemName(id){return (ITEMS[id]&&ITEMS[id].n)||id;}
+
+/* ═══════════════════════════════════════════════════════════════
+   SERVER CALLS
+   ═══════════════════════════════════════════════════════════════ */
+async function doGather(nodeId){
+  closeSheet(); if(BUSY)return; BUSY=true;
+  const r=await srv('lucy_gather',{node:nodeId}); BUSY=false;
+  if(!r.ok){toast(errMsg(r));return;}
+  if(r.state)applyState(r.state);
+  if(r.gathered){ (r.log||[]).forEach(m=>logLine(m,"hit")); if(r.leveled){logLine(`Level up! Now level ${r.leveled}.`,"lvl"); flashLevelUp((NODE_META[nodeId]&&NODE_META[nodeId].skill)||'Skill',r.leveled);} }
+  else logLine(r.msg||"No luck.","");
+}
+async function doCook(itemId){
+  const r=await srv('lucy_cook',{item:itemId});
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state);
+  if(r.burnt) logLine("Burnt it to a crisp.","dead"); else { logLine("Cooked successfully.","hit"); if(r.leveled){logLine(`Level up! Cooking ${r.leveled}.`,"lvl"); flashLevelUp('Cooking',r.leveled);} }
+}
+/* ── Auto-attack — turn-based exchanges keep firing on their own once you
+   engage, no need to keep mashing a button. Stops on win/death/zone change
+   or a manual STOP tap. ─────────────────────────────────────────────── */
+let autoAttackTimer=null, autoAttackMonId=null;
+function startAutoAttack(monId){
+  closeSheet();
+  stopAutoAttack();
+  autoAttackMonId=monId;
+  autoAttackTimer=setInterval(()=>{ if(!BUSY && autoAttackMonId) doAttackNpc(autoAttackMonId); }, 1100);
+  doAttackNpc(monId);
+}
+function stopAutoAttack(){
+  if(autoAttackTimer){ clearInterval(autoAttackTimer); autoAttackTimer=null; }
+  autoAttackMonId=null;
+  document.getElementById('engageBar').classList.remove('on');
+}
+async function doAttackNpc(monId){
+  if(BUSY)return; BUSY=true;
+  const r=await srv('lucy_attack_npc',{monster:monId}); BUSY=false;
+  if(!r.ok){ if(r.error!=='too_fast') { toast(errMsg(r)); stopAutoAttack(); } return; }
+  const log=r.log||[];
+  // YOUR TURN: show your swing right away, and update just the monster's
+  // hp bar with the real post-swing value the server already computed —
+  // not a guess, the exact number.
+  if(log[0]) logLine(log[0], (r.died&&log.length<2)?"dead":"hit");
+  if(r.monster){
+    const bar=document.getElementById('engageBar');
+    bar.classList.add('on');
+    document.getElementById('engName').textContent=r.monster.name;
+    document.getElementById('engHpFill').style.width=Math.max(0,Math.round(100*r.monster.hp/r.monster.maxHp))+"%";
+  }
+  // THEIR TURN: a beat later, reveal the counter-swing and your own HP hit
+  const rest=log.slice(1);
+  setTimeout(()=>{
+    rest.forEach(m=>logLine(m, r.died?"dead":"hit"));
+    applyState(r.state);
+    if(r.leveled){ logLine(`Level up! Combat ${r.leveled}.`,"lvl"); flashLevelUp('Combat',r.leveled); }
+    if(r.won && r.loot) openLootSheet(r.loot);
+    if(r.won || r.died) stopAutoAttack();
+  }, 350);
+}async function doAttackPlayer(pid){
+  closeSheet(); if(BUSY)return; BUSY=true;
+  const r=await srv('lucy_attack_player',{target:pid}); BUSY=false;
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state);
+  (r.log||[]).forEach(m=>logLine(m, r.victory?"gold":"dead"));
+}
+async function bankAct(dir,item){
+  const qty=dir==='deposit'?(( (ST.inv.find(r=>r.id===item)||{}).qty)||1):((ST.bank.find(r=>r.id===item)||{}).qty||1);
+  const r=await srv('lucy_bank',{dir,item,qty}); if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); openBankSheet();
+}
+async function shopAct(dir,item,qty){
+  const r=await srv('lucy_shop',{dir,item,qty:qty||1}); if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); toast(dir==='buy'?'Bought.':'Sold.');
+}
+async function doEquip(itemId){
+  const r=await srv('lucy_equip',{item:itemId}); if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); renderPanel();
+}
+async function doUnequip(slot){
+  const r=await srv('lucy_unequip',{slot}); if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); renderPanel();
+}
+async function doEat(itemId){
+  const r=await srv('lucy_eat',{item:itemId}); if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); toast('Ate up.');
+}
+function errMsg(r){
+  const e=r&&r.error;
+  const known={too_fast:"Not yet — catch your breath.",missing_tool:"Need the right tool for this.",
+    level_too_low:"Not skilled enough yet.",inventory_full:"Pack is full.",wrong_zone:"Can't do that here.",
+    not_in_wilderness:"PvP only works in the Wilderness.",no_bank_here:"No bank here — try Ashgate.",
+    no_shop_here:"No shop here — try Ashgate.",not_enough_gold:"Not enough gold.",knocked_out:"You're down — rest up.",
+    target_down:"They're already down.",monster_down:"Already down — respawning shortly.",
+    nothing_here:"Nothing here to pick up.",too_far:"Get closer first.",node_depleted:"Tapped out — give it a moment to regenerate.",
+    bounty_active:"Finish your current contract first.",bounty_incomplete:"Not done yet — keep hunting.",session_required:"Log in at hilbertmesh.com first.",
+    rate_limited:"Slow down a touch.",timeout:"Connection timed out — try again.",net:"Connection issue — try again."}[e];
+  if(known)return known;
+  if(e==='server_error') return "Server hiccup: "+(r.detail||"unknown")+" — screenshot this if it repeats.";
+  return "Can't do that ("+(e||'unknown')+")";
+}
+
+let tradeTarget=null;
+function openTrade(pid,name){
+  tradeTarget={id:pid,name};
+  closeSheet();
+  renderTab('trade');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ZONE TRAVEL + HEARTBEAT
+   ═══════════════════════════════════════════════════════════════ */
+function spawnPointFor(toZone,fromZone){
+  const z=ZONES[toZone];
+  const back=(z.gates||[]).find(g=>g.to===fromZone);
+  if(!back)return{x:1,y:1};
+  let x=back.x,y=back.y;
+  if(x<=0)x=1; else if(x>=z.w-1)x=z.w-2;
+  if(y<=0)y=1; else if(y>=z.h-1)y=z.h-2;
+  return{x,y};
+}
+async function travel(to){
+  stopAutoAttack();
+  const from=ZONE;
+  const sp=spawnPointFor(to,from);
+  ZONE=to; PX=sp.x;PY=sp.y; PXf=sp.x;PYf=sp.y;
+  document.getElementById('zoneTag').textContent=ZONES[to].label;
+  document.getElementById('zoneTag').className=ZONES[to].safe?'safe':'wild';
+  logLine(ZONES[to].safe?`Entering ${ZONES[to].label}.`:`⚠ Entering the Wilderness — PvP is live here.`, ZONES[to].safe?"":"dead");
+  const r=await srv('lucy_heartbeat',{zone:ZONE,x:PX,y:PY});
+  if(!r.ok)return;
+  if(r.blocked){
+    // server refused — too dangerous yet, bounce back to where we came from
+    ZONE=from; PX=6;PY=6; PXf=6;PYf=6;
+    document.getElementById('zoneTag').textContent=ZONES[from].label;
+    document.getElementById('zoneTag').className=ZONES[from].safe?'safe':'wild';
+    toast(`Too dangerous yet — need combat level ${r.blocked.need}.`);
+    logLine(`The ${ZONES[r.blocked.zone].label} is too dangerous for you yet.`,"dead");
+    await heartbeat();
+    return;
+  }
+  applyState(r.state); OTHERS=r.others||[]; GROUND=r.ground||[]; SPAWNS=r.spawns||{}; DEPLETED=r.depleted||[];
+}
+async function heartbeat(){
+  const r=await srv('lucy_heartbeat',{zone:ZONE,x:PX,y:PY});
+  if(!r.ok)return;
+  applyState(r.state); OTHERS=r.others||[]; GROUND=r.ground||[]; SPAWNS=r.spawns||{}; DEPLETED=r.depleted||[];
+}
+let engagedMonsterId=null;
+function applyState(s){
+  if(!s)return; ST=s;
+  document.getElementById('tCb').textContent=s.combatLevel;
+  document.getElementById('tHp').textContent=s.hp+"/"+s.maxHp;
+  document.getElementById('hpfill').style.width=Math.max(0,Math.round(100*s.hp/s.maxHp))+"%";
+  document.getElementById('tGold').textContent=s.gold;
+  document.getElementById('memberBadge').style.display=s.member?'inline-block':'none';
+  {
+    const cb=s.skills.combat;
+    document.getElementById('lvlBarLabel').textContent='LEVEL '+cb.lvl;
+    const pct=cb.next>0?Math.min(100,Math.round(100*cb.xp/cb.next)):100;
+    document.getElementById('lvlBarFill').style.width=pct+'%';
+    document.getElementById('lvlBarPct').textContent=pct+'%';
+  }
+  if(s.dev && !document.getElementById('debugTabBtn')){
+    const b=document.createElement('button');
+    b.id='debugTabBtn'; b.dataset.t='debug'; b.textContent='DEBUG';
+    b.style.color='#ff9db3';
+    document.getElementById('tabs').appendChild(b);
+  }
+  // chat & trade manage their own live-updating pieces (poll loop / async
+  // fetch) — rebuilding the whole panel here would blow away whatever the
+  // player is mid-typing every time a heartbeat lands. That was the chat bug.
+  if(ACTIVE_TAB!=='chat' && ACTIVE_TAB!=='trade') renderPanel();
+  maybeShowSpawn(s);
+  const bar=document.getElementById('engageBar');
+  if(s.engagement){
+    engagedMonsterId=s.engagement.monster;
+    bar.classList.add('on');
+    document.getElementById('engName').textContent=s.engagement.name;
+    document.getElementById('engHpFill').style.width=Math.max(0,Math.round(100*s.engagement.hp/s.engagement.maxHp))+"%";
+  } else {
+    engagedMonsterId=null; chasePos.id=null;
+    bar.classList.remove('on');
+  }
+}
+function maybeShowSpawn(s){
+  if(localStorage.getItem('lp_intro_seen')==='1')return;
+  document.getElementById('spawnName').textContent="Welcome to Ashgate, "+s.name;
+  document.getElementById('spawn').classList.add('open');
+}
+function closeSpawn(){
+  localStorage.setItem('lp_intro_seen','1');
+  document.getElementById('spawn').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABS / PANEL
+   ═══════════════════════════════════════════════════════════════ */
+let ACTIVE_TAB='skills';
+document.getElementById('tabs').addEventListener('click',(e)=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); ACTIVE_TAB=b.dataset.t;
+  document.getElementById('panel').classList.add('open');
+  renderPanel();
+});
+function renderTab(t){ACTIVE_TAB=t; document.getElementById('panel').classList.add('open'); renderPanel();}
+
+const SKILL_LABEL={mining:"Mining",woodcutting:"Woodcutting",fishing:"Fishing",cooking:"Cooking",combat:"Combat"};
+const SKILL_UNLOCKS={
+  mining:[{lvl:1,text:"Copper & Tin ore (Ashgate)"},{lvl:15,text:"Iron ore (Quarry)"},{lvl:25,text:"Coal (Quarry)"}],
+  woodcutting:[{lvl:1,text:"Logs (Ashgate)"},{lvl:15,text:"Oak logs (Old Wood)"},{lvl:30,text:"Willow logs (Old Wood)"}],
+  fishing:[{lvl:1,text:"Raw shrimp (Ashgate)"},{lvl:20,text:"Raw trout (Riverside)"}],
+  cooking:[{lvl:1,text:"Cook shrimp — burns often at first"},{lvl:15,text:"Shrimp stop burning"},
+    {lvl:20,text:"Cook trout — burns often at first"},{lvl:35,text:"Trout stop burning"}],
+  combat:[{lvl:1,text:"Chicken, Mad Goose, Giant Rat"},{lvl:6,text:"Cave Rat, River Bandit (safe zones)"},
+    {lvl:8,text:"Timber Wolf"},{lvl:9,text:"Goblin (Wilderness — PvP zone)"},{lvl:16,text:"Barrow Wight (Wilderness)"}],
+};
+function openSkillSheet(k){
+  const s=ST.skills[k];
+  const rows=SKILL_UNLOCKS[k].map(u=>{
+    const got=s.lvl>=u.lvl;
+    return `<div class="rowbtn" style="pointer-events:none;${got?'':'opacity:.4'}">
+      <span style="color:${got?'#8fd16a':'var(--dim)'}">Lv.${u.lvl}</span> ${u.text} ${got?'✓':'🔒'}
+    </div>`;
+  }).join('');
+  openSheet(`${SKILL_LABEL[k]} — Lv.${s.lvl} (${s.xp} xp)`,
+    `${rows}<p style="font-size:11px;color:var(--dim);margin-top:8px">Max level is 100 — more unlocks get added as the world grows.</p>`);
+}
+function renderPanel(){
+  const el=document.getElementById('panel'); if(!ST){el.innerHTML='<p style="color:var(--dim)">Connecting…</p>';return;}
+  if(ACTIVE_TAB==='skills'){
+    el.innerHTML=Object.keys(SKILL_LABEL).map(k=>{
+      const s=ST.skills[k]; const pct=Math.min(100,Math.round(100*(s.xp-((s.next-s.xp)>0?0:0))/(s.next||1)));
+      const frac=s.next>0?Math.min(100,Math.round(100*s.xp/s.next)):100;
+      return `<div class="skillrow" onclick="openSkillSheet('${k}')" style="cursor:pointer"><span class="nm">${SKILL_LABEL[k]}</span><span class="lvl">${s.lvl}</span>
+        <span class="bar"><i style="width:${frac}%"></i></span></div>`;
+    }).join('');
+  } else if(ACTIVE_TAB==='inv'){
+    const slots=ST.inv.map(r=>`<div class="slot filled" onclick="invTap('${r.id}')">${short(itemName(r.id))}${r.qty>1?`<span class="qty">${r.qty}</span>`:''}</div>`).join('');
+    const empty=Array.from({length:Math.max(0,28-ST.inv.length)}).map(()=>'<div class="slot"></div>').join('');
+    el.innerHTML=`<div class="grid28">${slots}${empty}</div>`;
+  } else if(ACTIVE_TAB==='equip'){
+    el.innerHTML=['weapon','head','chest','legs','tool'].map(slot=>{
+      const id=ST.equip[slot];
+      return `<div class="equiprow"><span class="lbl">${slot}</span><span class="val">${id?itemName(id):'—'}</span>
+        ${id?`<button onclick="doUnequip('${slot}')">remove</button>`:''}</div>`;
+    }).join('');
+  } else if(ACTIVE_TAB==='world'){
+    el.innerHTML=`<p style="color:var(--dim);font-size:12px;line-height:1.6">
+      Tap a ◆ node to gather, ☠ to fight, $ for bank, ◈ for shop, ⬥ to pick up loot, › to travel.<br>
+      In the <b style="color:#e07060">Wilderness</b> other players can attack you — and you can attack them.
+      Losing a Wilderness fight costs your unequipped pack.<br><br>
+      ${ST&&ST.member?'★ You\'re a Hilbert Mesh member — thanks for backing this.':'Membership is managed site-wide at <a href="https://hilbertmesh.com" target="_blank" style="color:var(--gold)">hilbertmesh.com</a> — members get a badge in-game, no gameplay advantage.'}</p>`;
+  } else if(ACTIVE_TAB==='trade'){
+    renderTradePanel(el);
+  } else if(ACTIVE_TAB==='chat'){
+    renderChatPanel(el);
+  } else if(ACTIVE_TAB==='debug'){
+    renderDebugPanel(el);
+  }
+}
+function renderDebugPanel(el){
+  const recent=DEBUG_LOG.slice(-40).reverse();
+  el.innerHTML=`
+    <div style="border:1px solid #7a3a2e;border-radius:4px;padding:8px;margin-bottom:10px;background:rgba(255,45,90,.05)">
+      <p style="font-size:11px;color:#ff9db3;margin:0 0 8px;font-weight:bold">CHEAT TOOLS (dev only)</p>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <select id="cheatSkill" style="flex:1;background:#171310;border:1px solid var(--line);color:var(--cream);padding:6px;border-radius:3px;font-size:11px">
+          <option value="mining">Mining</option><option value="woodcutting">Woodcutting</option>
+          <option value="fishing">Fishing</option><option value="cooking">Cooking</option>
+          <option value="combat">Combat</option>
+        </select>
+        <input id="cheatXp" type="number" placeholder="XP" style="width:90px;background:#171310;border:1px solid var(--line);color:var(--cream);padding:6px;border-radius:3px;font-size:11px">
+        <button style="background:var(--panel);border:1px solid var(--gold-dim);color:var(--gold);padding:0 10px;border-radius:3px;font-size:11px" onclick="cheatSetXp()">Set</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <button class="rowbtn" style="margin:0;font-size:11px" onclick="cheatAllSkills(0)">Reset all skills to 1</button>
+        <button class="rowbtn" style="margin:0;font-size:11px" onclick="cheatAllSkills(999999999)">Max all skills (99)</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <input id="cheatItem" placeholder="item id e.g. iron_sword" style="flex:1;background:#171310;border:1px solid var(--line);color:var(--cream);padding:6px;border-radius:3px;font-size:11px">
+        <input id="cheatQty" type="number" value="1" style="width:60px;background:#171310;border:1px solid var(--line);color:var(--cream);padding:6px;border-radius:3px;font-size:11px">
+        <button style="background:var(--panel);border:1px solid var(--gold-dim);color:var(--gold);padding:0 10px;border-radius:3px;font-size:11px" onclick="cheatGive()">Give</button>
+      </div>
+      <p style="font-size:10px;color:var(--dim);margin:8px 0 0">Set XP is the one you want for "how long does 50→51 or 90→99 actually take" testing — punch in a number, watch the level bar, no need to grind it out for real.</p>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button class="rowbtn" style="margin:0" onclick="downloadDebugLog()">⬇ Download full log (${DEBUG_LOG.length})</button>
+      <button class="rowbtn" style="margin:0;max-width:80px;color:var(--red)" onclick="DEBUG_LOG.length=0;renderPanel();">Clear</button>
+    </div>
+    <div style="font-size:10px;color:var(--dim);max-height:26vh;overflow-y:auto;background:#171310;border:1px solid var(--line);border-radius:3px;padding:6px">
+      ${recent.map(e=>`<div style="margin-bottom:6px;border-bottom:1px solid var(--line);padding-bottom:4px">
+        <span style="color:var(--gold)">${e.action}</span>
+        <span style="color:${e.result&&e.result.ok?'#8fd16a':'#e07060'}">${e.result&&e.result.ok?'ok':'FAIL: '+(e.result&&e.result.error)}</span>
+        <br><span style="opacity:.7">${escapeHtml(JSON.stringify(e.payload))}</span>
+      </div>`).join('') || '<p>No calls logged yet.</p>'}
+    </div>
+    <p style="font-size:11px;color:var(--dim);margin-top:8px">Dev-only tab — logs every server call this session (action, payload, ok/fail). Download to send the full session as a file instead of screenshots.</p>`;
+}
+async function cheatSetXp(){
+  const skill=document.getElementById('cheatSkill').value;
+  const xp=parseInt(document.getElementById('cheatXp').value)||0;
+  const r=await srv('lucy_dev_setxp',{skill,xp});
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); toast(`${skill} XP set to ${xp}.`); renderPanel();
+}
+async function cheatAllSkills(xp){
+  for(const sk of ['mining','woodcutting','fishing','cooking','combat']){
+    const r=await srv('lucy_dev_setxp',{skill:sk,xp});
+    if(r.ok)applyState(r.state);
+  }
+  toast(xp===0?'All skills reset.':'All skills maxed.'); renderPanel();
+}
+async function cheatGive(){
+  const item=(document.getElementById('cheatItem').value||'').trim();
+  const qty=parseInt(document.getElementById('cheatQty').value)||1;
+  if(!item)return;
+  const r=await srv('lucy_dev_give',{item,qty});
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); toast(`Gave ${qty}x ${item}.`);
+}
+function downloadDebugLog(){
+  const text=DEBUG_LOG.map(e=>`[${new Date(e.t).toISOString()}] ${e.action}\n  → ${JSON.stringify(e.payload)}\n  ← ${JSON.stringify(e.result)}`).join('\n\n');
+  const blob=new Blob([text],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ashgate-debug-${Date.now()}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function short(n){return n.length>10?n.slice(0,9)+'…':n;}
+function invTap(id){
+  const def=ITEMS[id]||{};
+  let html='';
+  if(def.slot) html+=`<button onclick="doEquip('${id}')">Equip ${def.n}</button>`;
+  if(def.food) html+=`<button onclick="doEat('${id}')">Eat ${def.n}</button>`;
+  const cookMap={raw_shrimp:1,raw_trout:1};
+  if(cookMap[id]) html+=`<button onclick="doCook('${id}')">Cook ${def.n}</button>`;
+  html+=`<button onclick="shopSellQuick('${id}')">Sell 1 (only works at shop)</button>`;
+  html+=`<button style="color:var(--red)" onclick="doDrop('${id}')">Drop 1 on the ground</button>`;
+  if(!html)html='<p style="color:var(--dim)">Nothing to do with this.</p>';
+  openSheet(itemName(id),html);
+}
+function shopSellQuick(id){ closeSheet(); shopAct('sell',id,1); }
+async function doDrop(id){
+  closeSheet();
+  const r=await srv('lucy_drop',{item:id,qty:1});
+  if(!r.ok){toast(errMsg(r));return;}
+  applyState(r.state); toast('Dropped.');
+  await heartbeat();
+}
+
+/* ── Trade panel ─────────────────────────────────── */
+let tradeOfferItems=[];
+async function renderTradePanel(el){
+  if(!tradeTarget){el.innerHTML='<p style="color:var(--dim)">Tap a player in the world, then choose Trade.</p>';return;}
+  const r=await srv('lucy_trade_status',{target:tradeTarget.id});
+  const sess=r.session; // {you:{items,gold,ready}, them:{items,gold,ready}}
+  el.innerHTML=`<p style="font-size:12px;color:var(--gold)">Trading with ${tradeTarget.name}</p>
+    <div class="grid28" id="tradeInvGrid"></div>
+    <p style="font-size:11px;color:var(--dim);margin-top:6px">Tap items below to add to your offer, then Send offer, then Ready up. Trade completes when both sides are ready.</p>
+    <button class="rowbtn" onclick="tradeSendOffer()">Send current offer</button>
+    <button class="rowbtn" onclick="tradeReady(true)">✅ Ready up</button>
+    <button class="rowbtn" onclick="tradeReady(false)">Not ready</button>
+    <button class="rowbtn" style="color:var(--red)" onclick="tradeCancel()">Cancel trade</button>
+    <div id="tradeSessInfo" style="font-size:11px;color:var(--dim);margin-top:6px"></div>`;
+  const grid=document.getElementById('tradeInvGrid');
+  grid.innerHTML=ST.inv.map(r=>`<div class="slot ${tradeOfferItems.find(o=>o.id===r.id)?'filled':''}" style="border-color:${tradeOfferItems.find(o=>o.id===r.id)?'#c9a24b':''}" onclick="tradeToggle('${r.id}',${r.qty})">${short(itemName(r.id))}${r.qty>1?`<span class="qty">${r.qty}</span>`:''}</div>`).join('');
+  if(sess){
+    const themItems=(sess.them.items||[]).map(i=>itemName(i.id)+(i.qty>1?' x'+i.qty:'')).join(', ')||'nothing yet';
+    document.getElementById('tradeSessInfo').innerHTML=
+      `Your offer: ${sess.you.ready?'<b style="color:#8fd16a">READY</b>':'not ready'}<br>`+
+      `Their offer: ${themItems} — ${sess.them.ready?'<b style="color:#8fd16a">READY</b>':'not ready'}`;
+  }
+}
+function tradeToggle(id,qty){
+  const i=tradeOfferItems.findIndex(o=>o.id===id);
+  if(i>=0) tradeOfferItems.splice(i,1); else tradeOfferItems.push({id,qty:1});
+  renderPanel();
+}
+async function tradeSendOffer(){
+  if(!tradeTarget)return;
+  const r=await srv('lucy_trade_offer',{target:tradeTarget.id,items:tradeOfferItems,gold:0});
+  if(!r.ok){toast(errMsg(r));return;}
+  toast('Offer sent.'); renderPanel();
+}
+async function tradeReady(ready){
+  if(!tradeTarget)return;
+  const r=await srv('lucy_trade_ready',{target:tradeTarget.id,ready});
+  if(!r.ok){toast(errMsg(r));return;}
+  if(r.completed){toast('Trade complete!'); applyState(r.state); tradeTarget=null; tradeOfferItems=[]; renderTab('inv');}
+  else renderPanel();
+}
+async function tradeCancel(){
+  if(!tradeTarget)return;
+  await srv('lucy_trade_cancel',{target:tradeTarget.id});
+  tradeTarget=null; tradeOfferItems=[]; toast('Trade cancelled'); renderTab('skills');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHAT — world + party (party is just a shared code, no invites)
+   ═══════════════════════════════════════════════════════════════ */
+let CHAT_CHANNEL='world';
+let PARTY_CODE=localStorage.getItem('lp_party_code')||'';
+let CHAT_CACHE={world:[],party:[]};
+function renderChatPanel(el){
+  el.innerHTML=`
+    <div class="chatsub">
+      <button id="chWorld" class="${CHAT_CHANNEL==='world'?'on':''}" onclick="setChatChannel('world')">🌐 World</button>
+      <button id="chParty" class="${CHAT_CHANNEL==='party'?'on':''}" onclick="setChatChannel('party')">👥 Party</button>
+    </div>
+    <div id="partyCodeRow" style="display:${CHAT_CHANNEL==='party'?'flex':'none'}">
+      <input id="partyCodeInput" placeholder="party code (share with friends)" value="${PARTY_CODE}" maxlength="10">
+      <button onclick="setPartyCode()">Set</button>
+    </div>
+    <div id="chatLog"></div>
+    <div class="chatRow">
+      <input id="chatInput" placeholder="${CHAT_CHANNEL==='party'?(PARTY_CODE?'Message party '+PARTY_CODE:'Set a party code first'):'Message everyone in Ashgate'}" maxlength="200">
+      <button onclick="sendChat()">Send</button>
+    </div>`;
+  renderChatLog();
+  document.getElementById('chatInput').addEventListener('keydown',(e)=>{if(e.key==='Enter')sendChat();});
+  pollChat();
+}
+function renderChatLog(){
+  const box=document.getElementById('chatLog'); if(!box)return;
+  const msgs=CHAT_CACHE[CHAT_CHANNEL]||[];
+  box.innerHTML=msgs.slice().reverse().map(m=>
+    `<div class="m"><span class="nm ${m.dev?'dev':''}">${m.member&&!m.dev?'★ ':''}${escapeHtml(m.name)}</span> <span class="cb">cb${m.cb}</span>: ${escapeHtml(m.text)}</div>`
+  ).join('') || '<p style="color:var(--dim)">Quiet so far…</p>';
+  box.scrollTop=box.scrollHeight;
+}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function setChatChannel(ch){CHAT_CHANNEL=ch; renderPanel();}
+function setPartyCode(){
+  const v=(document.getElementById('partyCodeInput').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+  PARTY_CODE=v; localStorage.setItem('lp_party_code',v);
+  toast(v?'Party code set: '+v:'Party code cleared');
+  renderPanel();
+}
+async function sendChat(){
+  const input=document.getElementById('chatInput'); if(!input)return;
+  const text=input.value.trim(); if(!text)return;
+  if(CHAT_CHANNEL==='party'&&!PARTY_CODE){toast('Set a party code first.');return;}
+  const payload={channel:CHAT_CHANNEL,text};
+  if(CHAT_CHANNEL==='party')payload.partyCode=PARTY_CODE;
+  const r=await srv('lucy_chat_post',payload);
+  if(!r.ok){toast(errMsg(r));return;}
+  input.value='';
+  await pollChat();
+}
+let chatPollBusy=false;
+async function pollChat(){
+  if(chatPollBusy)return; chatPollBusy=true;
+  try{
+    if(CHAT_CHANNEL==='party'&&!PARTY_CODE){CHAT_CACHE.party=[];renderChatLog();return;}
+    const payload={channel:CHAT_CHANNEL};
+    if(CHAT_CHANNEL==='party')payload.partyCode=PARTY_CODE;
+    const r=await srv('lucy_chat_poll',payload);
+    if(r.ok){CHAT_CACHE[CHAT_CHANNEL]=r.msgs||[]; if(ACTIVE_TAB==='chat')renderChatLog();}
+  } finally{ chatPollBusy=false; }
+}
+setInterval(()=>{ if(ACTIVE_TAB==='chat') pollChat(); }, 3500);
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOT
+   ═══════════════════════════════════════════════════════════════ */
+async function boot(){
+  if(!HAS_AUTH){ return; } // gate stays up
+  document.getElementById('gate').style.display='none';
+  fitCanvas(); requestAnimationFrame(draw);
+  await heartbeat();
+  setInterval(heartbeat,4000);
+}
+document.getElementById('gate').style.display=HAS_AUTH?'none':'flex';
+boot();
+</script>
+</body>
+</html>
