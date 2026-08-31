@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HERO ONLINE // basic</title>
+<style>
+  html, body { margin:0; padding:0; overflow:hidden; background:#05070a; }
+  canvas { display:block; touch-action:none; }
+  #hud {
+    position:fixed; top:0; left:0; width:100%; padding:10px 14px;
+    font-family: monospace; color:#7fffb0; text-shadow:0 0 4px #0f0;
+    pointer-events:none; font-size:14px; z-index:5;
+  }
+  #hud .bar { color:#9ad; }
+  /* touch joystick */
+  #joyZone {
+    position:fixed; left:0; bottom:0; width:45%; height:45%;
+    z-index:10; touch-action:none;
+  }
+  #joyBase {
+    position:fixed; width:100px; height:100px; border-radius:50%;
+    border:2px solid #4f8; background:rgba(80,255,150,0.08);
+    display:none; z-index:11; pointer-events:none;
+  }
+  #joyStick {
+    position:fixed; width:46px; height:46px; border-radius:50%;
+    background:rgba(80,255,150,0.35); border:1px solid #7fffb0;
+    display:none; z-index:12; pointer-events:none;
+  }
+  #jumpBtn {
+    position:fixed; right:16px; bottom:12%; width:64px; height:64px;
+    border-radius:50%; background:rgba(80,255,150,0.12);
+    border:2px solid #4f8; color:#7fffb0; font-family:monospace;
+    font-size:11px; z-index:11; display:flex; align-items:center;
+    justify-content:center; user-select:none;
+  }
+  #hotbar {
+    position:fixed; left:50%; bottom:3%; transform:translateX(-50%);
+    display:flex; gap:6px; z-index:11;
+  }
+  .hbSlot {
+    width:52px; height:52px; border:1px solid #4f8;
+    background:rgba(10,20,15,0.55); color:#7fffb0;
+    font-family:monospace; font-size:10px; display:flex;
+    flex-direction:column; align-items:center; justify-content:center;
+    user-select:none; position:relative;
+  }
+  .hbSlot .num { position:absolute; top:1px; left:3px; font-size:9px; color:#4f8; }
+  .hbSlot.active { background:rgba(80,255,150,0.28); box-shadow:0 0 8px rgba(80,255,150,0.6); }
+  .hbSlot.empty { opacity:0.35; border-style:dashed; }
+  #vitals {
+    position:fixed; left:50%; bottom:11%; transform:translateX(-50%);
+    width:260px; z-index:11; font-family:monospace;
+  }
+  .barRow { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+  .barLabel { color:#7fffb0; font-size:10px; width:34px; text-shadow:0 0 4px #0f0; }
+  .barTrack { flex:1; height:10px; border:1px solid #4f8; background:rgba(10,20,15,0.6); position:relative; overflow:hidden; }
+  .barFill { position:absolute; left:0; top:0; bottom:0; width:100%; }
+  .hpFill { background:#e33; }
+  .xpFill { background:#4f8; }
+  #levelUpMsg, #deathOverlay {
+    position:fixed; top:35%; left:50%; transform:translate(-50%,-50%);
+    font-family:monospace; font-size:22px; text-shadow:0 0 10px currentColor;
+    opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:20;
+  }
+  #levelUpMsg { color:#7fffb0; }
+  #deathOverlay { color:#ff5555; font-size:26px; }
+  .show { opacity:1 !important; }
+  #note {
+    position:fixed; bottom:6px; left:6px; color:#456; font-family:monospace;
+    font-size:10px; z-index:5; pointer-events:none;
+  }
+  #minimap {
+    position:fixed; top:10px; right:10px; width:92px; height:92px;
+    border-radius:50%; border:2px solid #4f8; background:rgba(5,15,10,0.65);
+    z-index:6; overflow:hidden; box-shadow:0 0 8px rgba(80,255,150,0.3);
+  }
+  #miniCanvas { width:100%; height:100%; display:block; }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  HERO ONLINE <span class="bar">// prototype build</span><br>
+  HP: <span id="hpVal">100</span> &nbsp; POS: <span id="posVal">0,0,0</span><br>
+  LVL: <span id="hudLvl">1</span> &nbsp; Gold: <span id="hudGold">0</span> &nbsp; Loot: <span id="lootText">none</span>
+</div>
+<div id="vitals">
+  <div class="barRow"><span class="barLabel">HP</span><div class="barTrack"><div id="hpBarFill" class="barFill hpFill"></div></div></div>
+  <div class="barRow"><span class="barLabel" id="lvlLabel">LV 1</span><div class="barTrack"><div id="xpBarFill" class="barFill xpFill"></div></div></div>
+</div>
+<div id="levelUpMsg">LEVEL UP!</div>
+<div id="deathOverlay">YOU DIED — respawning...</div>
+<div id="joyZone"></div>
+<div id="joyBase"></div>
+<div id="joyStick"></div>
+<div id="jumpBtn">JUMP</div>
+<div id="hotbar">
+  <div class="hbSlot" id="slot1"><span class="num">1</span>ATK</div>
+  <div class="hbSlot" id="slot2"><span class="num">2</span>PWR</div>
+  <div class="hbSlot empty"><span class="num">3</span></div>
+  <div class="hbSlot empty"><span class="num">4</span></div>
+  <div class="hbSlot empty"><span class="num">5</span></div>
+  <div class="hbSlot empty"><span class="num">6</span></div>
+</div>
+<div id="minimap"><canvas id="miniCanvas" width="92" height="92"></canvas></div>
+<div id="note">WASD / joystick to move — tap slot 1 or F to hit — mouse / right-drag to look</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ---------- basic setup ----------
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x8ec9e8);
+  scene.fog = new THREE.Fog(0x8ec9e8, 30, 160);
+
+  var camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 500);
+
+  var renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:"low-power" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  window.addEventListener("resize", function(){
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // ---------- lights ----------
+  var hemi = new THREE.HemisphereLight(0x88ccff, 0x111111, 0.9);
+  scene.add(hemi);
+  var sun = new THREE.DirectionalLight(0xffffff, 0.8);
+  sun.position.set(30, 50, 10);
+  scene.add(sun);
+
+  // ---------- texture helper (procedural, no external image assets) ----------
+  function makeNoiseTexture(baseHex, variance, size){
+    var canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    var base = new THREE.Color(baseHex);
+    var img = ctx.createImageData(size, size);
+    for (var i=0; i<size*size; i++){
+      var v = (Math.random()-0.5) * variance;
+      img.data[i*4+0] = Math.max(0, Math.min(255, (base.r + v)*255));
+      img.data[i*4+1] = Math.max(0, Math.min(255, (base.g + v)*255));
+      img.data[i*4+2] = Math.max(0, Math.min(255, (base.b + v)*255));
+      img.data[i*4+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    var tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.magFilter = THREE.NearestFilter; // keep it a bit chunky/dated on purpose
+    return tex;
+  }
+
+  function makeGroundTexture(size){
+    var canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    var img = ctx.createImageData(size, size);
+    var grass = new THREE.Color(0x2e6a3a);
+    var dirt = new THREE.Color(0x6b4a30);
+    for (var y=0; y<size; y++){
+      for (var x=0; x<size; x++){
+        var idx = y*size+x;
+        // cheap layered-sine pseudo-noise so dirt shows up as patches, not solid mud
+        var n = Math.sin(x*0.25)*Math.cos(y*0.22) + Math.sin(x*0.09+y*0.13)*0.6;
+        var dirtMix = Math.min(1, Math.max(0, (n-0.65)*2.2));
+        var v = (Math.random()-0.5)*0.12;
+        var r = grass.r + (dirt.r-grass.r)*dirtMix + v;
+        var g = grass.g + (dirt.g-grass.g)*dirtMix + v;
+        var b = grass.b + (dirt.b-grass.b)*dirtMix + v;
+        img.data[idx*4+0] = Math.max(0, Math.min(255, r*255));
+        img.data[idx*4+1] = Math.max(0, Math.min(255, g*255));
+        img.data[idx*4+2] = Math.max(0, Math.min(255, b*255));
+        img.data[idx*4+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    var tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.magFilter = THREE.NearestFilter;
+    return tex;
+  }
+
+  // ---------- terrain ----------
+  // Heightfield: one function drives rendering, collision, and object placement,
+  // so slopes/dips stay consistent everywhere instead of just being a flat plane.
+  function groundHeight(x,z){
+    var village = Math.exp(-(x*x + z*z)/2600) * 0.35;
+    var rolling = Math.sin(x*0.045)*0.9 + Math.cos(z*0.052)*0.75 + Math.sin(x*0.018-z*0.025)*0.65;
+    var ridge = Math.exp(-Math.pow(z-42,2)/700) * (1.8 + 0.35*Math.cos(x*0.08));
+    var valley = -Math.exp(-Math.pow(z+38,2)/900) * 0.8;
+    var sideSlope = Math.sin((x+z)*0.018)*0.55;
+    return village + rolling + ridge + valley + sideSlope;
+  }
+
+  // ---------- ground ----------
+  var TERRAIN_SIZE = 400, TERRAIN_SEG = 80;
+  var groundGeo = new THREE.PlaneGeometry(TERRAIN_SIZE, TERRAIN_SIZE, TERRAIN_SEG, TERRAIN_SEG);
+  var gpos = groundGeo.attributes.position;
+  for (var gi=0; gi<gpos.count; gi++){
+    var gx = gpos.getX(gi), gz = -gpos.getY(gi);
+    gpos.setZ(gi, groundHeight(gx,gz));
+  }
+  gpos.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+
+  var groundTex = makeGroundTexture(64);
+  groundTex.repeat.set(60, 60);
+  var groundMat = new THREE.MeshStandardMaterial({ color:0xffffff, map:groundTex, flatShading:true });
+  var ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI/2;
+  scene.add(ground);
+
+  // scatter crude trees and rocks instead of plain boxes
+  var obstacles = [];
+  var trunkMat = new THREE.MeshStandardMaterial({ color:0x5a3d24, flatShading:true });
+  var foliageTex = makeNoiseTexture(0x2f5a34, 0.15, 32);
+  var foliageMat = new THREE.MeshStandardMaterial({ color:0xffffff, map:foliageTex, flatShading:true });
+  var rockTex = makeNoiseTexture(0x7a7d78, 0.15, 32);
+  var rockMat = new THREE.MeshStandardMaterial({ color:0xffffff, map:rockTex, flatShading:true });
+
+  function makeTree(){
+    var g = new THREE.Group();
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.22,1.1,6), trunkMat);
+    trunk.position.y = 0.55;
+    g.add(trunk);
+    var foliage = new THREE.Mesh(new THREE.ConeGeometry(0.85,1.7,6), foliageMat);
+    foliage.position.y = 1.5;
+    g.add(foliage);
+    return g;
+  }
+  function makeRock(){
+    var rock = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6,0), rockMat);
+    rock.scale.set(0.8+Math.random()*0.6, 0.5+Math.random()*0.5, 0.8+Math.random()*0.6);
+    rock.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+    rock.position.y = 0.3;
+    return rock;
+  }
+
+  for (var i=0; i<28; i++){
+    var obj = (Math.random() < 0.6) ? makeTree() : makeRock();
+    obj.scale.multiplyScalar(0.8 + Math.random()*0.8);
+    obj.position.x = (Math.random()-0.5)*150;
+    obj.position.z = (Math.random()-0.5)*150;
+    obj.position.y = groundHeight(obj.position.x, obj.position.z);
+    scene.add(obj);
+    obstacles.push(obj);
+  }
+
+  // ---------- starter village ----------
+  var wallMat = new THREE.MeshStandardMaterial({color:0xc7b08a, flatShading:true});
+  var woodMat = new THREE.MeshStandardMaterial({color:0x69442d, flatShading:true});
+  var roofMat = new THREE.MeshStandardMaterial({color:0x3b3430, flatShading:true});
+  var trimMat = new THREE.MeshStandardMaterial({color:0x8e3e32, flatShading:true});
+  var stoneMat = new THREE.MeshStandardMaterial({color:0x77766e, flatShading:true});
+  var glassMat = new THREE.MeshStandardMaterial({color:0x6e8790, flatShading:true, roughness:0.7});
+
+  function addVillageHouse(x,z,s,rot){
+    var g=new THREE.Group();
+    var body=new THREE.Mesh(new THREE.BoxGeometry(4*s,2.25*s,3.2*s),wallMat);
+    body.position.y=1.125*s; g.add(body);
+    var beam1=new THREE.Mesh(new THREE.BoxGeometry(0.16*s,2.2*s,3.25*s),woodMat);
+    beam1.position.set(-1.45*s,1.15*s,0); g.add(beam1);
+    var beam2=beam1.clone(); beam2.position.x=1.45*s; g.add(beam2);
+    var door=new THREE.Mesh(new THREE.BoxGeometry(0.72*s,1.35*s,0.10*s),woodMat);
+    door.position.set(0,0.68*s,1.63*s); g.add(door);
+    var step=new THREE.Mesh(new THREE.BoxGeometry(1.0*s,0.16*s,0.55*s),stoneMat);
+    step.position.set(0,0.08*s,1.88*s); g.add(step);
+    var winL=new THREE.Mesh(new THREE.BoxGeometry(0.65*s,0.58*s,0.08*s),glassMat);
+    winL.position.set(-1.0*s,1.25*s,1.63*s); g.add(winL);
+    var winR=winL.clone(); winR.position.x=1.0*s; g.add(winR);
+    var roof=new THREE.Mesh(new THREE.ConeGeometry(2.95*s,1.55*s,4),roofMat);
+    roof.rotation.y=Math.PI/4; roof.position.y=3.0*s; g.add(roof);
+    for(var bi=-1;bi<=1;bi+=2){
+      var post=new THREE.Mesh(new THREE.BoxGeometry(0.13*s,2.2*s,0.13*s),trimMat);
+      post.position.set(bi*1.52*s,1.15*s,1.68*s); g.add(post);
+    }
+    g.position.set(x,groundHeight(x,z),z); g.rotation.y=rot||0;
+    scene.add(g); return g;
+  }
+  function addLantern(x,z){
+    var g=new THREE.Group();
+    var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.07,1.55,6),woodMat);
+    pole.position.y=0.78; g.add(pole);
+    var lamp=new THREE.Mesh(new THREE.OctahedronGeometry(0.18,0),trimMat);
+    lamp.position.y=1.55; g.add(lamp);
+    g.position.set(x,groundHeight(x,z),z); scene.add(g);
+  }
+
+  addVillageHouse(-7,-12,1.0,0);
+  addVillageHouse(8,-16,0.88,Math.PI);
+  addVillageHouse(18,-3,0.72,-Math.PI/2);
+  addLantern(-3,-8); addLantern(12,-10); addLantern(20,-6);
+
+  for(var wi=-2;wi<=2;wi++){
+    var wall=new THREE.Mesh(new THREE.BoxGeometry(2.0,0.45,0.35),stoneMat);
+    var wx=wi*2.0,wz=-3.0;
+    wall.position.set(wx,groundHeight(wx,wz)+0.225,wz);
+    scene.add(wall);
+  }
+
+  // ---------- village roads + central palace ----------
+  var roadMat = new THREE.MeshStandardMaterial({color:0x9b825f,flatShading:true,roughness:1});
+  function addRoad(x,z,w,d,rot){
+    var r=new THREE.Mesh(new THREE.BoxGeometry(w,0.08,d),roadMat);
+    r.rotation.y=rot||0;
+    r.position.set(x,groundHeight(x,z)+0.035,z);
+    scene.add(r);
+  }
+  addRoad(0,-1,5.5,42,0);
+  addRoad(0,18,34,5.5,0);
+  addRoad(-14,7,18,4.0,0);
+  addRoad(15,4,20,4.0,0);
+
+  function addPalace(x,z,s){
+    var g=new THREE.Group();
+    var base=new THREE.Mesh(new THREE.BoxGeometry(11*s,0.65*s,8*s),stoneMat); base.position.y=.32*s; g.add(base);
+    var body=new THREE.Mesh(new THREE.BoxGeometry(8.8*s,3.3*s,6.4*s),wallMat); body.position.y=2.25*s; g.add(body);
+    var darkWood=new THREE.MeshStandardMaterial({color:0x4c3024,flatShading:true});
+    var gate=new THREE.Mesh(new THREE.BoxGeometry(1.65*s,2.35*s,.18*s),darkWood); gate.position.set(0,1.5*s,3.25*s); g.add(gate);
+    for(var pi=-1;pi<=1;pi+=2){
+      var tower=new THREE.Mesh(new THREE.BoxGeometry(2.2*s,4.4*s,2.2*s),wallMat); tower.position.set(pi*4.7*s,2.35*s,0); g.add(tower);
+      var cap=new THREE.Mesh(new THREE.ConeGeometry(1.75*s,1.7*s,4),roofMat); cap.rotation.y=Math.PI/4; cap.position.set(pi*4.7*s,5.4*s,0); g.add(cap);
+    }
+    var roof=new THREE.Mesh(new THREE.ConeGeometry(5.7*s,2.2*s,4),roofMat); roof.rotation.y=Math.PI/4; roof.position.y=4.8*s; g.add(roof);
+    for(var qi=-1;qi<=1;qi+=2){var q=new THREE.Mesh(new THREE.BoxGeometry(.22*s,3.0*s,.22*s),trimMat);q.position.set(qi*2.8*s,2.0*s,3.35*s);g.add(q)}
+    g.position.set(x,groundHeight(x,z),z); scene.add(g);
+  }
+  addPalace(0,34,1.15);
+
+  // ---------- hero ----------
+  var hero = new THREE.Group();
+  var tunicMat = new THREE.MeshStandardMaterial({ color:0x8a7a5c, flatShading:true }); // dull rags — no armor equipped yet
+  var pantsMat = new THREE.MeshStandardMaterial({ color:0x5c4a36, flatShading:true });
+  var skinMat = new THREE.MeshStandardMaterial({ color:0xffe0a0, flatShading:true });
+  var weaponMat = new THREE.MeshStandardMaterial({ color:0xcccccc, flatShading:true });
+
+  var legH=0.7, legW=0.16, legD=0.16;
+  var torsoH=0.55, torsoW=0.5, torsoD=0.28;
+  var armH=0.5, armW=0.14, armD=0.14;
+  var headS=0.32;
+
+  var legL = new THREE.Mesh(new THREE.BoxGeometry(legW,legH,legD).translate(0,-legH/2,0), pantsMat);
+  legL.position.set(-0.12, legH, 0);
+  hero.add(legL);
+  var legR = new THREE.Mesh(new THREE.BoxGeometry(legW,legH,legD).translate(0,-legH/2,0), pantsMat);
+  legR.position.set(0.12, legH, 0);
+  hero.add(legR);
+
+  var torso = new THREE.Mesh(new THREE.BoxGeometry(torsoW,torsoH,torsoD), tunicMat);
+  torso.position.y = legH + torsoH/2;
+  hero.add(torso);
+
+  var shoulderY = legH + torsoH;
+  var armL = new THREE.Mesh(new THREE.BoxGeometry(armW,armH,armD).translate(0,-armH/2,0), tunicMat);
+  armL.position.set(-(torsoW/2+armW/2), shoulderY, 0);
+  hero.add(armL);
+  var armR = new THREE.Mesh(new THREE.BoxGeometry(armW,armH,armD).translate(0,-armH/2,0), tunicMat);
+  armR.position.set(torsoW/2+armW/2, shoulderY, 0);
+  hero.add(armR);
+
+  var head = new THREE.Mesh(new THREE.IcosahedronGeometry(headS*0.58,1), skinMat);
+  head.position.y = legH + torsoH + headS/2;
+  head.scale.set(0.9,1.05,0.9);
+  hero.add(head);
+
+  var hairMat = new THREE.MeshStandardMaterial({color:0x24252a, flatShading:true});
+  var hair = new THREE.Mesh(new THREE.SphereGeometry(headS*0.61,7,4,0,Math.PI*2,0,Math.PI*0.55), hairMat);
+  hair.position.set(0, legH + torsoH + headS*0.78, -0.01);
+  hero.add(hair);
+
+  var beltMat = new THREE.MeshStandardMaterial({color:0x6b4930, flatShading:true});
+  var belt = new THREE.Mesh(new THREE.BoxGeometry(torsoW+0.06,0.10,torsoD+0.05), beltMat);
+  belt.position.y = legH + 0.08;
+  hero.add(belt);
+
+  var bootMat = new THREE.MeshStandardMaterial({color:0x25282b, flatShading:true});
+  var bootL = new THREE.Mesh(new THREE.BoxGeometry(legW+0.05,0.22,legD+0.16), bootMat);
+  bootL.position.set(-0.12,0.11,0.06); hero.add(bootL);
+  var bootR = bootL.clone(); bootR.position.x=0.12; hero.add(bootR);
+
+  // held weapon — parented to the right arm so it swings with the gait AND the attack animation together
+  var weapon = new THREE.Mesh(new THREE.BoxGeometry(0.07,0.55,0.07), weaponMat);
+  weapon.position.set(0, -armH+0.1, 0.12);
+  weapon.rotation.x = -Math.PI/3;
+  weapon.visible = false; // start unarmed — fists until a weapon is found
+  armR.add(weapon);
+
+  hero.position.set(0, groundHeight(0,0), 0);
+  scene.add(hero);
+
+  // ---------- wolf enemy that wanders ----------
+  var enemies = [];
+  var furTex = makeNoiseTexture(0x6b5a4a, 0.18, 32);
+  function spawnEnemy(x,z){
+    var e = new THREE.Group();
+    var legH=0.34, bodyH=0.42;
+    var furMat = function(){ return new THREE.MeshStandardMaterial({ color:0xffffff, map:furTex, flatShading:true }); };
+
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.92,bodyH,0.42), furMat());
+    body.position.y = legH+bodyH/2;
+    e.add(body);
+
+    var chest = new THREE.Mesh(new THREE.BoxGeometry(0.48,0.50,0.46), furMat());
+    chest.position.set(0, legH+0.30, 0.30);
+    e.add(chest);
+
+    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.23,0.42,6), furMat());
+    neck.rotation.x = Math.PI/2;
+    neck.position.set(0, legH+0.58, 0.40);
+    e.add(neck);
+
+    var head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.25,0), furMat());
+    head.position.set(0, legH+0.69, 0.62);
+    head.scale.set(0.9,0.85,1.15);
+    e.add(head);
+
+    var muzzle = new THREE.Mesh(new THREE.ConeGeometry(0.13,0.28,6), furMat());
+    muzzle.rotation.x = Math.PI/2;
+    muzzle.position.set(0, legH+0.62, 0.83);
+    e.add(muzzle);
+
+    var noseMat = new THREE.MeshStandardMaterial({color:0x24201e, flatShading:true});
+    var nose = new THREE.Mesh(new THREE.OctahedronGeometry(0.055,0), noseMat);
+    nose.position.set(0, legH+0.62, 0.97);
+    e.add(nose);
+
+    var earL = new THREE.Mesh(new THREE.ConeGeometry(0.085,0.24,5), furMat());
+    earL.position.set(-0.12, legH+0.93, 0.57); earL.rotation.z = -0.18;
+    e.add(earL);
+    var earR = earL.clone(); earR.position.x = 0.12; earR.rotation.z = 0.18;
+    e.add(earR);
+
+    var tail = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.11,0.62,5), furMat());
+    tail.rotation.x = -0.95;
+    tail.position.set(0, legH+0.53, -0.54);
+    e.add(tail);
+
+    var legs = [];
+    var legPositions = [[-0.30,0.14],[0.30,0.14],[-0.30,-0.14],[0.30,-0.14]];
+    for (var li=0; li<4; li++){
+      var leg = new THREE.Mesh(new THREE.CylinderGeometry(0.065,0.085,legH,5), furMat());
+      leg.position.set(legPositions[li][0], legH/2, legPositions[li][1]);
+      e.add(leg);
+      legs.push(leg);
+    }
+
+    e.position.set(x, groundHeight(x,z), z);
+    e.userData.dir = Math.random()*Math.PI*2;
+    e.userData.timer = Math.random()*3;
+    e.userData.hp = 30;
+    e.userData.maxHp = 30;
+    e.userData.alive = true;
+    e.userData.respawnTimer = 0;
+    e.userData.hitFlash = 0;
+    e.userData.parts = [body, chest, neck, head, muzzle, nose, earL, earR, tail].concat(legs);
+    e.userData.baseColors = e.userData.parts.map(function(m){ return m.material.color.clone(); });
+    scene.add(e);
+    enemies.push(e);
+  }
+  for (var j=0;j<8;j++){
+    spawnEnemy((Math.random()-0.5)*100, (Math.random()-0.5)*100);
+  }
+
+  // ---------- input ----------
+  var keys = {};
+  window.addEventListener("keydown", function(e){ keys[e.code] = true; });
+  window.addEventListener("keyup", function(e){ keys[e.code] = false; });
+
+  // mouse look (desktop, right-drag or plain drag)
+  var yaw = 0, pitch = 0.35;
+  var dragging = false, lastX=0, lastY=0;
+  var mDownX=0, mDownY=0, mDownTime=0;
+  renderer.domElement.addEventListener("mousedown", function(e){
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    mDownX = e.clientX; mDownY = e.clientY; mDownTime = performance.now();
+  });
+  window.addEventListener("mouseup", function(e){
+    dragging = false;
+    var moved = Math.hypot(e.clientX - mDownX, e.clientY - mDownY);
+    var elapsed = performance.now() - mDownTime;
+    if (moved < 6 && elapsed < 350) doAttack(); // short, mostly-still click = attack, not a look-drag
+  });
+  window.addEventListener("mousemove", function(e){
+    if (!dragging) return;
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    yaw -= dx * 0.005;
+    pitch = Math.max(0.08, Math.min(1.2, pitch - dy*0.003));
+  });
+
+  // touch joystick (movement) — left side of screen
+  var joyZone = document.getElementById("joyZone");
+  var joyBase = document.getElementById("joyBase");
+  var joyStick = document.getElementById("joyStick");
+  var joyActive = false, joyId = null, joyOrigin = {x:0,y:0}, joyVec = {x:0,y:0};
+  var JOY_R = 55;
+
+  function joyStart(id, x, y){
+    joyActive = true; joyId = id; joyOrigin = {x:x,y:y};
+    joyBase.style.display = "block"; joyStick.style.display = "block";
+    joyBase.style.left = (x-50)+"px"; joyBase.style.top = (y-50)+"px";
+    joyStick.style.left = (x-23)+"px"; joyStick.style.top = (y-23)+"px";
+  }
+  function joyMove(x, y){
+    var dx = x - joyOrigin.x, dy = y - joyOrigin.y;
+    var d = Math.min(JOY_R, Math.sqrt(dx*dx+dy*dy));
+    var ang = Math.atan2(dy,dx);
+    var cx = Math.cos(ang)*d, cy = Math.sin(ang)*d;
+    joyStick.style.left = (joyOrigin.x + cx - 23)+"px";
+    joyStick.style.top = (joyOrigin.y + cy - 23)+"px";
+    joyVec = { x: cx/JOY_R, y: cy/JOY_R };
+  }
+  function joyEnd(){
+    joyActive = false; joyId = null; joyVec = {x:0,y:0};
+    joyBase.style.display = "none"; joyStick.style.display = "none";
+  }
+  joyZone.addEventListener("touchstart", function(e){
+    e.preventDefault();
+    var t = e.changedTouches[0];
+    joyStart(t.identifier, t.clientX, t.clientY);
+  }, {passive:false});
+  joyZone.addEventListener("touchmove", function(e){
+    e.preventDefault();
+    for (var i=0;i<e.changedTouches.length;i++){
+      var t = e.changedTouches[i];
+      if (t.identifier === joyId) joyMove(t.clientX, t.clientY);
+    }
+  }, {passive:false});
+  joyZone.addEventListener("touchend", function(e){
+    e.preventDefault();
+    for (var i=0;i<e.changedTouches.length;i++){
+      if (e.changedTouches[i].identifier === joyId) joyEnd();
+    }
+  }, {passive:false});
+
+  // touch look — right side of screen (swipe to turn camera)
+  var lookId = null, lookLastX=0, lookLastY=0;
+  window.addEventListener("touchstart", function(e){
+    for (var i=0;i<e.changedTouches.length;i++){
+      var t = e.changedTouches[i];
+      if (t.clientX > window.innerWidth*0.5 && lookId === null){
+        lookId = t.identifier; lookLastX = t.clientX; lookLastY = t.clientY;
+      }
+    }
+  }, {passive:true});
+  window.addEventListener("touchmove", function(e){
+    for (var i=0;i<e.changedTouches.length;i++){
+      var t = e.changedTouches[i];
+      if (t.identifier === lookId){
+        var dx = t.clientX - lookLastX, dy = t.clientY - lookLastY;
+        lookLastX = t.clientX; lookLastY = t.clientY;
+        yaw -= dx * 0.006;
+        pitch = Math.max(0.08, Math.min(1.2, pitch - dy*0.004));
+      }
+    }
+  }, {passive:true});
+  window.addEventListener("touchend", function(e){
+    for (var i=0;i<e.changedTouches.length;i++){
+      if (e.changedTouches[i].identifier === lookId) lookId = null;
+    }
+  }, {passive:true});
+
+  // jump button
+  var canJump = true, velY = 0, onGround = true;
+  var jumpBtn = document.getElementById("jumpBtn");
+  function doJump(){
+    if (onGround){ velY = 6.5; onGround = false; }
+  }
+  jumpBtn.addEventListener("touchstart", function(e){ e.preventDefault(); doJump(); }, {passive:false});
+  jumpBtn.addEventListener("mousedown", function(e){ e.preventDefault(); doJump(); });
+  window.addEventListener("keydown", function(e){ if (e.code === "Space") doJump(); });
+
+  // weapons — start with fists, find a sword to upgrade
+  var weaponStats = {
+    fists:       { name:"Fists",       damage:8,  range:2.0 },
+    rusty_sword: { name:"Rusty Sword", damage:18, range:2.6 }
+  };
+  var equippedWeapon = "fists";
+
+  function equipWeapon(id){
+    if (id === equippedWeapon) return;
+    equippedWeapon = id;
+    weapon.visible = (id !== "fists");
+    showFlash("Equipped: " + weaponStats[id].name, "#66ccff");
+  }
+
+  var ATTACK_FACING_MIN = 0.35;
+  var attackTimer = 0, attackAnimTimer = 0;   // slot 1 — basic attack
+  var pwrTimer = 0, pwrAnimTimer = 0;          // slot 2 — power strike
+  var slot1 = document.getElementById("slot1");
+  var slot2 = document.getElementById("slot2");
+
+  function performAttack(dmgMult, rangeMult, facingMin, slotEl){
+    var stats = weaponStats[equippedWeapon];
+    var range = stats.range * rangeMult;
+    var dmg = stats.damage * dmgMult;
+    slotEl.classList.add("active");
+    setTimeout(function(){ slotEl.classList.remove("active"); }, 150);
+    var fx = Math.sin(hero.rotation.y), fz = Math.cos(hero.rotation.y);
+    for (var i=0;i<enemies.length;i++){
+      var e = enemies[i];
+      if (!e.userData.alive) continue;
+      var dx = e.position.x - hero.position.x, dz = e.position.z - hero.position.z;
+      var dist = Math.sqrt(dx*dx+dz*dz);
+      if (dist > range) continue;
+      var ndx = dx/dist, ndz = dz/dist;
+      var dot = ndx*fx + ndz*fz;
+      if (dot < facingMin) continue; // has to be roughly in front of the hero
+      e.userData.hp -= dmg;
+      e.userData.hitFlash = 0.15;
+      if (e.userData.hp <= 0){
+        e.userData.alive = false;
+        e.visible = false;
+        e.userData.respawnTimer = 4 + Math.random()*2;
+        gainXp(12);
+        gold += 3 + Math.floor(Math.random()*6);
+        if (equippedWeapon === "fists" && Math.random() < 0.35){
+          equipWeapon("rusty_sword");
+        } else {
+          addLoot("Wolf Fang");
+        }
+      }
+    }
+  }
+
+  function doAttack(){
+    if (attackTimer > 0) return;
+    attackTimer = 0.55;
+    attackAnimTimer = 0.22;
+    performAttack(1, 1, ATTACK_FACING_MIN, slot1);
+  }
+  function doPowerStrike(){
+    if (pwrTimer > 0) return;
+    pwrTimer = 1.8;
+    pwrAnimTimer = 0.4;
+    performAttack(1.8, 1.1, -0.2, slot2); // wider arc, bigger hit, longer cooldown
+  }
+
+  slot1.addEventListener("touchstart", function(e){ e.preventDefault(); doAttack(); }, {passive:false});
+  slot1.addEventListener("mousedown", function(e){ e.preventDefault(); doAttack(); });
+  slot2.addEventListener("touchstart", function(e){ e.preventDefault(); doPowerStrike(); }, {passive:false});
+  slot2.addEventListener("mousedown", function(e){ e.preventDefault(); doPowerStrike(); });
+  window.addEventListener("keydown", function(e){
+    if (e.code === "KeyF" || e.code === "Digit1") doAttack();
+    if (e.code === "Digit2") doPowerStrike();
+  });
+
+  // ---------- game state ----------
+  var LEVEL_CAP = 100;
+  var level = 1, xp = 0, xpToNext = 50;
+  var maxHp = 100, hp = 100;
+  var isDead = false, respawnTimer = 0;
+  var lastDamageTime = 0;
+  var lootCounts = {};
+  var gold = 0;
+
+  var hpEl = document.getElementById("hpVal");
+  var posEl = document.getElementById("posVal");
+  var hudLvl = document.getElementById("hudLvl");
+  var hudGold = document.getElementById("hudGold");
+  var lootText = document.getElementById("lootText");
+  var hpBarFill = document.getElementById("hpBarFill");
+  var xpBarFill = document.getElementById("xpBarFill");
+  var lvlLabel = document.getElementById("lvlLabel");
+  var levelUpMsg = document.getElementById("levelUpMsg");
+  var deathOverlay = document.getElementById("deathOverlay");
+
+  function xpForLevel(lv){ return 50 + (lv-1)*25; }
+
+  function showFlash(text, color){
+    levelUpMsg.textContent = text;
+    levelUpMsg.style.color = color;
+    levelUpMsg.classList.add("show");
+    clearTimeout(levelUpMsg._t);
+    levelUpMsg._t = setTimeout(function(){ levelUpMsg.classList.remove("show"); }, 1400);
+  }
+
+  function gainXp(amount){
+    if (level >= LEVEL_CAP) return;
+    xp += amount;
+    while (xp >= xpToNext && level < LEVEL_CAP){
+      xp -= xpToNext;
+      level++;
+      maxHp += 10;
+      hp = maxHp; // full heal on level up
+      xpToNext = xpForLevel(level);
+      showFlash("LEVEL UP!", "#7fffb0");
+    }
+    if (level >= LEVEL_CAP){ xp = 0; xpToNext = 1; }
+  }
+
+  function addLoot(name){
+    lootCounts[name] = (lootCounts[name]||0) + 1;
+    var parts = [];
+    for (var k in lootCounts) parts.push(k+" x"+lootCounts[k]);
+    lootText.textContent = parts.join(", ");
+  }
+
+  function updateVitalsUI(){
+    hpEl.textContent = hp.toFixed(0);
+    hudLvl.textContent = level;
+    hudGold.textContent = gold;
+    hpBarFill.style.width = Math.max(0, (hp/maxHp*100)) + "%";
+    xpBarFill.style.width = (level >= LEVEL_CAP ? 100 : (xp/xpToNext*100)) + "%";
+    lvlLabel.textContent = "LV " + level;
+  }
+
+  function triggerDeath(){
+    isDead = true;
+    hero.visible = false;
+    respawnTimer = 3;
+    deathOverlay.classList.add("show");
+  }
+
+  // ---------- minimap ----------
+  var miniCanvas = document.getElementById("miniCanvas");
+  var miniCtx = miniCanvas.getContext("2d");
+  var MINI_RANGE = 60; // world units from center to edge
+  function drawMinimap(){
+    var w = miniCanvas.width, h = miniCanvas.height;
+    miniCtx.clearRect(0,0,w,h);
+    miniCtx.fillStyle = "rgba(10,30,20,0.9)";
+    miniCtx.beginPath(); miniCtx.arc(w/2,h/2,w/2,0,Math.PI*2); miniCtx.fill();
+
+    // palace landmark
+    var pdx = 0-hero.position.x, pdz = 34-hero.position.z;
+    var pmx = (pdx/MINI_RANGE)*(w/2), pmz = (pdz/MINI_RANGE)*(h/2);
+    if (Math.abs(pmx) <= w/2 && Math.abs(pmz) <= h/2){
+      miniCtx.fillStyle = "#ffd166";
+      miniCtx.fillRect(w/2+pmx-2, h/2+pmz-2, 4, 4);
+    }
+
+    // wolves
+    for (var i=0;i<enemies.length;i++){
+      var e = enemies[i];
+      if (!e.userData.alive) continue;
+      var dx = e.position.x - hero.position.x, dz = e.position.z - hero.position.z;
+      var mx = (dx/MINI_RANGE)*(w/2), mz = (dz/MINI_RANGE)*(h/2);
+      if (Math.abs(mx) > w/2 || Math.abs(mz) > h/2) continue;
+      miniCtx.fillStyle = "#ff5555";
+      miniCtx.beginPath(); miniCtx.arc(w/2+mx, h/2+mz, 2, 0, Math.PI*2); miniCtx.fill();
+    }
+
+    // player (always center, arrow points facing direction)
+    miniCtx.save();
+    miniCtx.translate(w/2, h/2);
+    miniCtx.rotate(hero.rotation.y);
+    miniCtx.fillStyle = "#7fffb0";
+    miniCtx.beginPath();
+    miniCtx.moveTo(0,-4); miniCtx.lineTo(3,4); miniCtx.lineTo(-3,4);
+    miniCtx.closePath(); miniCtx.fill();
+    miniCtx.restore();
+  }
+
+  var clock = new THREE.Clock();
+  var GRAVITY = -18;
+  var walkCycle = 0;
+
+  function update(dt){
+    if (isDead){
+      respawnTimer -= dt;
+      if (respawnTimer <= 0){
+        hero.position.set(0, groundHeight(0,0), 0);
+        velY = 0; onGround = true;
+        hp = maxHp;
+        isDead = false;
+        hero.visible = true;
+        deathOverlay.classList.remove("show");
+      }
+      updateVitalsUI();
+      return;
+    }
+
+    // movement input vector (world-relative to yaw)
+    var mx = 0, mz = 0;
+    if (keys["KeyW"] || keys["ArrowUp"]) mz -= 1;
+    if (keys["KeyS"] || keys["ArrowDown"]) mz += 1;
+    if (keys["KeyA"] || keys["ArrowLeft"]) mx -= 1;
+    if (keys["KeyD"] || keys["ArrowRight"]) mx += 1;
+
+    if (joyActive){
+      mx += joyVec.x;
+      mz += joyVec.y;
+    }
+
+    if (dragging) mz -= 1; // holding left mouse walks forward, same as holding W
+
+    var len = Math.sqrt(mx*mx+mz*mz);
+    if (len > 1){ mx/=len; mz/=len; }
+
+    var speed = 6.5;
+    // rotate movement by yaw so "forward" is camera-forward
+    var sinY = Math.sin(yaw), cosY = Math.cos(yaw);
+    var worldX = -mx*cosY - mz*sinY;
+    var worldZ = mx*sinY - mz*cosY;
+
+    hero.position.x += worldX * speed * dt;
+    hero.position.z += worldZ * speed * dt;
+
+    if (len > 0.05){
+      var targetRot = Math.atan2(worldX, worldZ);
+      var angleDiff = targetRot - hero.rotation.y;
+      angleDiff = ((angleDiff + Math.PI) % (Math.PI*2) + Math.PI*2) % (Math.PI*2) - Math.PI; // shortest-path wrap, avoids the -pi/pi snap
+      hero.rotation.y += angleDiff * Math.min(1, dt*10);
+    }
+
+    // procedural walk cycle — smoothly scales with actual movement speed, fades to neutral when idle
+    var moveMag = Math.min(1, len);
+    if (moveMag > 0.05) walkCycle += dt * (8 + moveMag*4);
+    var swingAmt = Math.sin(walkCycle) * 0.55 * moveMag;
+    legL.rotation.x = swingAmt;
+    legR.rotation.x = -swingAmt;
+    armL.rotation.x = -swingAmt*0.8;
+    armR.rotation.x = swingAmt*0.8;
+
+    // gravity / jump — floor follows the actual terrain under the hero
+    velY += GRAVITY * dt;
+    hero.position.y += velY * dt;
+    var floorY = groundHeight(hero.position.x, hero.position.z);
+    if (hero.position.y <= floorY){
+      hero.position.y = floorY; velY = 0; onGround = true;
+    }
+
+    // world bounds
+    var B = 190;
+    hero.position.x = Math.max(-B, Math.min(B, hero.position.x));
+    hero.position.z = Math.max(-B, Math.min(B, hero.position.z));
+
+    // attack cooldowns + weapon swing animations
+    attackTimer = Math.max(0, attackTimer - dt);
+    attackAnimTimer = Math.max(0, attackAnimTimer - dt);
+    pwrTimer = Math.max(0, pwrTimer - dt);
+    pwrAnimTimer = Math.max(0, pwrAnimTimer - dt);
+    var swingT = attackAnimTimer > 0 ? (attackAnimTimer/0.22) : 0;
+    var pwrT = pwrAnimTimer > 0 ? (pwrAnimTimer/0.4) : 0;
+    weapon.rotation.x = -Math.PI/3 - swingT*1.3;
+    weapon.rotation.z = pwrT * Math.PI*2; // full spin for the power strike
+
+    // enemies: wander while alive, respawn a bit after death
+    for (var i=0;i<enemies.length;i++){
+      var e = enemies[i];
+
+      if (!e.userData.alive){
+        e.userData.respawnTimer -= dt;
+        if (e.userData.respawnTimer <= 0){
+          var rx = (Math.random()-0.5)*100, rz = (Math.random()-0.5)*100;
+          e.position.set(rx, groundHeight(rx,rz), rz);
+          e.userData.hp = e.userData.maxHp;
+          e.userData.alive = true;
+          e.visible = true;
+        }
+        continue;
+      }
+
+      e.userData.timer -= dt;
+      if (e.userData.timer <= 0){
+        e.userData.dir = Math.random()*Math.PI*2;
+        e.userData.timer = 2 + Math.random()*3;
+      }
+      var wvx = Math.cos(e.userData.dir), wvz = Math.sin(e.userData.dir);
+      e.position.x += wvx * 1.2 * dt;
+      e.position.z += wvz * 1.2 * dt;
+      e.position.y = groundHeight(e.position.x, e.position.z);
+      var wolfTargetRot = Math.atan2(wvx, wvz);
+      var wolfAngleDiff = wolfTargetRot - e.rotation.y;
+      wolfAngleDiff = ((wolfAngleDiff + Math.PI) % (Math.PI*2) + Math.PI*2) % (Math.PI*2) - Math.PI;
+      e.rotation.y += wolfAngleDiff * Math.min(1, dt*4);
+
+      // hit flash feedback across every body part
+      var parts = e.userData.parts, bases = e.userData.baseColors;
+      if (e.userData.hitFlash > 0){
+        e.userData.hitFlash -= dt;
+        for (var p=0;p<parts.length;p++) parts[p].material.color.setHex(0xffffff);
+      } else {
+        for (var p2=0;p2<parts.length;p2++) parts[p2].material.color.copy(bases[p2]);
+      }
+
+      var dist = e.position.distanceTo(hero.position);
+      if (dist < 1.5){
+        hp = Math.max(0, hp - dt*20);
+        lastDamageTime = performance.now();
+        hpEl.textContent = hp.toFixed(0);
+        if (hp <= 0) triggerDeath();
+      }
+    }
+
+    // slow HP regen once you've been out of danger for a few seconds
+    if (hp < maxHp && performance.now() - lastDamageTime > 4000){
+      hp = Math.min(maxHp, hp + dt*5);
+    }
+    updateVitalsUI();
+    drawMinimap();
+
+    // camera follows behind hero based on yaw/pitch
+    var camDist = 7, camHeight = 3 + pitch*4;
+    var cx = hero.position.x - Math.sin(yaw)*camDist;
+    var cz = hero.position.z - Math.cos(yaw)*camDist;
+    camera.position.set(cx, hero.position.y + camHeight, cz);
+    camera.lookAt(hero.position.x, hero.position.y + 1.2, hero.position.z);
+
+    posEl.textContent = hero.position.x.toFixed(1)+","+hero.position.y.toFixed(1)+","+hero.position.z.toFixed(1);
+  }
+
+  function loop(){
+    var dt = Math.min(0.05, clock.getDelta());
+    update(dt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+})();
+</script>
+</body>
+</html>
