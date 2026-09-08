@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>COMMLINK // hilbertmesh</title>
+<style>
+  * { box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; height:100%; background:#0d0e15;
+    font-family:'Courier New', monospace; color:#7fffb0;
+    overflow:hidden;
+  }
+  #scanlines{
+    position:fixed; inset:0; pointer-events:none; z-index:50;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  #topbar{
+    display:flex; align-items:center; gap:10px; padding:8px 14px;
+    border-bottom:1px solid #234; background:#0a0b10;
+  }
+  #topbar .dot{ width:9px;height:9px;border-radius:50%; background:#7fffb0; box-shadow:0 0 6px #7fffb0; }
+  #topbar .title{ font-weight:bold; letter-spacing:2px; font-size:13px; }
+  #topbar .sub{ color:#4a6; font-size:11px; margin-left:auto; }
+
+  /* ---------- name-select screen ---------- */
+  #nameScreen{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:#0d0e15; z-index:20; flex-direction:column; padding:20px; text-align:center;
+  }
+  #nameScreen h1{ color:#7fffb0; font-size:20px; letter-spacing:3px; margin-bottom:6px; text-shadow:0 0 10px #0f0; }
+  #nameScreen p{ color:#4a6; font-size:12px; margin-bottom:22px; max-width:360px; }
+  #nameInput{
+    background:#0a0b10; border:1px solid #4f8; color:#7fffb0; font-family:monospace;
+    font-size:15px; padding:10px 12px; width:260px; text-align:center; letter-spacing:1px;
+  }
+  #nameInput:focus{ outline:none; box-shadow:0 0 8px rgba(80,255,150,0.5); }
+  #presetRow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:360px; margin-top:16px; }
+  .presetBtn{
+    background:transparent; border:1px solid #366; color:#7fffb0; font-family:monospace;
+    font-size:11px; padding:6px 10px; cursor:pointer;
+  }
+  .presetBtn:hover{ border-color:#7fffb0; background:rgba(80,255,150,0.08); }
+  #enterBtn{
+    margin-top:24px; background:rgba(80,255,150,0.12); border:1px solid #7fffb0; color:#7fffb0;
+    font-family:monospace; font-size:14px; letter-spacing:2px; padding:10px 30px; cursor:pointer;
+  }
+  #enterBtn:hover{ background:rgba(80,255,150,0.25); }
+  #enterBtn:disabled{ opacity:0.35; cursor:default; }
+
+  /* ---------- chat ---------- */
+  #chatWrap{ display:flex; flex-direction:column; height:calc(100% - 40px); }
+  #log{
+    flex:1; overflow-y:auto; padding:14px; font-size:13px; line-height:1.5;
+  }
+  .msg{ margin-bottom:8px; }
+  .msg .name{ color:#ff7fd6; }
+  .msg.me .name{ color:#7fffb0; }
+  .msg .time{ color:#345; font-size:10px; margin-right:6px; }
+  .msg .text{ color:#cde; }
+  .sysline{ color:#4a6; font-size:11px; font-style:italic; margin:4px 0 10px; }
+  #inputRow{
+    display:flex; border-top:1px solid #234; padding:10px; gap:8px; background:#0a0b10;
+  }
+  #msgInput{
+    flex:1; background:#0d0e15; border:1px solid #345; color:#cde; font-family:monospace;
+    font-size:14px; padding:9px 10px;
+  }
+  #msgInput:focus{ outline:none; border-color:#7fffb0; }
+  #sendBtn{
+    background:rgba(80,255,150,0.12); border:1px solid #7fffb0; color:#7fffb0;
+    font-family:monospace; font-size:13px; padding:0 18px; cursor:pointer;
+  }
+  #sendBtn:hover{ background:rgba(80,255,150,0.25); }
+  #log::-webkit-scrollbar{ width:8px; }
+  #log::-webkit-scrollbar-thumb{ background:#234; }
+</style>
+</head>
+<body>
+<div id="scanlines"></div>
+
+<div id="nameScreen">
+  <h1>▓ COMMLINK ▓</h1>
+  <p>No account. No login. Pick a name and you're in — this is a public room, so keep that in mind.</p>
+  <input id="nameInput" type="text" maxlength="24" placeholder="enter a codename..." autocomplete="off">
+  <div id="presetRow"></div>
+  <button id="enterBtn" disabled>CONNECT</button>
+</div>
+
+<div id="topbar" style="display:none">
+  <div class="dot"></div>
+  <div class="title">COMMLINK</div>
+  <div class="sub" id="whoami"></div>
+</div>
+
+<div id="chatWrap" style="display:none">
+  <div id="log"></div>
+  <div id="inputRow">
+    <input id="msgInput" type="text" maxlength="400" placeholder="type a message..." autocomplete="off">
+    <button id="sendBtn">SEND</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var API_BASE = "https://hilbert-backend.vercel.app";
+  var ROOM = "lobby";
+  var POLL_MS = 2500;
+
+  var PRESETS = ["Ghost_7","Node_13","Wanderer","Static","Null_Point","Vector","Echo_9","Driftwood"];
+
+  // ---------- visitor identity (local only, not a real account) ----------
+  function uuid(){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+      var r = Math.random()*16|0, v = c==='x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+  var visitorId = localStorage.getItem('zzz_visitorId');
+  if (!visitorId){ visitorId = uuid(); localStorage.setItem('zzz_visitorId', visitorId); }
+  var savedName = localStorage.getItem('zzz_name') || "";
+
+  // ---------- name screen ----------
+  var nameScreen = document.getElementById('nameScreen');
+  var nameInput = document.getElementById('nameInput');
+  var enterBtn = document.getElementById('enterBtn');
+  var presetRow = document.getElementById('presetRow');
+
+  PRESETS.forEach(function(p){
+    var b = document.createElement('button');
+    b.className = 'presetBtn'; b.textContent = p;
+    b.onclick = function(){ nameInput.value = p; nameInput.dispatchEvent(new Event('input')); };
+    presetRow.appendChild(b);
+  });
+
+  nameInput.value = savedName;
+  nameInput.addEventListener('input', function(){
+    enterBtn.disabled = nameInput.value.trim().length === 0;
+  });
+  enterBtn.disabled = nameInput.value.trim().length === 0;
+  nameInput.addEventListener('keydown', function(e){ if (e.key==='Enter' && !enterBtn.disabled) enterChat(); });
+  enterBtn.onclick = enterChat;
+
+  var myName = "";
+  function enterChat(){
+    myName = nameInput.value.trim().slice(0,24);
+    if (!myName) return;
+    localStorage.setItem('zzz_name', myName);
+    nameScreen.style.display = 'none';
+    document.getElementById('topbar').style.display = 'flex';
+    document.getElementById('chatWrap').style.display = 'flex';
+    document.getElementById('whoami').textContent = 'connected as ' + myName;
+    startChat();
+  }
+
+  // ---------- chat ----------
+  var log = document.getElementById('log');
+  var msgInput = document.getElementById('msgInput');
+  var sendBtn = document.getElementById('sendBtn');
+  var lastT = 0;
+  var seen = {};
+
+  function fmtTime(t){
+    var d = new Date(t);
+    return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+  }
+
+  function renderMsg(m){
+    if (seen[m.id]) return;
+    seen[m.id] = true;
+    var div = document.createElement('div');
+    div.className = 'msg' + (m.name === myName ? ' me' : '');
+    div.innerHTML =
+      '<span class="time">'+fmtTime(m.t)+'</span>' +
+      '<span class="name">'+escapeHtml(m.name)+'</span>: ' +
+      '<span class="text">'+escapeHtml(m.text)+'</span>';
+    log.appendChild(div);
+    lastT = Math.max(lastT, m.t);
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function sysLine(text){
+    var div = document.createElement('div');
+    div.className = 'sysline';
+    div.textContent = text;
+    log.appendChild(div);
+  }
+  function scrollDown(){ log.scrollTop = log.scrollHeight; }
+
+  async function call(action, extra){
+    var body = Object.assign({ action: action, room: ROOM, visitorId: visitorId }, extra || {});
+    try {
+      var res = await fetch(API_BASE + "/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    } catch (e) {
+      return { ok:false, error: "network" };
+    }
+  }
+
+  async function poll(){
+    var out = await call("comm_poll", { since: lastT });
+    if (out && out.ok && out.messages){
+      var wasAtBottom = (log.scrollHeight - log.scrollTop - log.clientHeight) < 40;
+      out.messages.forEach(renderMsg);
+      if (wasAtBottom) scrollDown();
+    }
+  }
+
+  async function send(){
+    var text = msgInput.value.trim();
+    if (!text) return;
+    msgInput.value = "";
+    var out = await call("comm_send", { name: myName, text: text });
+    if (out && out.ok && out.message){
+      renderMsg(out.message);
+      scrollDown();
+    } else if (out && out.error === "rate_limited"){
+      sysLine("[slow down — you're sending too fast]");
+      scrollDown();
+    } else {
+      sysLine("[message not sent — connection issue]");
+      scrollDown();
+    }
+  }
+  sendBtn.onclick = send;
+  msgInput.addEventListener('keydown', function(e){ if (e.key==='Enter') send(); });
+
+  var pollTimer = null;
+  function startChat(){
+    sysLine("[connected — this is a public room, be decent]");
+    poll();
+    pollTimer = setInterval(poll, POLL_MS);
+  }
+})();
+</script>
+</body>
+</html>
